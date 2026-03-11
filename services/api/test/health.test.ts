@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 
 import { createApp } from '../src/app.js';
+import { InMemoryPlanningRepository } from '../src/planning/memory-repository.js';
 
 interface HealthPayload {
   status: string;
@@ -15,7 +16,11 @@ interface ErrorPayload {
 }
 
 async function main() {
-  const response = await request(createApp()).get('/health').expect(200);
+  const app = createApp({
+    planningRepository: new InMemoryPlanningRepository(),
+  });
+
+  const response = await request(app).get('/health').expect(200);
   const body = response.body as HealthPayload;
 
   assert.match(String(response.headers['content-type']), /^application\/json/);
@@ -23,7 +28,7 @@ async function main() {
   assert.equal(body.service, 'api');
   assert.doesNotThrow(() => new Date(body.timestamp));
 
-  const missingResponse = await request(createApp())
+  const missingResponse = await request(app)
     .get('/missing')
     .expect(404);
   const missingBody = missingResponse.body as ErrorPayload;

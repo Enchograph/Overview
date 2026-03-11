@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成 PostgreSQL schema 与首版迁移机制，开始实现核心对象 CRUD API
+- 当前功能块：已完成核心对象 CRUD API，开始为客户端页面接入真实数据与状态管理
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -28,15 +28,16 @@
 - 已完成 `packages/shared` 构建产物导出，供 API 正式构建与运行消费
 - 已完成日程、任务、备忘、提醒、重复规则与同步状态的共享核心模型定义
 - 已完成 API 侧 PostgreSQL 连接配置、SQL migration runner 与首个 `planning_items` schema
+- 已完成日程、任务、备忘的核心 CRUD API、请求校验与内存仓储测试装配
 
 ## 进行中
 
-- 规划核心对象 CRUD 的 API 组织方式
-- 实现核心对象 CRUD API
+- 为客户端页面接入真实数据与状态管理
+- 规划本地存储与同步骨架
 
 ## 下一步唯一推荐动作
 
-实现日程、任务、备忘的核心 CRUD API。
+为客户端页面接入真实数据与状态管理。
 
 ## 当前阻塞
 
@@ -55,7 +56,7 @@
 
 ## 最近稳定提交
 
-- `3618817 feat(shared): define core planning models`
+- `c6514ce feat(api): add postgres migration foundation`
 
 ## 备注
 
@@ -66,3 +67,4 @@
 - Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
+- API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前测试使用可替换内存仓储完成接口验证

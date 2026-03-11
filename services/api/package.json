@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "pretest": "corepack pnpm --filter @overview/shared build",
-    "test": "tsx test/health.test.ts"
+    "test": "tsx test/health.test.ts && tsx test/planning.test.ts"
   },
   "dependencies": {
     "@overview/shared": "workspace:*",
