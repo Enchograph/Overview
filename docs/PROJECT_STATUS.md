@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成核心对象 CRUD API，开始为客户端页面接入真实数据与状态管理
+- 当前功能块：已完成客户端页面数据接入与基础状态管理，开始建立本地存储
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -29,15 +29,16 @@
 - 已完成日程、任务、备忘、提醒、重复规则与同步状态的共享核心模型定义
 - 已完成 API 侧 PostgreSQL 连接配置、SQL migration runner 与首个 `planning_items` schema
 - 已完成日程、任务、备忘的核心 CRUD API、请求校验与内存仓储测试装配
+- 已完成客户端 planning 模型、可切换仓储、应用级 store，以及周视图/备忘/添加页的数据接入
 
 ## 进行中
 
-- 为客户端页面接入真实数据与状态管理
-- 规划本地存储与同步骨架
+- 建立本地存储
+- 规划同步骨架
 
 ## 下一步唯一推荐动作
 
-为客户端页面接入真实数据与状态管理。
+建立本地存储。
 
 ## 当前阻塞
 
@@ -56,7 +57,7 @@
 
 ## 最近稳定提交
 
-- `c6514ce feat(api): add postgres migration foundation`
+- `981b5aa feat(api): add core item crud`
 
 ## 备注
 
@@ -68,3 +69,4 @@
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前测试使用可替换内存仓储完成接口验证
+- 客户端默认使用内置示例数据仓储；可通过 `--dart-define=OVERVIEW_API_BASE_URL=...` 切换到真实 API

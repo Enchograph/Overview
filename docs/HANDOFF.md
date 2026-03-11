@@ -5,28 +5,27 @@
 - 日期：2026-03-11
 - 阶段：P2
 - 完成内容：
-  - 为 API 新增 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 三组 CRUD 路由
-  - 建立 `src/planning/` 模块，落地 Zod 请求校验、统一错误响应、PostgreSQL 仓储与测试用内存仓储
-  - 调整 `createApp` 与路由装配方式，支持注入仓储实现，避免测试依赖真实数据库
-  - 补充 CRUD 集成测试并更新 API README
+  - 为 Flutter 客户端新增 `lib/app/planning/`，落地 Dart 侧 planning 模型、仓储接口、HTTP 仓储与内置示例仓储
+  - 建立 `PlanningStore + PlanningScope`，为应用提供共享状态、刷新、创建条目和备忘归档能力
+  - 将周视图、备忘页、添加页、设置页接到 store，页面从静态文案升级为真实列表和提交状态
+  - 更新客户端 README 与 widget tests，补充 `OVERVIEW_API_BASE_URL` 接入说明
 - 验证结果：
-  - 已通过 `npm run api:lint`
-  - 已通过 `npm run api:typecheck`
-  - 已通过 `npm run api:build`
-  - 已通过 `npm run api:test`
-  - 已确认当前环境 `127.0.0.1:5432` 未监听，故 PostgreSQL 仓储尚未做真实连库 CRUD 烟测
+  - 已通过 `flutter analyze`
+  - 已通过 `flutter test`
+  - 客户端默认数据流已通过示例仓储闭环验证
+  - 当前环境仍未提供可用 PostgreSQL 实例，故客户端尚未与真实 API 做端到端烟测
 - 当前进行中：
-  - 为客户端页面接入真实数据与状态管理
+  - 建立本地存储
 - 下一接手顺序：
-  1. 为客户端页面接入真实数据与状态管理
-  2. 开始本地存储与同步骨架
-  3. 在具备 PostgreSQL 实例后执行 `db:migrate` 与 CRUD 连库烟测
-  4. 继续推进周视图、备忘页、添加入口的基础版 UI
+  1. 建立本地存储与离线可读写骨架
+  2. 规划同步队列和远端刷新策略
+  3. 在具备 PostgreSQL 实例后执行客户端到 API 的真实联调烟测
+  4. 继续推进周视图、备忘页、添加入口的交互细化
 - 风险：
   - Flutter 命令需在沙箱外串行执行，因为 SDK 会写入全局缓存目录
   - `tsx`/`esbuild` 相关命令在当前工具环境下需沙箱外执行测试或启动验证
   - 根目录存在一个未跟踪文件 `nul`，来源未确认，尚未处理
-  - 当前环境缺少可用 PostgreSQL 实例，数据库相关能力仍缺真实连库验证
+  - 当前环境缺少可用 PostgreSQL 实例，客户端远端数据流仍缺真实联调验证
 
 ## 交接模板
 
