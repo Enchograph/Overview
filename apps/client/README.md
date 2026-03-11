@@ -1,17 +1,22 @@
 # client
 
-Flutter 全端客户端主应用目录。
+Flutter 客户端主应用目录。
 
-当前状态：已建立手写最小骨架，待使用本机 Flutter SDK 执行正式初始化与校验。
+当前状态：已完成 Flutter 工程初始化，并建立基础路由、底部导航和中英文本地化壳层。
 
 ## 当前内容
 
-- `pubspec.yaml`：客户端依赖定义
-- `lib/main.dart`：最小应用入口与底部导航骨架
-- `test/widget_test.dart`：默认渲染验证
+- `lib/main.dart`：应用入口
+- `lib/app/`：应用壳、路由和底部导航页面骨架
+- `lib/l10n/`：手写中英文本地化资源
+- `test/widget_test.dart`：导航和语言切换基础验证
 
-## 待执行
+## 当前验证
 
-- 本机提供 `flutter` 命令后运行 `flutter create .`
-- 重新合并平台目录与生成文件
-- 执行 `flutter analyze`、`flutter test`
+- `flutter analyze`
+- `flutter test`
+
+## 下一步
+
+- 继续填充周视图、备忘、添加、设置实际页面内容
+- 接入账号、同步与 AI 数据流
