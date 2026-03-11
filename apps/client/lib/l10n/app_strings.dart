@@ -8,11 +8,15 @@ const localizedValues = <String, Map<String, String>>{
     'weekHeadline': 'Week at a glance',
     'weekBody':
         'Weekly planning, progress snapshots, and upcoming focus areas will live here.',
-    'weekHighlightPlanning': 'Plan this week with tasks, schedule blocks, and priorities.',
-    'weekHighlightProgress': 'Review recent progress without leaving the overview.',
-    'weekHighlightFocus': 'Keep the next focus areas visible before the week changes.',
+    'weekHighlightPlanning':
+        'Plan this week with tasks, schedule blocks, and priorities.',
+    'weekHighlightProgress':
+        'Review recent progress without leaving the overview.',
+    'weekHighlightFocus':
+        'Keep the next focus areas visible before the week changes.',
     'weekSummaryTitle': 'Planning summary',
-    'weekSummaryBody': '{scheduleCount} schedules and {taskCount} tasks are loaded.',
+    'weekSummaryBody':
+        '{scheduleCount} schedules and {taskCount} tasks are loaded.',
     'scheduleSectionTitle': 'Schedules',
     'scheduleEmpty': 'No schedules yet. Add one from the capture tab.',
     'taskSectionTitle': 'Tasks',
@@ -21,8 +25,10 @@ const localizedValues = <String, Map<String, String>>{
     'notesHeadline': 'Notes and memos',
     'notesBody':
         'Quick notes, memos, and inbox items will be grouped here for follow-up.',
-    'notesHighlightInbox': 'Collect raw notes before they become tasks or schedule items.',
-    'notesHighlightMemo': 'Keep lightweight memos close to the weekly workflow.',
+    'notesHighlightInbox':
+        'Collect raw notes before they become tasks or schedule items.',
+    'notesHighlightMemo':
+        'Keep lightweight memos close to the weekly workflow.',
     'notesHighlightReview': 'Review and triage note inbox items in one place.',
     'notesSummaryTitle': 'Memo inbox',
     'notesSummaryBody': '{activeCount} active memos out of {totalCount} total.',
@@ -35,8 +41,10 @@ const localizedValues = <String, Map<String, String>>{
     'captureBody':
         'Tasks, schedule entries, and notes should be capturable from one place.',
     'captureHighlightTask': 'Create tasks with minimal friction from mobile.',
-    'captureHighlightSchedule': 'Capture schedule ideas before they are fully planned.',
-    'captureHighlightNote': 'Send unstructured input to AI parsing in the next phase.',
+    'captureHighlightSchedule':
+        'Capture schedule ideas before they are fully planned.',
+    'captureHighlightNote':
+        'Send unstructured input to AI parsing in the next phase.',
     'captureTypeLabel': 'Item type',
     'captureTypeTask': 'Task',
     'captureTypeSchedule': 'Schedule',
@@ -52,11 +60,15 @@ const localizedValues = <String, Map<String, String>>{
     'settingsHeadline': 'Account and sync settings',
     'settingsBody':
         'Identity, sync state, and device preferences will be managed here.',
-    'settingsHighlightAccount': 'Prepare email account settings and session management.',
-    'settingsHighlightSync': 'Expose sync state and conflict handling entry points.',
-    'settingsHighlightDevice': 'Reserve space for notification and device preferences.',
+    'settingsHighlightAccount':
+        'Prepare email account settings and session management.',
+    'settingsHighlightSync':
+        'Expose sync state and conflict handling entry points.',
+    'settingsHighlightDevice':
+        'Reserve space for notification and device preferences.',
     'settingsDataSourceTitle': 'Data source',
-    'settingsDataSourceMock': 'Using built-in seed data. Set OVERVIEW_API_BASE_URL to connect the API.',
+    'settingsDataSourceMock':
+        'Using built-in seed data. Set OVERVIEW_API_BASE_URL to connect the API.',
     'settingsDataSourceRemote': 'Using remote API data.',
     'settingsDataSummaryTitle': 'Loaded items',
     'settingsDataSummaryBody':
@@ -64,13 +76,16 @@ const localizedValues = <String, Map<String, String>>{
     'aiTitle': 'AI assistant',
     'aiBody':
         'AI parsing and single-turn assistance will be connected here in the next phase.',
-    'aiCta': 'This route is reserved for structured capture and quick AI prompts.',
+    'aiCta':
+        'This route is reserved for structured capture and quick AI prompts.',
     'syncTitle': 'Sync status',
     'syncBody':
         'This page will show account state, last sync time, and conflict handling entry points.',
     'syncStatusTitle': 'Local-only mode',
-    'syncStatusSubtitle': 'Authentication and remote sync are not connected yet.',
-    'syncStatusPending': 'Sync queue, retries, and conflict details will land here next.',
+    'syncStatusSubtitle':
+        'Authentication and remote sync are not connected yet.',
+    'syncStatusPending':
+        'Sync queue, retries, and conflict details will land here next.',
     'captureShortcut': 'Go to capture',
     'aiShortcut': 'Open AI',
     'syncShortcut': 'View sync',
@@ -136,7 +151,8 @@ const localizedValues = <String, Map<String, String>>{
     'settingsDataSourceMock': '当前使用内置示例数据，设置 OVERVIEW_API_BASE_URL 后可连接 API。',
     'settingsDataSourceRemote': '当前使用远端 API 数据。',
     'settingsDataSummaryTitle': '已加载条目',
-    'settingsDataSummaryBody': '内存中现有 {scheduleCount} 个日程、{taskCount} 个任务、{memoCount} 条备忘。',
+    'settingsDataSummaryBody':
+        '内存中现有 {scheduleCount} 个日程、{taskCount} 个任务、{memoCount} 条备忘。',
     'aiTitle': 'AI 助手',
     'aiBody': '下一阶段会在这里接入 AI 解析和单轮问答能力。',
     'aiCta': '这个路由会承接结构化录入和快速 AI 提示。',

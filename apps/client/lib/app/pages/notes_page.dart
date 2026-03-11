@@ -19,7 +19,8 @@ class NotesPage extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text(l10n.notesHeadline, style: Theme.of(context).textTheme.headlineMedium),
+          Text(l10n.notesHeadline,
+              style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 12),
           Text(l10n.notesBody, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 16),
@@ -34,7 +35,8 @@ class NotesPage extends StatelessWidget {
               leading: const Icon(Icons.sticky_note_2_outlined),
               title: Text(l10n.notesSummaryTitle),
               subtitle: Text(
-                l10n.notesSummaryBody(store.activeMemoCount, store.memos.length),
+                l10n.notesSummaryBody(
+                    store.activeMemoCount, store.memos.length),
               ),
             ),
           ),
@@ -63,12 +65,14 @@ class NotesPage extends StatelessWidget {
             )
           else
             for (final memo in store.memos) ...[
-              _MemoCard(memo: memo, onToggle: () {
-                store.setMemoArchived(
-                  memoId: memo.id,
-                  archived: !memo.isArchived,
-                );
-              }),
+              _MemoCard(
+                  memo: memo,
+                  onToggle: () {
+                    store.setMemoArchived(
+                      memoId: memo.id,
+                      archived: !memo.isArchived,
+                    );
+                  }),
               const SizedBox(height: 12),
             ],
         ],

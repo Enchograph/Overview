@@ -10,8 +10,7 @@ class PlanningScope extends InheritedNotifier<PlanningStore> {
   }) : super(notifier: store);
 
   static PlanningStore of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<PlanningScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<PlanningScope>();
     assert(scope != null, 'PlanningScope not found in widget tree.');
     return scope!.notifier!;
   }

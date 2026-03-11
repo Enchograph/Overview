@@ -42,6 +42,20 @@ class ScheduleItem {
   final String? timezone;
   final int? durationMinutes;
   final PlanningStatus status;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'startAt': startAt.toIso8601String(),
+      'endAt': endAt?.toIso8601String(),
+      'description': description,
+      'location': location,
+      'timezone': timezone,
+      'durationMinutes': durationMinutes,
+      'status': planningStatusApiValue(status),
+    };
+  }
 }
 
 class TaskItem {
@@ -90,6 +104,22 @@ class TaskItem {
   final int? plannedDurationMinutes;
   final TaskStatus status;
   final DateTime? completionAt;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'plannedStartAt': plannedStartAt.toIso8601String(),
+      'dueAt': dueAt.toIso8601String(),
+      'plannedEndAt': plannedEndAt?.toIso8601String(),
+      'description': description,
+      'location': location,
+      'timezone': timezone,
+      'plannedDurationMinutes': plannedDurationMinutes,
+      'status': taskStatusApiValue(status),
+      'completionAt': completionAt?.toIso8601String(),
+    };
+  }
 }
 
 class MemoItem {
@@ -132,6 +162,20 @@ class MemoItem {
   final DateTime? archivedAt;
 
   bool get isArchived => status == PlanningStatus.archived;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'listId': listId,
+      'description': description,
+      'timezone': timezone,
+      'estimatedDurationMinutes': estimatedDurationMinutes,
+      'sortOrder': sortOrder,
+      'status': planningStatusApiValue(status),
+      'archivedAt': archivedAt?.toIso8601String(),
+    };
+  }
 }
 
 PlanningStatus parsePlanningStatus(String? value) {
@@ -172,5 +216,18 @@ String planningStatusApiValue(PlanningStatus status) {
       return 'cancelled';
     case PlanningStatus.archived:
       return 'archived';
+  }
+}
+
+String taskStatusApiValue(TaskStatus status) {
+  switch (status) {
+    case TaskStatus.todo:
+      return 'todo';
+    case TaskStatus.inProgress:
+      return 'in_progress';
+    case TaskStatus.done:
+      return 'done';
+    case TaskStatus.cancelled:
+      return 'cancelled';
   }
 }

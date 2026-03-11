@@ -29,9 +29,7 @@ class _OverviewAppState extends State<OverviewApp> {
   void initState() {
     super.initState();
     _planningStore = PlanningStore(
-      repository:
-          widget.repository ??
-          _createDefaultRepository(),
+      repository: widget.repository ?? _createDefaultRepository(),
     )..refresh();
   }
 
@@ -42,7 +40,7 @@ class _OverviewAppState extends State<OverviewApp> {
       return HttpPlanningRepository(baseUrl: apiBaseUrl);
     }
 
-    return FakePlanningRepository();
+    return LocalPlanningRepository();
   }
 
   void _toggleLocale() {

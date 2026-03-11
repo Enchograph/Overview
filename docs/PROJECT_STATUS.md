@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成客户端页面数据接入与基础状态管理，开始建立本地存储
+- 当前功能块：已完成本地存储，开始规划同步骨架
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -30,21 +30,19 @@
 - 已完成 API 侧 PostgreSQL 连接配置、SQL migration runner 与首个 `planning_items` schema
 - 已完成日程、任务、备忘的核心 CRUD API、请求校验与内存仓储测试装配
 - 已完成客户端 planning 模型、可切换仓储、应用级 store，以及周视图/备忘/添加页的数据接入
+- 已完成客户端本地存储仓储，默认使用 SharedPreferences 持久化 planning 数据
+- 已完成客户端本地存储验证与 Android debug APK 构建验证
 
 ## 进行中
 
-- 建立本地存储
 - 规划同步骨架
 
 ## 下一步唯一推荐动作
 
-建立本地存储。
+规划同步骨架。
 
 ## 当前阻塞
 
-- 当前会话仍不能直接调用裸 `pnpm`，但 `corepack pnpm` 已可用
-- Flutter 命令需在沙箱外串行执行，因为 SDK 会写入 `C:\tools\flutter\bin\cache`
-- `tsx`/`esbuild` 相关命令在当前工具环境下需沙箱外执行测试或启动验证
 - 当前环境未提供可用的本地 PostgreSQL 实例；`127.0.0.1:5432` 未监听，migration runner 尚未做真实连库烟测
 
 ## 当前技术默认值
@@ -65,8 +63,9 @@
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
-- Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`
+- Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`、`flutter build apk --debug`
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前测试使用可替换内存仓储完成接口验证
-- 客户端默认使用内置示例数据仓储；可通过 `--dart-define=OVERVIEW_API_BASE_URL=...` 切换到真实 API
+- 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；可通过 `--dart-define=OVERVIEW_API_BASE_URL=...` 切换到真实 API
+- Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常

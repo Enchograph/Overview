@@ -26,8 +26,9 @@ class AppLocalizations {
     return localizations!;
   }
 
-  String get _languageCode =>
-      localizedValues.containsKey(locale.languageCode) ? locale.languageCode : 'en';
+  String get _languageCode => localizedValues.containsKey(locale.languageCode)
+      ? locale.languageCode
+      : 'en';
 
   String _value(String key) => localizedValues[_languageCode]![key]!;
 
@@ -43,8 +44,10 @@ class AppLocalizations {
   String get weekHighlightFocus => _value('weekHighlightFocus');
   String get weekSummaryTitle => _value('weekSummaryTitle');
   String weekSummaryBody(int scheduleCount, int taskCount) => _value(
-    'weekSummaryBody',
-  ).replaceFirst('{scheduleCount}', '$scheduleCount').replaceFirst('{taskCount}', '$taskCount');
+        'weekSummaryBody',
+      )
+          .replaceFirst('{scheduleCount}', '$scheduleCount')
+          .replaceFirst('{taskCount}', '$taskCount');
   String get scheduleSectionTitle => _value('scheduleSectionTitle');
   String get scheduleEmpty => _value('scheduleEmpty');
   String get taskSectionTitle => _value('taskSectionTitle');
@@ -57,8 +60,10 @@ class AppLocalizations {
   String get notesHighlightReview => _value('notesHighlightReview');
   String get notesSummaryTitle => _value('notesSummaryTitle');
   String notesSummaryBody(int activeCount, int totalCount) => _value(
-    'notesSummaryBody',
-  ).replaceFirst('{activeCount}', '$activeCount').replaceFirst('{totalCount}', '$totalCount');
+        'notesSummaryBody',
+      )
+          .replaceFirst('{activeCount}', '$activeCount')
+          .replaceFirst('{totalCount}', '$totalCount');
   String get memoEmpty => _value('memoEmpty');
   String get memoArchivedLabel => _value('memoArchivedLabel');
   String get memoInboxLabel => _value('memoInboxLabel');
@@ -89,7 +94,8 @@ class AppLocalizations {
   String get settingsDataSourceMock => _value('settingsDataSourceMock');
   String get settingsDataSourceRemote => _value('settingsDataSourceRemote');
   String get settingsDataSummaryTitle => _value('settingsDataSummaryTitle');
-  String settingsDataSummaryBody(int scheduleCount, int taskCount, int memoCount) =>
+  String settingsDataSummaryBody(
+          int scheduleCount, int taskCount, int memoCount) =>
       _value('settingsDataSummaryBody')
           .replaceFirst('{scheduleCount}', '$scheduleCount')
           .replaceFirst('{taskCount}', '$taskCount')
@@ -121,9 +127,9 @@ class _AppLocalizationsDelegate
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      AppLocalizations.supportedLocales.any(
-        (supportedLocale) => supportedLocale.languageCode == locale.languageCode,
+  bool isSupported(Locale locale) => AppLocalizations.supportedLocales.any(
+        (supportedLocale) =>
+            supportedLocale.languageCode == locale.languageCode,
       );
 
   @override

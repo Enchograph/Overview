@@ -31,7 +31,8 @@ class _CapturePageState extends State<CapturePage> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        Text(l10n.captureHeadline, style: Theme.of(context).textTheme.headlineMedium),
+        Text(l10n.captureHeadline,
+            style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 12),
         Text(l10n.captureBody, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 24),
@@ -77,7 +78,9 @@ class _CapturePageState extends State<CapturePage> {
           onPressed: store.isSubmitting ? null : () => _submit(store),
           icon: const Icon(Icons.send_outlined),
           label: Text(
-            store.isSubmitting ? l10n.captureSubmitting : l10n.captureSubmitAction,
+            store.isSubmitting
+                ? l10n.captureSubmitting
+                : l10n.captureSubmitAction,
           ),
         ),
         const SizedBox(height: 12),

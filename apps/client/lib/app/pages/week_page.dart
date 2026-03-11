@@ -19,7 +19,8 @@ class WeekPage extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text(l10n.weekHeadline, style: Theme.of(context).textTheme.headlineMedium),
+          Text(l10n.weekHeadline,
+              style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 12),
           Text(l10n.weekBody, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 16),
@@ -31,10 +32,12 @@ class WeekPage extends StatelessWidget {
           const SizedBox(height: 24),
           _SummaryCard(
             title: l10n.weekSummaryTitle,
-            subtitle: l10n.weekSummaryBody(store.schedules.length, store.tasks.length),
+            subtitle: l10n.weekSummaryBody(
+                store.schedules.length, store.tasks.length),
             trailing: store.lastUpdatedAt == null
                 ? l10n.dataStatusIdle
-                : l10n.dataStatusUpdated(_formatTimestamp(store.lastUpdatedAt!)),
+                : l10n
+                    .dataStatusUpdated(_formatTimestamp(store.lastUpdatedAt!)),
           ),
           const SizedBox(height: 16),
           if (store.isLoading) const LinearProgressIndicator(),
