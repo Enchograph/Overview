@@ -29,6 +29,9 @@
 
 禁止只依赖聊天上下文决定下一步。
 
+固定接力提示词见 [CONTINUATION_PROMPT.md](/D:/Moi/Projects/Github/Overview/docs/CONTINUATION_PROMPT.md)。
+若用户使用该提示词或等价表达，新代理必须立刻执行上述接手流程。
+
 ## 3. 默认执行方式
 
 - 默认持续自主推进，不等待人工确认。
