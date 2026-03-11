@@ -15,12 +15,15 @@
 
 ## 当前约定
 
+- 根级 monorepo
+  - 使用 `pnpm workspace` 统一管理仓库级命令与 Node.js 工作区
+  - 详细约定见 `docs/MONOREPO.md`
 - `apps/client/`
   - Flutter 全端客户端主应用
 - `services/api/`
   - Node.js + TypeScript 后端 API 服务
 - `packages/shared/`
-  - 共享类型、接口契约、公共常量
+  - 共享接口契约、Schema、公共常量与跨端约定文档
 
 ## 变更规则
 
