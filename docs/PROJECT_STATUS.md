@@ -45,7 +45,7 @@
 
 ## 最近稳定提交
 
-- 待本次骨架初始化提交后更新
+- `34214b5 feat(monorepo): bootstrap client and api skeletons`
 
 ## 备注
 
