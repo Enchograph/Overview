@@ -1,0 +1,124 @@
+# Overview 项目运行规则
+
+## 1. 目标
+
+本仓库的最终目标不是停留在文档或原型，而是交付 `Overview（览）V1` 的可运行产品。
+
+当前阻塞性交付标准：
+
+- 可构建并安装的 Android 安装包
+- 可在本地开发模式启动的自建后端服务
+- 账号、同步、周视图、备忘、添加、AI、设置主链路可用
+
+非阻塞但必须持续推进的目标：
+
+- Android 平板宽屏适配
+- Windows 桌面端运行与构建
+- Web PWA 构建与部署包
+
+## 2. 接手规则
+
+任何新开启的空对话必须按以下顺序接手：
+
+1. 阅读 [PROJECT_RULES.md](/D:/Moi/Projects/Github/Overview/docs/PROJECT_RULES.md)
+2. 阅读 [PROJECT_STATUS.md](/D:/Moi/Projects/Github/Overview/docs/PROJECT_STATUS.md)
+3. 阅读 [ROADMAP.md](/D:/Moi/Projects/Github/Overview/docs/ROADMAP.md)
+4. 阅读当前阶段对应的 `docs/todos/*.md`
+5. 查看最近 Git 提交与工作区状态
+6. 继续执行“下一步唯一推荐动作”
+
+禁止只依赖聊天上下文决定下一步。
+
+## 3. 默认执行方式
+
+- 默认持续自主推进，不等待人工确认。
+- 能从仓库内容推断的事项，直接做合理假设并记录。
+- 只有当继续推进会造成高概率大返工，且仓库内无法推断时，才允许停下询问。
+- 实现、编译、测试、修复错误属于同一条工作链，不能只实现不验证。
+
+## 4. 功能块规则
+
+“功能块”是默认提交单位。一个功能块通常对应：
+
+- 一个页面或主要子页面
+- 一组紧密相关的 API
+- 一个同步子系统
+- 一个跨端能力，例如通知或 AI 录入
+
+每个功能块完成前，必须同时满足：
+
+- 代码实现已落地
+- 对应文档已更新
+- 最小验证已完成
+- 状态文件已更新
+- 已形成 Git 提交
+
+## 5. Git 规则
+
+- 默认直接推进 `main`
+- 每完成一个功能块提交一次
+- 提交说明使用统一格式：
+  - `feat(scope): summary`
+  - `fix(scope): summary`
+  - `docs(scope): summary`
+  - `chore(scope): summary`
+- 若方向走偏，以最近稳定提交为回退点，不依赖人工口头恢复
+- 不得在未更新状态文件时提交“已完成”类型变更
+
+## 6. 状态管理规则
+
+以下文件是强制维护的项目状态层：
+
+- [PROJECT_STATUS.md](/D:/Moi/Projects/Github/Overview/docs/PROJECT_STATUS.md)
+- [HANDOFF.md](/D:/Moi/Projects/Github/Overview/docs/HANDOFF.md)
+- [ROADMAP.md](/D:/Moi/Projects/Github/Overview/docs/ROADMAP.md)
+- `docs/todos/*.md`
+
+规则如下：
+
+- `PROJECT_STATUS.md` 是唯一事实源，保存当前状态，不写长篇历史
+- `HANDOFF.md` 记录最近一次会话交接
+- `ROADMAP.md` 只维护阶段级路线图
+- `docs/todos/*.md` 维护阶段内功能级任务
+
+若代码和文档冲突：
+
+- 以“最近验证通过的代码 + 当前状态文件”作为修正依据
+- 立即修正文档，不能将冲突留给下一个代理
+
+## 7. 技术路线约束
+
+除非仓库内已有更新决策，否则默认采用以下路线：
+
+- 客户端：Flutter
+- 平台优先级：Android 手机 -> Android 平板 -> Windows -> Web
+- 后端：Node.js + TypeScript
+- 数据库：PostgreSQL
+- 缓存/实时能力：优先从 PostgreSQL 与 API 层闭环出发，必要时再引入 Redis
+- AI：服务端调用 OpenAI API，客户端不直连模型供应商
+- 登录：邮箱 + 密码
+- 后端运行标准：本地开发模式可启动，后续再补 Docker 化与部署脚本
+
+## 8. 验证规则
+
+- 每个功能块至少执行对应最小验证
+- 构建失败优先级高于新功能开发
+- 测试失败必须先定位并修复，不能带红继续堆功能
+- 未验证的内容不能在状态文件中标记为完成
+
+## 9. 文档沉淀规则
+
+- 所有高影响决策必须写入仓库
+- 不允许把关键背景只保留在对话里
+- 新增目录、脚本、服务或命令时，必须同步更新结构文档或对应 README
+
+## 10. 完成定义
+
+项目可标记为 `V1 可交付` 的条件：
+
+- Android 手机主流程完整可用且可打包
+- 后端服务可本地启动并支持核心流程
+- 核心数据模型、同步、登录、AI、通知都已打通
+- 关键测试与构建通过
+- 安装/运行说明齐备
+- 阻塞缺陷已清空或降为可接受范围
