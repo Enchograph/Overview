@@ -3,10 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../l10n/app_localizations.dart';
 import 'app_router.dart';
-import 'shell/home_shell.dart';
 
 class OverviewApp extends StatefulWidget {
-  const OverviewApp({super.key});
+  const OverviewApp({
+    this.initialRoute = AppRouter.homeRoute,
+    super.key,
+  });
+
+  final String initialRoute;
 
   @override
   State<OverviewApp> createState() => _OverviewAppState();
@@ -38,12 +42,11 @@ class _OverviewAppState extends State<OverviewApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1C6B52)),
       ),
-      initialRoute: AppRouter.homeRoute,
+      initialRoute: widget.initialRoute,
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
         settings,
         onToggleLocale: _toggleLocale,
       ),
-      home: HomeShell(onToggleLocale: _toggleLocale),
     );
   }
 }

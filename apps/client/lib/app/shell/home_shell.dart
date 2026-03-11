@@ -2,69 +2,58 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../app_router.dart';
+import '../pages/capture_page.dart';
+import '../pages/notes_page.dart';
+import '../pages/settings_page.dart';
+import '../pages/week_page.dart';
 
-class HomeShell extends StatefulWidget {
-  const HomeShell({required this.onToggleLocale, super.key});
+class HomeShell extends StatelessWidget {
+  const HomeShell({
+    required this.currentTab,
+    required this.onToggleLocale,
+    super.key,
+  });
 
+  final AppTab currentTab;
   final VoidCallback onToggleLocale;
-
-  @override
-  State<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends State<HomeShell> {
-  int _selectedIndex = 0;
-
-  void _openRoute(String routeName) {
-    Navigator.of(context).pushNamed(routeName);
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final tabs = <ShellTab>[
-      ShellTab(
+    final tabs = [
+      AppTabConfig(
+        tab: AppTab.week,
         title: l10n.weekTab,
         icon: Icons.calendar_view_week_outlined,
-        content: OverviewSection(
-          title: l10n.weekHeadline,
-          description: l10n.weekBody,
-          primaryActionLabel: l10n.captureShortcut,
-          onPrimaryAction: () => setState(() => _selectedIndex = 2),
+        page: WeekPage(
+          onOpenCapture: () => _replaceShellRoute(context, AppTab.capture),
         ),
       ),
-      ShellTab(
+      AppTabConfig(
+        tab: AppTab.notes,
         title: l10n.notesTab,
         icon: Icons.sticky_note_2_outlined,
-        content: OverviewSection(
-          title: l10n.notesHeadline,
-          description: l10n.notesBody,
-          primaryActionLabel: l10n.aiShortcut,
-          onPrimaryAction: () => _openRoute(AppRouter.aiRoute),
-        ),
+        page: NotesPage(onOpenAi: () => _pushRoute(context, AppRouter.aiRoute)),
       ),
-      ShellTab(
+      AppTabConfig(
+        tab: AppTab.capture,
         title: l10n.captureTab,
         icon: Icons.add_circle_outline,
-        content: OverviewSection(
-          title: l10n.captureHeadline,
-          description: l10n.captureBody,
-          primaryActionLabel: l10n.aiShortcut,
-          onPrimaryAction: () => _openRoute(AppRouter.aiRoute),
+        page: CapturePage(
+          onOpenAi: () => _pushRoute(context, AppRouter.aiRoute),
         ),
       ),
-      ShellTab(
+      AppTabConfig(
+        tab: AppTab.settings,
         title: l10n.settingsTab,
         icon: Icons.settings_outlined,
-        content: OverviewSection(
-          title: l10n.settingsHeadline,
-          description: l10n.settingsBody,
-          primaryActionLabel: l10n.syncShortcut,
-          onPrimaryAction: () => _openRoute(AppRouter.syncRoute),
+        page: SettingsPage(
+          onOpenSync: () => _pushRoute(context, AppRouter.syncRoute),
         ),
       ),
     ];
-    final selectedTab = tabs[_selectedIndex];
+    final selectedIndex = tabs.indexWhere((tab) => tab.tab == currentTab);
+    final selectedTab = tabs[selectedIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -72,7 +61,7 @@ class _HomeShellState extends State<HomeShell> {
         actions: [
           IconButton(
             tooltip: l10n.localeToggleTooltip,
-            onPressed: widget.onToggleLocale,
+            onPressed: onToggleLocale,
             icon: const Icon(Icons.language_outlined),
           ),
         ],
@@ -81,13 +70,13 @@ class _HomeShellState extends State<HomeShell> {
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           child: KeyedSubtree(
-            key: ValueKey(_selectedIndex),
-            child: selectedTab.content,
+            key: ValueKey(currentTab),
+            child: selectedTab.page,
           ),
         ),
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+        selectedIndex: selectedIndex,
         destinations: tabs
             .map(
               (tab) => NavigationDestination(
@@ -97,73 +86,34 @@ class _HomeShellState extends State<HomeShell> {
             )
             .toList(),
         onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          final nextTab = tabs[index].tab;
+          if (nextTab != currentTab) {
+            _replaceShellRoute(context, nextTab);
+          }
         },
       ),
     );
   }
+
+  void _pushRoute(BuildContext context, String routeName) {
+    Navigator.of(context).pushNamed(routeName);
+  }
+
+  void _replaceShellRoute(BuildContext context, AppTab tab) {
+    Navigator.of(context).pushReplacementNamed(AppRouter.shellRouteFor(tab));
+  }
 }
 
-class ShellTab {
-  const ShellTab({
+class AppTabConfig {
+  const AppTabConfig({
+    required this.tab,
     required this.title,
     required this.icon,
-    required this.content,
+    required this.page,
   });
 
+  final AppTab tab;
   final String title;
   final IconData icon;
-  final Widget content;
-}
-
-class OverviewSection extends StatelessWidget {
-  const OverviewSection({
-    required this.title,
-    required this.description,
-    required this.primaryActionLabel,
-    required this.onPrimaryAction,
-    super.key,
-  });
-
-  final String title;
-  final String description;
-  final String primaryActionLabel;
-  final VoidCallback onPrimaryAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: onPrimaryAction,
-                icon: const Icon(Icons.arrow_forward_outlined),
-                label: Text(primaryActionLabel),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  final Widget page;
 }

@@ -11,15 +11,23 @@ class AiRoute extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.aiTitle)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          Text(
             l10n.aiBody,
             style: Theme.of(context).textTheme.headlineSmall,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
           ),
-        ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.auto_awesome_outlined),
+              title: Text(l10n.aiShortcut),
+              subtitle: Text(l10n.aiCta),
+            ),
+          ),
+        ],
       ),
     );
   }

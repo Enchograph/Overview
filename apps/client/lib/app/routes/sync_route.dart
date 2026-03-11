@@ -26,6 +26,14 @@ class SyncRoute extends StatelessWidget {
               subtitle: Text(l10n.syncStatusSubtitle),
             ),
           ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.sync_problem_outlined),
+              title: Text(l10n.syncShortcut),
+              subtitle: Text(l10n.syncStatusPending),
+            ),
+          ),
         ],
       ),
     );
