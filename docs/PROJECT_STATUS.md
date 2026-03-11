@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成共享核心数据模型，开始建立 PostgreSQL schema 与首版迁移机制
+- 当前功能块：已完成 PostgreSQL schema 与首版迁移机制，开始实现核心对象 CRUD API
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -27,21 +27,23 @@
 - 已完成 API 正式服务栈：Express、Zod、Dotenv、ESLint、Prettier、TypeScript build
 - 已完成 `packages/shared` 构建产物导出，供 API 正式构建与运行消费
 - 已完成日程、任务、备忘、提醒、重复规则与同步状态的共享核心模型定义
+- 已完成 API 侧 PostgreSQL 连接配置、SQL migration runner 与首个 `planning_items` schema
 
 ## 进行中
 
-- 建立 PostgreSQL schema 与迁移工具的首版落点
 - 规划核心对象 CRUD 的 API 组织方式
+- 实现核心对象 CRUD API
 
 ## 下一步唯一推荐动作
 
-建立 PostgreSQL schema 与首版迁移机制。
+实现日程、任务、备忘的核心 CRUD API。
 
 ## 当前阻塞
 
 - 当前会话仍不能直接调用裸 `pnpm`，但 `corepack pnpm` 已可用
 - Flutter 命令需在沙箱外串行执行，因为 SDK 会写入 `C:\tools\flutter\bin\cache`
 - `tsx`/`esbuild` 相关命令在当前工具环境下需沙箱外执行测试或启动验证
+- 当前环境未提供可用的本地 PostgreSQL 实例；`127.0.0.1:5432` 未监听，migration runner 尚未做真实连库烟测
 
 ## 当前技术默认值
 
@@ -53,7 +55,7 @@
 
 ## 最近稳定提交
 
-- `66c743d feat(client): refine routes and localized shell`
+- `3618817 feat(shared): define core planning models`
 
 ## 备注
 
@@ -63,3 +65,4 @@
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
 - Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
+- API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
