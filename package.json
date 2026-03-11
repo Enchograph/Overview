@@ -15,6 +15,9 @@
     "api:format": "corepack pnpm --filter @overview/api format",
     "api:typecheck": "corepack pnpm --filter @overview/api typecheck",
     "api:build": "corepack pnpm --filter @overview/api build",
+    "shared:typecheck": "corepack pnpm --filter @overview/shared typecheck",
+    "shared:build": "corepack pnpm --filter @overview/shared build",
+    "shared:check": "npm run shared:build && node --experimental-strip-types scripts/check-shared.ts",
     "test": "npm run api:test",
     "check": "npm run api:lint && npm run api:typecheck && npm run api:test",
     "build": "npm run api:build"

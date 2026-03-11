@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成 API 正式服务栈与 workspace 依赖安装，开始定义共享核心数据模型
+- 当前功能块：已完成共享核心数据模型，开始建立 PostgreSQL schema 与首版迁移机制
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -26,15 +26,16 @@
 - 已完成 `corepack pnpm install` 并生成 workspace 锁文件
 - 已完成 API 正式服务栈：Express、Zod、Dotenv、ESLint、Prettier、TypeScript build
 - 已完成 `packages/shared` 构建产物导出，供 API 正式构建与运行消费
+- 已完成日程、任务、备忘、提醒、重复规则与同步状态的共享核心模型定义
 
 ## 进行中
 
-- 定义共享数据模型
-- 评估 PostgreSQL schema 与迁移工具的首版落点
+- 建立 PostgreSQL schema 与迁移工具的首版落点
+- 规划核心对象 CRUD 的 API 组织方式
 
 ## 下一步唯一推荐动作
 
-定义日程、任务、备忘的共享核心数据模型。
+建立 PostgreSQL schema 与首版迁移机制。
 
 ## 当前阻塞
 
@@ -61,3 +62,4 @@
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
 - Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`
+- `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
