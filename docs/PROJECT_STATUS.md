@@ -3,8 +3,8 @@
 ## 当前状态
 
 - 状态：进行中
-- 当前阶段：P1 基础应用与服务骨架
-- 当前功能块：已完成客户端路由、底部导航页面细化与中英文 i18n 骨架，继续推进 API 工程化配置
+- 当前阶段：P2 核心数据闭环
+- 当前功能块：已完成 API 正式服务栈与 workspace 依赖安装，开始定义共享核心数据模型
 - 最后更新：2026-03-11
 
 ## 已完成
@@ -23,20 +23,24 @@
 - 已通过客户端最小验证：`flutter analyze`、`flutter test`
 - 已完成客户端命名路由、四个主页面骨架与 AI/同步子路由
 - 已完成手写中英文 i18n 资源拆分与页面文案补全
+- 已完成 `corepack pnpm install` 并生成 workspace 锁文件
+- 已完成 API 正式服务栈：Express、Zod、Dotenv、ESLint、Prettier、TypeScript build
+- 已完成 `packages/shared` 构建产物导出，供 API 正式构建与运行消费
 
 ## 进行中
 
-- 为 API 引入环境变量管理、lint/format 与更完整路由组织
-- 评估是否将 `corepack pnpm` 固化为统一 workspace 命令入口
+- 定义共享数据模型
+- 评估 PostgreSQL schema 与迁移工具的首版落点
 
 ## 下一步唯一推荐动作
 
-为 API 引入环境变量管理、lint/format 与更完整路由组织。
+定义日程、任务、备忘的共享核心数据模型。
 
 ## 当前阻塞
 
 - 当前会话仍不能直接调用裸 `pnpm`，但 `corepack pnpm` 已可用
 - Flutter 命令需在沙箱外串行执行，因为 SDK 会写入 `C:\tools\flutter\bin\cache`
+- `tsx`/`esbuild` 相关命令在当前工具环境下需沙箱外执行测试或启动验证
 
 ## 当前技术默认值
 
@@ -48,12 +52,12 @@
 
 ## 最近稳定提交
 
-- `02bc056 更新`
+- `66c743d feat(client): refine routes and localized shell`
 
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
-- 现已可在无第三方依赖前提下启动 API 并运行 Node 内建测试
+- 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
 - Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`

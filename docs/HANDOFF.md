@@ -3,28 +3,30 @@
 ## 最近一次交接
 
 - 日期：2026-03-11
-- 阶段：P1
+- 阶段：P2
 - 完成内容：
-  - 将客户端主壳改为命名路由驱动，补齐 `/notes`、`/capture`、`/settings` 与 AI/同步子路由
-  - 将周视图、备忘、添加、设置拆成独立页面模块，并补充页面亮点卡片
-  - 拆分手写中英文 i18n 资源文件，补齐页面文案与路由缺页提示
-  - 补充客户端 widget 测试，覆盖默认导航、语言切换和设置页跳转同步页
+  - 为 workspace 安装正式依赖并生成 `pnpm-lock.yaml`
+  - 将 API 升级为 `Express + Zod + Dotenv` 服务结构，补齐 `app/config/routes` 分层
+  - 为 API 接入 `ESLint + Prettier + TypeScript build`，补齐 `lint/typecheck/format/build/test` 入口
+  - 将 `packages/shared` 升级为可构建的 workspace 包，供 API 正式构建与运行引用
 - 验证结果：
-  - 已通过 `flutter analyze`
-  - 已通过 `flutter test`
-  - 已通过 `flutter build apk --debug`
-  - `corepack pnpm` 已可用；当前会话裸 `pnpm` 仍未直接进 PATH
+  - 已通过 `npm run api:lint`
+  - 已通过 `npm run api:typecheck`
+  - 已通过 `npm run api:format`
+  - 已通过 `npm run api:build`
+  - 已通过 `npm run api:test`
+  - `npm run api:start` 可输出监听地址；当前工具里的后台进程烟测对 `localhost` 访问不稳定
 - 当前进行中：
-  - 为 API 引入环境变量管理、lint/format 与更完整路由组织
-  - 统一 `pnpm` / `corepack pnpm` 命令入口体验
+  - 定义共享数据模型
+  - 评估 PostgreSQL schema 与迁移工具的首版落点
 - 下一接手顺序：
-  1. 为 API 引入环境变量管理、lint/format 与更完整路由组织
-  2. 在 workspace 层落地依赖安装与统一命令入口
-  3. 开始核心页面和数据模型闭环
-  4. 为客户端继续接入真实数据流与状态管理
+  1. 定义日程、任务、备忘的共享核心数据模型
+  2. 建立 PostgreSQL schema 与首版迁移机制
+  3. 为 API 落地核心对象 CRUD 路由
+  4. 为客户端页面接入真实数据与状态管理
 - 风险：
   - Flutter 命令需在沙箱外串行执行，因为 SDK 会写入全局缓存目录
-  - 当前会话裸 `pnpm` 未直接进 PATH，命令入口需进一步整理
+  - `tsx`/`esbuild` 相关命令在当前工具环境下需沙箱外执行测试或启动验证
   - 根目录存在一个未跟踪文件 `nul`，来源未确认，尚未处理
 
 ## 交接模板

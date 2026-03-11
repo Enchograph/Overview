@@ -8,12 +8,15 @@
     "client:doctor": "flutter doctor",
     "client:analyze": "flutter analyze",
     "client:test": "flutter test",
-    "api:dev": "node --watch --experimental-strip-types services/api/src/index.ts",
-    "api:start": "node --experimental-strip-types services/api/src/index.ts",
-    "api:test": "node --experimental-strip-types services/api/test/health.test.ts",
-    "api:check": "node --experimental-strip-types scripts/check-api.ts",
+    "api:dev": "corepack pnpm --filter @overview/api dev",
+    "api:start": "corepack pnpm --filter @overview/api start",
+    "api:test": "corepack pnpm --filter @overview/api test",
+    "api:lint": "corepack pnpm --filter @overview/api lint",
+    "api:format": "corepack pnpm --filter @overview/api format",
+    "api:typecheck": "corepack pnpm --filter @overview/api typecheck",
+    "api:build": "corepack pnpm --filter @overview/api build",
     "test": "npm run api:test",
-    "check": "npm run api:check",
-    "build": "npm run check"
+    "check": "npm run api:lint && npm run api:typecheck && npm run api:test",
+    "build": "npm run api:build"
   }
 }

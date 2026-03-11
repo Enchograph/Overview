@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-import { createHealthResponse } from '../packages/shared/src/contracts.ts';
+import { createHealthResponse } from '@overview/shared';
 
 const payload = createHealthResponse(new Date('2026-03-11T00:00:00.000Z'));
 

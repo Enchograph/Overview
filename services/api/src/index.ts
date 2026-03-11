@@ -1,11 +1,9 @@
-import { createApiServer } from './server.ts';
+import { readEnv } from './config/env.js';
+import { createApp } from './app.js';
 
-const port = Number.parseInt(process.env.PORT ?? '3000', 10);
-const host = process.env.HOST ?? '127.0.0.1';
+const env = readEnv();
+const app = createApp();
 
-const server = createApiServer();
-
-server.listen(port, host, () => {
-  console.log(`Overview API listening on http://${host}:${port}`);
+app.listen(env.PORT, env.HOST, () => {
+  console.log(`Overview API listening on http://${env.HOST}:${env.PORT}`);
 });
-
