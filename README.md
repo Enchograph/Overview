@@ -173,3 +173,5 @@ npm run shared:check
 ## 已知限制
 
 见 [docs/KNOWN_LIMITATIONS.md](/home/anon/文档/GitHub/Overview/docs/KNOWN_LIMITATIONS.md)。
+
+Windows 主机构建与验证说明见 [docs/WINDOWS_VALIDATION.md](/home/anon/文档/GitHub/Overview/docs/WINDOWS_VALIDATION.md)。

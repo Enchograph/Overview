@@ -44,6 +44,7 @@
   - 新增 `apps/client/test/client_api_e2e_test.dart`，覆盖客户端登录、memo 创建与 `runSync()` 通过真实 API 成功落库
   - 修复 `HttpPlanningRepository` 对可选字段发送 `null` 导致服务端 400 的真实同步缺陷
   - 新增 `docs/ANDROID_RELEASE_CHECKLIST.md`，整理正式签名材料接入步骤、构建命令与发布前检查清单
+  - 新增 `docs/WINDOWS_VALIDATION.md`，整理 Windows 主机构建前置、最小验证步骤与当前 Linux 主机限制
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -59,9 +60,9 @@
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
   - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 回看剩余交付限制，优先补齐 Windows 主机构建验证与相关说明
+  - 收敛剩余发布说明，优先补齐最终交付入口与限制索引
 - 下一接手顺序：
-  1. 收敛 Windows 交付限制说明与最小验证步骤
+  1. 整理最终交付索引页，汇总 Android、API、Windows、限制与验证入口
   2. 随后继续收敛剩余已知限制与发布说明
   3. 随后视环境条件回看 Windows 真实主机构建验证
 - 风险：

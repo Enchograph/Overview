@@ -20,6 +20,7 @@
 
 - Web PWA 已完成基础构建，但尚未补离线缓存、安装提示与浏览器专属体验优化
 - Windows 与 Web 已有等效快捷入口，但仍未补更深的桌面端键鼠优化
+- Windows 主机构建与实机验证步骤已整理到 [docs/WINDOWS_VALIDATION.md](/home/anon/文档/GitHub/Overview/docs/WINDOWS_VALIDATION.md)
 
 ## API / AI 限制
 
