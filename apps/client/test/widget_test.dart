@@ -412,4 +412,21 @@ void main() {
     expect(find.text('Data source'), findsOneWidget);
     expect(find.text('Notifications'), findsOneWidget);
   });
+
+  testWidgets('shows notes summary and memo list on tablet landscape', (
+    tester,
+  ) async {
+    await pumpAdaptiveApp(
+      tester,
+      size: const Size(1280, 800),
+      initialRoute: AppRouter.notesRoute,
+      repository: FakePlanningRepository(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.text('Memo inbox'), findsOneWidget);
+    expect(find.text('Ask for final icon set'), findsOneWidget);
+    expect(find.text('Draft onboarding copy'), findsOneWidget);
+  });
 }

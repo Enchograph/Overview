@@ -59,6 +59,7 @@ class HomeShell extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTabletLayout = constraints.maxWidth >= 840;
+        final isLandscapeTablet = constraints.maxWidth >= 1280;
 
         return Scaffold(
           appBar: AppBar(
@@ -77,7 +78,10 @@ class HomeShell extends StatelessWidget {
                     children: [
                       NavigationRail(
                         selectedIndex: selectedIndex,
-                        labelType: NavigationRailLabelType.all,
+                        extended: isLandscapeTablet,
+                        labelType: isLandscapeTablet
+                            ? NavigationRailLabelType.none
+                            : NavigationRailLabelType.all,
                         destinations: tabs
                             .map(
                               (tab) => NavigationRailDestination(
