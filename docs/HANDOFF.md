@@ -31,6 +31,9 @@
   - 执行 `flutter build apk --release --no-pub`，产出 `apps/client/build/app/outputs/flutter-apk/app-release.apk`
   - 通过 `build.gradle.kts` 与本机 debug keystore 核对，确认当前 release 仍使用 debug keystore 签名
   - 将 release APK 产物路径与 debug 签名限制回写到仓库文档和项目状态
+  - 修复 API 环境解析缺陷：`.env.example` 中的空 AI 凭据现会被视为未配置，不再阻塞 migration 与启动
+  - 新增 `npm run api:start:embedded`，可自动拉起嵌入式 PostgreSQL、执行 migration 并启动本地 API
+  - 已在本机通过 `curl http://127.0.0.1:3000/health` 验证嵌入式开发模式下的健康检查返回
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -42,11 +45,13 @@
   - 已通过 `npm run api:lint`
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
+  - 已通过 `npm run api:start:embedded`
+  - 已通过 `curl -sS http://127.0.0.1:3000/health`
 - 当前进行中：
-  - 验证后端本地运行说明与命令闭环
+  - 推进自动化集成验证，优先把嵌入式后端启动沉淀为自动化烟测
 - 下一接手顺序：
-  1. 验证后端本地运行说明与命令闭环
-  2. 清点后端本地运行过程中的真实阻塞缺陷并修复
+  1. 为 `api:start:embedded` 增加自动化烟测，覆盖启动到 `/health`
+  2. 随后继续推进主流程集成测试的可执行验证
   3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
@@ -56,6 +61,7 @@
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
   - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未真实执行
   - 当前 Android release 仍是 debug keystore 签名，不适合正式商店分发
+  - 嵌入式 PostgreSQL 开发启动当前仅在 Linux x64 环境完成验证
 
 ## 交接模板
 

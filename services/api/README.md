@@ -25,6 +25,7 @@ Node.js + TypeScript 后端 API 服务目录。
 - `npx pnpm install`
 - `npm run api:dev`
 - `npm run api:start`
+- `npm run api:start:embedded`
 - `npx pnpm --filter @overview/api db:migrate`
 - `npm run api:lint`
 - `npm run api:format`
@@ -54,10 +55,21 @@ npx pnpm --filter @overview/api db:migrate
 npm run api:start
 ```
 
+如本机没有可用 PostgreSQL，可直接使用：
+
+```bash
+npm run api:start:embedded
+```
+
 默认监听：
 
 - `http://127.0.0.1:3000`
 - `GET /health`
+
+说明：
+
+- `api:start` 仍要求 `.env` 中的 `DATABASE_URL` 指向可连接 PostgreSQL
+- `api:start:embedded` 会自动启动临时嵌入式 PostgreSQL、执行 migration 并启动 API，适合本地开发与交付验证
 
 ## 数据库迁移
 

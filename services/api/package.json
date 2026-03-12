@@ -9,6 +9,8 @@
     "dev": "tsx watch src/index.ts",
     "prestart": "npx pnpm --filter @overview/shared build",
     "start": "tsx src/index.ts",
+    "prestart:embedded": "node ./scripts/prepare-embedded-postgres.mjs && npx pnpm --filter @overview/shared build",
+    "start:embedded": "tsx src/scripts/start-embedded.ts",
     "db:migrate": "tsx src/scripts/migrate.ts",
     "prebuild": "npx pnpm --filter @overview/shared build",
     "build": "tsc -p tsconfig.build.json",
@@ -16,7 +18,7 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "pretest": "node ./scripts/prepare-embedded-postgres.mjs && npx pnpm --filter @overview/shared build",
-    "test": "tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.factory.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts"
+    "test": "tsx test/env.test.ts && tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.factory.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts"
   },
   "dependencies": {
     "@overview/shared": "workspace:*",

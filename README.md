@@ -67,6 +67,12 @@ npm run api:dev
 npm run api:start
 ```
 
+无本机 PostgreSQL 时可直接使用嵌入式开发模式：
+
+```bash
+npm run api:start:embedded
+```
+
 执行 migration：
 
 ```bash
@@ -77,6 +83,11 @@ npx pnpm --filter @overview/api db:migrate
 
 - `http://127.0.0.1:3000`
 - 健康检查：`GET /health`
+
+说明：
+
+- `api:start` 适合已准备本机 PostgreSQL 的环境
+- `api:start:embedded` 会自动拉起临时 PostgreSQL、执行 migration，并在进程退出后清理临时数据
 
 ## 启动客户端
 

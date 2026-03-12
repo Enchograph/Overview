@@ -10,6 +10,7 @@
     "client:test": "flutter test",
     "api:dev": "npx pnpm --filter @overview/api dev",
     "api:start": "npx pnpm --filter @overview/api start",
+    "api:start:embedded": "npx pnpm --filter @overview/api start:embedded",
     "api:test": "npx pnpm --filter @overview/api test",
     "api:lint": "npx pnpm --filter @overview/api lint",
     "api:format": "npx pnpm --filter @overview/api format",
