@@ -4,7 +4,7 @@ Node.js + TypeScript 后端 API 服务目录。
 
 当前状态：已升级为基于 Express 的 TypeScript API 服务骨架，并接入环境变量校验、lint、format、test 与 build 入口。
 当前已补充 PostgreSQL schema、首版 migration 机制，以及日程、任务、备忘的核心 CRUD API。
-当前也已补充邮箱注册/登录 API、密码哈希、session token 生成，以及受保护 planning 接口。
+当前也已补充邮箱注册/登录 API、密码哈希、session token 生成、受保护 planning 接口，以及 AI 服务接口基础。
 
 ## 当前内容
 
@@ -13,9 +13,10 @@ Node.js + TypeScript 后端 API 服务目录。
 - `src/config/env.ts`：环境变量加载与校验
 - `src/db/`：PostgreSQL 连接、migration runner 与 SQL migrations
 - `src/auth/`：邮箱认证仓储、密码哈希与请求校验
+- `src/ai/`：AI 服务抽象、启发式 provider 与请求校验
 - `src/planning/`：规划对象仓储、请求校验与错误处理
 - `src/routes/`：API 路由模块
-- `test/health.test.ts` / `test/auth.test.ts` / `test/planning.test.ts`：健康检查、认证、CRUD 路由与 404/400 行为测试
+- `test/health.test.ts` / `test/auth.test.ts` / `test/planning.test.ts` / `test/ai.test.ts`：健康检查、认证、CRUD、AI 路由与 404/400 行为测试
 - `package.json` / `tsconfig*.json`：服务脚本与 TS 配置
 - `eslint.config.mjs` / `.prettierrc.json`：代码质量入口
 
@@ -56,9 +57,17 @@ Node.js + TypeScript 后端 API 服务目录。
 - `GET|PATCH|DELETE /planning/tasks/:id`
 - `GET|POST /planning/memos`
 - `GET|PATCH|DELETE /planning/memos/:id`
+- `POST /ai/ingest/text`
+- `POST /ai/ask`
 
 ## 认证说明
 
 - `/auth/register` 与 `/auth/login` 返回 `token`、`expiresAt` 和 `user`
-- `/planning/*` 现在要求请求头携带 `Authorization: Bearer <token>`
-- planning 数据按当前登录用户隔离；未授权或 token 失效时返回 `401`
+- `/planning/*` 与 `/ai/*` 现在要求请求头携带 `Authorization: Bearer <token>`
+- planning 数据和 AI 可访问的数据按当前登录用户隔离；未授权或 token 失效时返回 `401`
+
+## AI 说明
+
+- `/ai/ingest/text` 接收自然语言文本，返回结构化建议对象与待确认字段
+- `/ai/ask` 接收单轮问题，返回基于当前用户 planning 数据的回答
+- 当前 provider 为仓库内启发式实现，用于在未接入 OpenAI 时闭环服务端接口与测试

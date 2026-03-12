@@ -25,6 +25,9 @@
   - 扩展本地同步测试，验证 auth failure -> blocked -> 恢复鉴权后 success 的恢复主路径
   - 为本地同步仓储增加冲突标记语义：远端 404/409 会将对应条目标记为 `conflict`，并移出自动重试队列
   - 扩展同步页状态展示与本地同步测试，显示冲突数量并验证 conflict 状态落盘
+  - 新增 AI 模块基础接口：`/ai/ingest/text` 与 `/ai/ask`，并接入受保护路由装配
+  - 新增启发式 AI 服务实现，基于当前用户 planning 数据提供文本录入建议与单轮问答占位结果
+  - 扩展 AI API 测试与 PostgreSQL 烟测，验证受保护 AI 主路径
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -34,16 +37,16 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进 AI 服务接口基础，开始为文本录入和单轮问答建立受保护后端代理入口
+  - 推进 OpenAI API 接入，为 AI 文本录入与问答替换真实模型后端
 - 下一接手顺序：
-  1. 在 API 侧建立受保护的 AI 路由与服务抽象
-  2. 为 OpenAI 接入准备环境变量、请求/响应 schema 与错误映射
-  3. 先打通文本录入的服务端占位主路径，再推进客户端 AI 页面
+  1. 为 API 增加 OpenAI provider 与环境变量校验
+  2. 让 AI 服务抽象支持 heuristic/openai 可切换实现
+  3. 优先打通文本录入的真实模型调用，再推进客户端 AI 页面
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
-  - AI 能力尚未接入真实服务端接口与模型供应商，P4 仍处于空白起步阶段
+  - OpenAI API 尚未接入，当前 AI 路由仍是启发式占位实现
 
 ## 交接模板
 

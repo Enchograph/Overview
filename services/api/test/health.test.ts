@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import request from 'supertest';
 
+import { HeuristicAiService } from '../src/ai/heuristic-service.js';
 import { InMemoryAuthRepository } from '../src/auth/memory-repository.js';
 import { createApp } from '../src/app.js';
 import { InMemoryPlanningRepository } from '../src/planning/memory-repository.js';
@@ -17,9 +18,11 @@ interface ErrorPayload {
 }
 
 async function main() {
+  const planningRepository = new InMemoryPlanningRepository();
   const app = createApp({
+    aiService: new HeuristicAiService(planningRepository),
     authRepository: new InMemoryAuthRepository(),
-    planningRepository: new InMemoryPlanningRepository(),
+    planningRepository,
   });
 
   const response = await request(app).get('/health').expect(200);

@@ -9,6 +9,7 @@ import { initdb, postgres } from '@embedded-postgres/linux-x64';
 import { Client, type Pool } from 'pg';
 import request from 'supertest';
 
+import { HeuristicAiService } from '../src/ai/heuristic-service.js';
 import { createApp } from '../src/app.js';
 import { PostgresAuthRepository } from '../src/auth/postgres-repository.js';
 import { readEnv, type AppEnv } from '../src/config/env.js';
@@ -201,9 +202,11 @@ async function main(): Promise<void> {
     );
     assert.deepEqual(migrationRows.rows, [{ version: '0001' }, { version: '0002' }]);
 
+    const planningRepository = new PostgresPlanningRepository(pool, env);
     const app = createApp({
+      aiService: new HeuristicAiService(planningRepository),
       authRepository: new PostgresAuthRepository(pool, env),
-      planningRepository: new PostgresPlanningRepository(pool, env),
+      planningRepository,
     });
 
     const registerResponse = await request(app)
@@ -302,6 +305,31 @@ async function main(): Promise<void> {
     assert.equal(
       (memos.body as { items: Array<{ status: string }> }).items[0]?.status,
       'archived',
+    );
+
+    await request(app)
+      .post('/ai/ingest/text')
+      .send({ text: '周五上午 10 点到 11 点和设计师开会' })
+      .expect(401);
+
+    const ingestResponse = await request(app)
+      .post('/ai/ingest/text')
+      .set(authHeader)
+      .send({ text: '周五上午 10 点到 11 点和设计师开会' })
+      .expect(200);
+    assert.equal(
+      (ingestResponse.body as { suggestedType: string }).suggestedType,
+      'schedule',
+    );
+
+    const askResponse = await request(app)
+      .post('/ai/ask')
+      .set(authHeader)
+      .send({ question: 'What do I have this week?' })
+      .expect(200);
+    assert.match(
+      (askResponse.body as { answer: string }).answer,
+      /1 schedules.*1 tasks.*1 memos/,
     );
 
     console.log('Postgres smoke test passed');
