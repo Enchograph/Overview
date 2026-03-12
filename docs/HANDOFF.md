@@ -17,16 +17,19 @@
   - 为客户端生成 `windows/` 平台工程，补齐 Flutter Windows runner 与 CMake 配置
   - 为周视图、备忘页和设置页补齐桌面宽度下的显式刷新按钮与滚动条，避免桌面端仍依赖移动端下拉刷新手势
   - 扩展 widget 测试覆盖桌面显式刷新入口，并更新客户端 README 与项目状态
+  - 为客户端生成 `web/` 平台工程，补齐 PWA manifest、Web 图标与浏览器入口文件
+  - 复用现有自适应壳层到浏览器窗口，并完成 `flutter build web` 构建验证
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build web`
 - 当前进行中：
-  - 推进 Web PWA 基础适配，先为浏览器窗口建立稳定可用的主壳层和核心页面排版
+  - 推进 Android 快捷入口/小组件第一版，先为系统入口建立稳定可用的最小跳转链路
 - 下一接手顺序：
-  1. 为客户端生成 `web/` 平台工程，并检查现有插件在 Web 下的最小可运行性
-  2. 先落地 Web PWA 基础布局，并补最小 widget/构建验证
+  1. 评估 Android 快捷入口/小组件插件、目标入口页面和 Android Manifest/资源要求
+  2. 先落地 Android 快捷入口或最小小组件第一版，并补 Android 构建验证
   3. 随后定义 Windows 与 Web 的等效入口策略
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
@@ -34,7 +37,7 @@
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
-  - Web 适配仍未开始实现，P5 多端布局体系仍不完整
+  - Android 快捷入口/小组件与 Windows/Web 等效入口策略仍未开始实现，P5 平台入口层仍不完整
 
 ## 交接模板
 

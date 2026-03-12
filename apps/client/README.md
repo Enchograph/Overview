@@ -15,6 +15,7 @@ Flutter 客户端主应用目录。
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
 - `windows/`：Flutter Windows 桌面 runner 与 CMake 工程
+- `web/`：Flutter Web / PWA 入口、manifest 和图标资源
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
 - `test/auth/local_auth_repository_test.dart`：会话持久化与退出登录验证
 - `test/ai/http_ai_repository_test.dart`：AI 解析/问答/转写 HTTP 请求与 Bearer token 验证
@@ -41,10 +42,11 @@ Flutter 客户端主应用目录。
 - 宽度达到平板断点后，应用壳层会切换为 `NavigationRail`；在更宽的横屏窗口下，导航会扩展显示标签，备忘页也会切换为摘要区 + 列表区分栏布局
 - 周视图、添加页和设置页会在平板宽度下切换为双栏/约束布局，避免大屏设备仍保持单列手机排版
 - Windows 桌面基础工程现已生成；在桌面宽度下，周视图、备忘页和设置页会显示显式刷新按钮并启用滚动条，不再只依赖移动端下拉刷新
+- Web PWA 基础工程现已生成，可通过 `flutter build web` 产出浏览器静态资源；当前自适应壳层会在浏览器宽度下复用桌面/平板布局
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 适配 Web PWA 基础能力
+- 实现 Android 快捷入口/小组件第一版
 - 继续推进客户端与 Node API 的单进程端到端验证

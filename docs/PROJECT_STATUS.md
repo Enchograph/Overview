@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P5 通知、多端适配与小组件
-- 当前功能块：Windows 桌面基础布局代码已落地，受限于当前 Linux 主机暂未完成 Windows 构建验证；继续推进 Web PWA 基础适配
+- 当前功能块：Web PWA 基础适配已落地，继续推进 Android 快捷入口/小组件第一版
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -72,21 +72,23 @@
 - 已完成 Android 平板横屏验证：客户端 widget 测试覆盖横屏备忘页布局，Android debug APK 已在横屏布局调整后重新构建通过
 - 已完成 Windows 平台工程与桌面布局第一版：客户端已生成 `windows/` 平台目录，桌面宽度下为周视图、备忘页和设置页补齐显式刷新按钮与滚动条，避免依赖移动端下拉手势
 - 已完成 Windows 桌面代码级验证：客户端 widget 测试覆盖桌面显式刷新入口，Android debug APK 回归构建通过；当前 Linux 主机已尝试 `flutter build windows`，但 Flutter 明确限制仅支持在 Windows 主机执行
+- 已完成 Web PWA 基础适配：客户端已生成 `web/` 平台目录、manifest、图标与入口文件，现有自适应壳层可在浏览器窗口下复用桌面/平板布局
+- 已完成 Web 构建验证：客户端已通过 `flutter build web`，生成 `apps/client/build/web`
 
 ## 进行中
 
-- 推进 Web PWA 基础适配，先补齐 Web 平台工程并让浏览器窗口下主壳层稳定运行
+- 推进 Android 快捷入口/小组件第一版，先定义从系统入口快速进入添加页或周视图的最小主链路
 
 ## 下一步唯一推荐动作
 
-适配 Web PWA，先补齐 Web 平台工程，并让浏览器窗口下的壳层导航、周视图和设置页可稳定运行。
+实现 Android 快捷入口/小组件第一版，先打通系统入口到客户端周视图或添加页的最小跳转链路。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
 - Azure Speech 真实凭据尚未在仓库内验证；当前自动化仅覆盖接口、回退和未配置场景
 - 当前环境不是 Windows 主机，`flutter build windows` 无法在仓库内完成真实构建验证
-- Web 适配仍未开始实现，P5 多端能力仍未形成完整跨平台布局体系
+- Android 快捷入口/小组件与 Windows/Web 等效入口策略仍未开始实现，P5 平台入口层仍为空
 
 ## 当前技术默认值
 
