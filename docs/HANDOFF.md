@@ -5,6 +5,12 @@
 - 日期：2026-03-12
 - 阶段：P6
 - 完成内容：
+  - 新增 `services/api/src/ai/speech-factory.ts` 与 `AI_SPEECH_PROVIDER` 环境变量，把语音转写装配从 Azure 硬编码收敛成通用 speech provider 入口
+  - 新增客户端与服务端 speech locale 规范化：`apps/client/lib/app/ai/speech_locale.dart`、`services/api/src/ai/speech-locales.ts`
+  - 当前默认继续选用 Azure Speech 作为中文优先方案，同时为 `zh-TW`、`zh-HK`、`en-GB`、`ja-JP` 等后续 i18n 扩展保留 BCP-47 映射
+  - 将 AI 语音错误码与客户端错误展示从 Azure 专用命名调整为通用 speech 命名，并兼容旧错误码解析
+  - 新增 `docs/AI_SPEECH_DECISION.md`，把“中文优先、后续 i18n 可扩展”的语音选型结论写入仓库
+  - 修正 `docs/todos/P5.md` 中 Windows 基础布局待办状态，避免与已完成代码和状态文件冲突
   - 为 Flutter 客户端新增 `lib/app/notifications/` 模块，封装通知权限状态、测试通知与本地提醒调度能力
   - 接入 `flutter_local_notifications` 与 `timezone`，为 Android Manifest 增加 `POST_NOTIFICATIONS` 权限，并在 Android Gradle 配置中补齐 desugaring 依赖
   - 将 `PlanningStore.refresh()` 接入本地通知重建逻辑：未来日程默认在开始前 10 分钟提醒，未完成任务默认在到期前 30 分钟提醒，并限制仅调度最近 8 条
@@ -48,6 +54,13 @@
   - 新增 `docs/DELIVERY_INDEX.md`，把 Android、API、Windows、限制与验证命令收敛到单一交付入口
   - 新增 `docs/REMAINING_RELEASE_BLOCKERS.md`，把正式签名、Windows、Azure Speech 与 `integration_test` 剩余外部依赖整理成可执行清单
 - 验证结果：
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
+  - 已通过 `npm run api:test`
+  - 已通过 `npm run api:lint`
+  - 已通过 `npm run api:typecheck`
+  - 已通过 `npm run api:build`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
@@ -62,13 +75,14 @@
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
   - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 等待外部条件回填，仓库内继续保持交付入口和验证链路清晰
+  - 等待外部条件回填，优先等待 Android 正式签名材料；语音侧继续等待 Azure Speech 真实凭据完成中文真音频验证
 - 下一接手顺序：
   1. 在外部条件就绪后优先完成 Android 正式签名接入与真机安装验证
   2. 随后视环境条件回看 Windows 真实主机构建验证
   3. 随后继续完成 Azure Speech 与 integration runner 的真实验证
 - 风险：
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
+  - 当前已完成语音 provider 抽象，但仓库内仍只有 Azure Speech 一个真实实现
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
   - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未真实执行

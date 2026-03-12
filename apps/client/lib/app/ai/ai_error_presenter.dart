@@ -9,12 +9,12 @@ String localizeAiError(
   switch (error.code) {
     case AiErrorCode.authorizationRequired:
       return l10n.aiErrorAuthorization;
-    case AiErrorCode.azureSpeechNotConfigured:
-      return l10n.aiErrorAzureConfig;
-    case AiErrorCode.azureSpeechFailed:
-      return l10n.aiErrorAzureFailed;
-    case AiErrorCode.azureSpeechEmpty:
-      return l10n.aiErrorAzureEmpty;
+    case AiErrorCode.speechNotConfigured:
+      return l10n.aiErrorSpeechConfig;
+    case AiErrorCode.speechFailed:
+      return l10n.aiErrorSpeechFailed;
+    case AiErrorCode.speechEmpty:
+      return l10n.aiErrorSpeechEmpty;
     case AiErrorCode.invalidRequest:
       return error.details.isEmpty
           ? l10n.aiErrorInvalidRequest

@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：剩余发布阻塞清单已落地，继续等待外部条件回填
+- 当前功能块：中文优先语音转写选型与多语言扩展骨架已落地
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -98,6 +98,9 @@
 - 已完成 Windows 交付限制说明：新增 `docs/WINDOWS_VALIDATION.md`，沉淀 Windows 主机构建前置、最小验证步骤与当前 Linux 主机限制
 - 已完成交付索引页：新增 `docs/DELIVERY_INDEX.md`，汇总 Android、API、Windows、限制与验证入口
 - 已完成剩余发布阻塞清单：新增 `docs/REMAINING_RELEASE_BLOCKERS.md`，把正式签名、Windows、Azure Speech 与 `integration_test` 的外部依赖收敛为可执行清单
+- 已完成 AI 语音转写选型固化：新增 `AI_SPEECH_PROVIDER` 与 `docs/AI_SPEECH_DECISION.md`，明确当前采用 Azure Speech 作为中文优先且可扩展多语言的语音方案
+- 已完成语音转写 provider 去耦：服务端错误码与 provider 装配已从 Azure 硬编码收敛为通用 speech 抽象，便于后续扩展第二供应商
+- 已完成客户端与服务端语音 locale 规范化：新增 BCP-47 locale 解析与测试，默认中文 `zh-CN`，并为 `zh-TW`、`zh-HK`、`en-GB`、`ja-JP` 等后续 i18n 扩展预留映射
 
 ## 进行中
 
@@ -114,6 +117,7 @@
 - P5 仍缺少 Windows 主机上的真实构建验证
 - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未在仓库内真实执行
 - Android release 现阶段仍使用 debug keystore；正式发布签名材料与流程尚未进入仓库
+- Azure Speech 提供商选型已确定，但真实中文音频验证仍依赖外部凭据
 
 ## 当前技术默认值
 
@@ -121,7 +125,7 @@
 - 后端：Node.js + TypeScript
 - 数据库：PostgreSQL
 - 认证：邮箱 + 密码
-- AI：OpenAI API（后端代理） + Azure Speech（语音转写）
+- AI：OpenAI API（后端代理） + Azure Speech（当前中文优先语音转写方案）
 
 ## 最近稳定提交
 
@@ -130,7 +134,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置、客户端主流程烟测、单脚本端到端验证与交付文档索引现已打通，当前剩余首个交付阻塞点集中在外部条件未就绪：正式签名材料、Windows 主机、Azure Speech 凭据与 integration runner
+- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置、客户端主流程烟测、单脚本端到端验证与交付文档索引现已打通；语音转写选型也已固化为 Azure Speech + 通用 provider 抽象，当前剩余首个交付阻塞点仍集中在外部条件未就绪：正式签名材料、Windows 主机、Azure Speech 凭据与 integration runner
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证

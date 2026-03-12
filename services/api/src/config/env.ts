@@ -23,6 +23,7 @@ const envSchema = z.object({
   DATABASE_SCHEMA: z.string().trim().min(1).default('public'),
   DATABASE_MIGRATIONS_TABLE: z.string().trim().min(1).default('schema_migrations'),
   AI_PROVIDER: z.enum(['auto', 'heuristic', 'openai']).default('auto'),
+  AI_SPEECH_PROVIDER: z.enum(['none', 'azure']).default('azure'),
   OPENAI_API_KEY: optionalTrimmedString,
   OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
   AZURE_SPEECH_KEY: optionalTrimmedString,

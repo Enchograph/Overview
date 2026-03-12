@@ -14,6 +14,7 @@ function buildEnv(overrides: Partial<AppEnv> = {}): AppEnv {
     DATABASE_SCHEMA: 'public',
     DATABASE_MIGRATIONS_TABLE: 'schema_migrations',
     AI_PROVIDER: 'auto',
+    AI_SPEECH_PROVIDER: 'azure',
     OPENAI_API_KEY: undefined,
     OPENAI_MODEL: 'gpt-4.1-mini',
     AZURE_SPEECH_KEY: undefined,
@@ -32,6 +33,24 @@ async function main() {
     '记得买猫粮',
   );
   assert.equal(heuristicResult.suggestedType, 'memo');
+
+  const speechDisabled = createAiService(
+    buildEnv({
+      AI_SPEECH_PROVIDER: 'none',
+      AZURE_SPEECH_KEY: 'unused',
+      AZURE_SPEECH_REGION: 'eastasia',
+    }),
+    repository,
+  );
+  await assert.rejects(
+    async () =>
+      speechDisabled.transcribeAudio('user-1', {
+        audioBase64: Buffer.from([1]).toString('base64'),
+        mimeType: 'audio/wav',
+        locale: 'zh',
+      }),
+    /Voice transcription is not configured on the server/,
+  );
 
   assert.throws(
     () =>

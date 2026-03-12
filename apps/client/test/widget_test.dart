@@ -310,7 +310,7 @@ void main() {
   });
 
   testWidgets(
-      'shows localized azure transcription config error on capture page', (
+      'shows localized speech transcription config error on capture page', (
     tester,
   ) async {
     await pumpAdaptiveApp(
@@ -318,8 +318,8 @@ void main() {
       initialRoute: AppRouter.captureRoute,
       aiRepository: FakeAiRepository(
         failure: const AiRepositoryException(
-          code: AiErrorCode.azureSpeechNotConfigured,
-          message: 'Voice transcription requires Azure Speech configuration.',
+          code: AiErrorCode.speechNotConfigured,
+          message: 'Voice transcription is not configured on the server.',
           statusCode: 503,
         ),
       ),

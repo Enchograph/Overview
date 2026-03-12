@@ -7,9 +7,9 @@ enum AiSuggestionType { schedule, task, memo }
 enum AiErrorCode {
   invalidRequest,
   authorizationRequired,
-  azureSpeechNotConfigured,
-  azureSpeechFailed,
-  azureSpeechEmpty,
+  speechNotConfigured,
+  speechFailed,
+  speechEmpty,
   openAiStructuredInvalid,
   openAiAnswerInvalid,
   remoteUnavailable,
@@ -315,12 +315,15 @@ AiErrorCode _parseAiErrorCode(String? value, int statusCode) {
       return AiErrorCode.invalidRequest;
     case 'authorization_required':
       return AiErrorCode.authorizationRequired;
+    case 'speech_not_configured':
     case 'azure_speech_not_configured':
-      return AiErrorCode.azureSpeechNotConfigured;
+      return AiErrorCode.speechNotConfigured;
+    case 'speech_failed':
     case 'azure_speech_failed':
-      return AiErrorCode.azureSpeechFailed;
+      return AiErrorCode.speechFailed;
+    case 'speech_empty':
     case 'azure_speech_empty':
-      return AiErrorCode.azureSpeechEmpty;
+      return AiErrorCode.speechEmpty;
     case 'openai_structured_invalid':
       return AiErrorCode.openAiStructuredInvalid;
     case 'openai_answer_invalid':

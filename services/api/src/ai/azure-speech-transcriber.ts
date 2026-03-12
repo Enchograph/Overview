@@ -1,5 +1,6 @@
 import { AiErrorCodes } from './error-codes.js';
 import { HttpError } from '../planning/errors.js';
+import { resolveSpeechLocale } from './speech-locales.js';
 import type { AiAudioInput, AiTranscription } from './types.js';
 import type { AiSpeechTranscriber } from './composite-service.js';
 
@@ -14,14 +15,16 @@ export class AzureSpeechTranscriber implements AiSpeechTranscriber {
   constructor(
     private readonly key: string,
     private readonly region: string,
+    private readonly defaultLocale: string,
   ) {}
 
   async transcribeAudio(
     _userId: string,
     input: AiAudioInput,
   ): Promise<AiTranscription> {
+    const locale = resolveSpeechLocale(input.locale, this.defaultLocale);
     const response = await fetch(
-      `https://${this.region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${encodeURIComponent(input.locale)}&format=simple`,
+      `https://${this.region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${encodeURIComponent(locale)}&format=simple`,
       {
         method: 'POST',
         headers: {
@@ -36,8 +39,8 @@ export class AzureSpeechTranscriber implements AiSpeechTranscriber {
     if (!response.ok) {
       throw new HttpError(
         502,
-        `Azure Speech transcription failed with ${response.status}.`,
-        AiErrorCodes.azureSpeechFailed,
+        `Speech transcription failed with ${response.status}.`,
+        AiErrorCodes.speechFailed,
       );
     }
 
@@ -49,14 +52,14 @@ export class AzureSpeechTranscriber implements AiSpeechTranscriber {
     ) {
       throw new HttpError(
         502,
-        'Azure Speech returned an empty transcription.',
-        AiErrorCodes.azureSpeechEmpty,
+        'Speech provider returned an empty transcription.',
+        AiErrorCodes.speechEmpty,
       );
     }
 
     return {
       text: payload.DisplayText.trim(),
-      locale: input.locale,
+      locale,
     };
   }
 }

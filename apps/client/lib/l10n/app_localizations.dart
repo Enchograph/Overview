@@ -176,9 +176,9 @@ class AppLocalizations {
   String get aiUnavailableTitle => _value('aiUnavailableTitle');
   String get aiUnavailableBody => _value('aiUnavailableBody');
   String get aiErrorAuthorization => _value('aiErrorAuthorization');
-  String get aiErrorAzureConfig => _value('aiErrorAzureConfig');
-  String get aiErrorAzureFailed => _value('aiErrorAzureFailed');
-  String get aiErrorAzureEmpty => _value('aiErrorAzureEmpty');
+  String get aiErrorSpeechConfig => _value('aiErrorSpeechConfig');
+  String get aiErrorSpeechFailed => _value('aiErrorSpeechFailed');
+  String get aiErrorSpeechEmpty => _value('aiErrorSpeechEmpty');
   String get aiErrorInvalidRequest => _value('aiErrorInvalidRequest');
   String get aiErrorAnswerFailed => _value('aiErrorAnswerFailed');
   String get aiErrorParseFailed => _value('aiErrorParseFailed');

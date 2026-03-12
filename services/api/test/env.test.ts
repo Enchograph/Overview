@@ -11,6 +11,7 @@ const env = readEnv({
   DATABASE_SCHEMA: 'public',
   DATABASE_MIGRATIONS_TABLE: 'schema_migrations',
   AI_PROVIDER: 'auto',
+  AI_SPEECH_PROVIDER: 'azure',
   OPENAI_API_KEY: '   ',
   OPENAI_MODEL: 'gpt-4.1-mini',
   AZURE_SPEECH_KEY: '',
@@ -21,3 +22,4 @@ const env = readEnv({
 assert.equal(env.OPENAI_API_KEY, undefined);
 assert.equal(env.AZURE_SPEECH_KEY, undefined);
 assert.equal(env.AZURE_SPEECH_REGION, undefined);
+assert.equal(env.AI_SPEECH_PROVIDER, 'azure');

@@ -2,10 +2,10 @@ import OpenAI from 'openai';
 
 import type { AppEnv } from '../config/env.js';
 import type { PlanningRepository } from '../planning/types.js';
-import { AzureSpeechTranscriber } from './azure-speech-transcriber.js';
 import { CompositeAiService } from './composite-service.js';
 import { HeuristicAiService } from './heuristic-service.js';
 import { OpenAiService } from './openai-service.js';
+import { createSpeechTranscriber } from './speech-factory.js';
 import type { AiProviderContext, AiService } from './types.js';
 
 export function createAiService(
@@ -13,13 +13,7 @@ export function createAiService(
   planningRepository: PlanningRepository,
 ): AiService {
   const heuristic = new HeuristicAiService(planningRepository);
-  const speechTranscriber =
-    env.AZURE_SPEECH_KEY && env.AZURE_SPEECH_REGION
-        ? new AzureSpeechTranscriber(
-            env.AZURE_SPEECH_KEY,
-            env.AZURE_SPEECH_REGION,
-          )
-        : undefined;
+  const speechTranscriber = createSpeechTranscriber(env);
   let service: AiService = heuristic;
 
   if (env.AI_PROVIDER === 'heuristic') {

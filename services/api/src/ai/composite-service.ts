@@ -33,8 +33,8 @@ export class CompositeAiService implements AiService {
     if (!this.speechTranscriber) {
       throw new HttpError(
         503,
-        'Voice transcription requires Azure Speech configuration.',
-        AiErrorCodes.azureSpeechNotConfigured,
+        'Voice transcription is not configured on the server.',
+        AiErrorCodes.speechNotConfigured,
       );
     }
 

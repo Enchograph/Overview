@@ -7,6 +7,7 @@
 - 当前交接记录：[HANDOFF.md](/home/anon/文档/GitHub/Overview/docs/HANDOFF.md)
 - 已知限制：[KNOWN_LIMITATIONS.md](/home/anon/文档/GitHub/Overview/docs/KNOWN_LIMITATIONS.md)
 - 剩余阻塞清单：[REMAINING_RELEASE_BLOCKERS.md](/home/anon/文档/GitHub/Overview/docs/REMAINING_RELEASE_BLOCKERS.md)
+- AI 语音选型说明：[AI_SPEECH_DECISION.md](/home/anon/文档/GitHub/Overview/docs/AI_SPEECH_DECISION.md)
 
 ## 客户端交付
 

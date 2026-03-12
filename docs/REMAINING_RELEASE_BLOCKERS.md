@@ -68,6 +68,8 @@ flutter build windows
 现状：
 
 - API 与客户端语音转写接口已完成
+- 当前语音选型已固定为 Azure Speech，原因是中文优先且后续 i18n 扩展更容易通过 BCP-47 locale 继续扩展
+- 仓库内已完成通用 speech provider 抽象与 locale 规范化
 - 自动化覆盖了未配置与错误码路径
 - 真实 Azure Speech key/region 尚未验证
 
@@ -111,3 +113,4 @@ flutter build windows
   - 缺 Azure 真实凭据
   - 缺可用 integration runner 环境
 - 因此当前最有效的仓库内动作应以文档清单化和入口收敛为主，而不是伪造通过状态
+- 语音提供商选型本身已经在仓库内落定；当前阻塞不再是“选哪个”，而是“缺真实凭据做最终验证”

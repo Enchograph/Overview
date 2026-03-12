@@ -92,8 +92,8 @@ export class OpenAiService implements AiService {
     return Promise.reject(
       new HttpError(
         503,
-        'Voice transcription is delegated to Azure Speech.',
-        AiErrorCodes.azureSpeechNotConfigured,
+        'Voice transcription is not configured on the server.',
+        AiErrorCodes.speechNotConfigured,
       ),
     );
   }

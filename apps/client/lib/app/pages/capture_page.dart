@@ -4,9 +4,10 @@ import '../../l10n/app_localizations.dart';
 import '../ai/ai_error_presenter.dart';
 import '../ai/ai_repository.dart';
 import '../ai/ai_scope.dart';
+import '../ai/ai_store.dart';
+import '../ai/speech_locale.dart';
 import '../ai/speech_input_scope.dart';
 import '../ai/speech_input_store.dart';
-import '../ai/ai_store.dart';
 import '../planning/planning_store.dart';
 import '../planning/planning_scope.dart';
 
@@ -416,9 +417,7 @@ class _CapturePageState extends State<CapturePage> {
         return;
       }
 
-      final locale = Localizations.localeOf(context).languageCode == 'zh'
-          ? 'zh-CN'
-          : 'en-US';
+      final locale = resolveSpeechLocale(Localizations.localeOf(context));
       final transcript = await aiStore.transcribeAudio(
         audioBytes: audio.bytes,
         mimeType: audio.mimeType,

@@ -96,7 +96,7 @@ async function main() {
     })
     .expect(503)
     .expect(({ body }: { body: { code?: string } }) => {
-      assert.equal(body.code, 'azure_speech_not_configured');
+      assert.equal(body.code, 'speech_not_configured');
     });
 
   console.log('AI API tests passed');

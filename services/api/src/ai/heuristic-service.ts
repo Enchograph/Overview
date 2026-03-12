@@ -76,8 +76,8 @@ export class HeuristicAiService implements AiService {
     return Promise.reject(
       new HttpError(
         503,
-        'Voice transcription requires Azure Speech configuration.',
-        AiErrorCodes.azureSpeechNotConfigured,
+        'Voice transcription is not configured on the server.',
+        AiErrorCodes.speechNotConfigured,
       ),
     );
   }

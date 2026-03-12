@@ -152,11 +152,11 @@ const localizedValues = <String, Map<String, String>>{
     'aiUnavailableBody':
         'Set OVERVIEW_API_BASE_URL before using AI assistance.',
     'aiErrorAuthorization': 'Log in again before using AI features.',
-    'aiErrorAzureConfig':
+    'aiErrorSpeechConfig':
         'Voice transcription is not configured on the server yet.',
-    'aiErrorAzureFailed':
+    'aiErrorSpeechFailed':
         'Voice transcription failed. Try recording again in a quieter place.',
-    'aiErrorAzureEmpty':
+    'aiErrorSpeechEmpty':
         'No speech was recognized. Try speaking more clearly and record again.',
     'aiErrorInvalidRequest':
         'The AI request is invalid. Check the input and try again.',
@@ -325,9 +325,9 @@ const localizedValues = <String, Map<String, String>>{
     'aiUnavailableTitle': 'AI 不可用',
     'aiUnavailableBody': '请先设置 OVERVIEW_API_BASE_URL，再使用 AI 问答。',
     'aiErrorAuthorization': '请重新登录后再使用 AI 功能。',
-    'aiErrorAzureConfig': '服务端暂未配置语音转写。',
-    'aiErrorAzureFailed': '语音转写失败，请换个更安静的环境后再试。',
-    'aiErrorAzureEmpty': '没有识别到有效语音，请更清晰地说一遍再试。',
+    'aiErrorSpeechConfig': '服务端暂未配置语音转写。',
+    'aiErrorSpeechFailed': '语音转写失败，请换个更安静的环境后再试。',
+    'aiErrorSpeechEmpty': '没有识别到有效语音，请更清晰地说一遍再试。',
     'aiErrorInvalidRequest': 'AI 请求无效，请检查输入后重试。',
     'aiErrorAnswerFailed': 'AI 暂时无法回答，请稍后再试。',
     'aiErrorParseFailed': 'AI 暂时无法解析这段内容，请编辑后重试。',
