@@ -37,7 +37,9 @@ class _OverviewAppState extends State<OverviewApp> {
     const apiBaseUrl = String.fromEnvironment('OVERVIEW_API_BASE_URL');
 
     if (apiBaseUrl.isNotEmpty) {
-      return HttpPlanningRepository(baseUrl: apiBaseUrl);
+      return LocalPlanningRepository(
+        remoteRepository: HttpPlanningRepository(baseUrl: apiBaseUrl),
+      );
     }
 
     return LocalPlanningRepository();

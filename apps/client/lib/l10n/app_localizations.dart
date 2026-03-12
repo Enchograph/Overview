@@ -108,6 +108,22 @@ class AppLocalizations {
   String get syncStatusTitle => _value('syncStatusTitle');
   String get syncStatusSubtitle => _value('syncStatusSubtitle');
   String get syncStatusPending => _value('syncStatusPending');
+  String get syncRemoteEnabled => _value('syncRemoteEnabled');
+  String get syncRemoteDisabled => _value('syncRemoteDisabled');
+  String get syncPendingTitle => _value('syncPendingTitle');
+  String syncPendingBody(int operationCount, int itemCount) =>
+      _value('syncPendingBody')
+          .replaceFirst('{operationCount}', '$operationCount')
+          .replaceFirst('{itemCount}', '$itemCount');
+  String get syncLastAttemptLabel => _value('syncLastAttemptLabel');
+  String get syncLastSuccessLabel => _value('syncLastSuccessLabel');
+  String get syncLastErrorLabel => _value('syncLastErrorLabel');
+  String get syncPhaseIdle => _value('syncPhaseIdle');
+  String get syncPhaseSyncing => _value('syncPhaseSyncing');
+  String get syncPhaseSuccess => _value('syncPhaseSuccess');
+  String get syncPhaseBlocked => _value('syncPhaseBlocked');
+  String get syncPhaseFailed => _value('syncPhaseFailed');
+  String get syncRunAction => _value('syncRunAction');
   String get captureShortcut => _value('captureShortcut');
   String get aiShortcut => _value('aiShortcut');
   String get syncShortcut => _value('syncShortcut');

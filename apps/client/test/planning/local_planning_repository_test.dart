@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overview_client/app/planning/planning_models.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,5 +48,42 @@ void main() {
 
     expect(archivedMemo.isArchived, isTrue);
     expect(archivedMemo.archivedAt, isNotNull);
+  });
+
+  test('tracks pending sync status after local mutation', () async {
+    final repository = LocalPlanningRepository();
+
+    await repository.createMemo(title: 'Sync this later');
+    final syncStatus = await repository.fetchSyncStatus();
+
+    expect(syncStatus.pendingOperationCount, 1);
+    expect(syncStatus.pendingItemCount, 1);
+    expect(syncStatus.phase, PlanningSyncPhase.idle);
+  });
+
+  test('runs sync against remote repository and clears pending work', () async {
+    final remoteRepository = FakePlanningRepository(
+      schedules: const [],
+      tasks: const [],
+      memos: const [],
+    );
+    final repository = LocalPlanningRepository(
+      remoteRepository: remoteRepository,
+    );
+
+    await repository.createMemo(title: 'Push me');
+
+    final beforeSync = await repository.fetchSyncStatus();
+    expect(beforeSync.pendingOperationCount, 1);
+
+    final syncResult = await repository.runSync();
+    final memos = await repository.fetchMemos();
+
+    expect(syncResult.phase, PlanningSyncPhase.success);
+    expect(syncResult.pendingOperationCount, 0);
+    expect(syncResult.pendingItemCount, 0);
+    expect(syncResult.lastSuccessAt, isNotNull);
+    expect(memos.any((memo) => memo.title == 'Push me'), isTrue);
+    expect(memos.every((memo) => memo.syncState == SyncState.synced), isTrue);
   });
 }

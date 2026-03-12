@@ -61,7 +61,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sync status'), findsOneWidget);
-    expect(find.text('Local-only mode'), findsOneWidget);
+    expect(find.text('Sync overview'), findsOneWidget);
+    expect(find.text('Pending queue'), findsOneWidget);
   });
 
   testWidgets('creates a memo from capture page', (tester) async {

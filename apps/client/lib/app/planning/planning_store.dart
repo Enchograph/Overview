@@ -13,19 +13,28 @@ class PlanningStore extends ChangeNotifier {
 
   bool _isLoading = false;
   bool _isSubmitting = false;
+  bool _isSyncing = false;
   String? _errorMessage;
   DateTime? _lastUpdatedAt;
   List<ScheduleItem> _schedules = const [];
   List<TaskItem> _tasks = const [];
   List<MemoItem> _memos = const [];
+  PlanningSyncStatus _syncStatus = const PlanningSyncStatus(
+    phase: PlanningSyncPhase.idle,
+    isRemoteEnabled: false,
+    pendingOperationCount: 0,
+    pendingItemCount: 0,
+  );
 
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
+  bool get isSyncing => _isSyncing;
   String? get errorMessage => _errorMessage;
   DateTime? get lastUpdatedAt => _lastUpdatedAt;
   List<ScheduleItem> get schedules => _schedules;
   List<TaskItem> get tasks => _tasks;
   List<MemoItem> get memos => _memos;
+  PlanningSyncStatus get syncStatus => _syncStatus;
   int get totalCount => _schedules.length + _tasks.length + _memos.length;
   int get activeMemoCount => _memos.where((memo) => !memo.isArchived).length;
 
@@ -39,10 +48,12 @@ class PlanningStore extends ChangeNotifier {
         _repository.fetchSchedules(),
         _repository.fetchTasks(),
         _repository.fetchMemos(),
+        _repository.fetchSyncStatus(),
       ]);
       _schedules = results[0] as List<ScheduleItem>;
       _tasks = results[1] as List<TaskItem>;
       _memos = results[2] as List<MemoItem>;
+      _syncStatus = results[3] as PlanningSyncStatus;
       _lastUpdatedAt = DateTime.now();
     } catch (error) {
       _errorMessage = error.toString();
@@ -91,6 +102,23 @@ class PlanningStore extends ChangeNotifier {
       await refresh();
     } catch (error) {
       _errorMessage = error.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<void> syncNow() async {
+    _isSyncing = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _syncStatus = await _repository.runSync();
+      await refresh();
+    } catch (error) {
+      _errorMessage = error.toString();
+      notifyListeners();
+    } finally {
+      _isSyncing = false;
       notifyListeners();
     }
   }

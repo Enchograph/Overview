@@ -4,8 +4,8 @@
 
 - 状态：进行中
 - 当前阶段：P2 核心数据闭环
-- 当前功能块：已完成本地存储，开始规划同步骨架
-- 最后更新：2026-03-11
+- 当前功能块：同步骨架初版已落地，等待 Flutter SDK 验证
+- 最后更新：2026-03-12
 
 ## 已完成
 
@@ -14,7 +14,7 @@
 - 治理层文档已写入仓库
 - 基础目录骨架已建立
 - 固定接力提示词已建立
-- 高风险命令审批规则已纳入治理层
+- 命令默认自动执行、无人工审批、任务完成后自动续跑的治理规则已纳入治理层
 - 已确定根级 monorepo 管理方式为 `pnpm workspace`
 - 已建立根级 `package.json` 与 `pnpm-workspace.yaml`
 - 已建立 `packages/shared` 基础健康检查契约
@@ -32,18 +32,20 @@
 - 已完成客户端 planning 模型、可切换仓储、应用级 store，以及周视图/备忘/添加页的数据接入
 - 已完成客户端本地存储仓储，默认使用 SharedPreferences 持久化 planning 数据
 - 已完成客户端本地存储验证与 Android debug APK 构建验证
+- 已完成客户端同步骨架初版：本地待同步队列、同步状态快照、同步页状态展示与手动同步入口
 
 ## 进行中
 
-- 规划同步骨架
+- 等待 Flutter SDK 就绪后验证同步骨架，并在具备 PostgreSQL 实例后执行真实联调烟测
 
 ## 下一步唯一推荐动作
 
-规划同步骨架。
+在具备 Flutter SDK 与 PostgreSQL 后，执行客户端同步骨架验证和远端 API 烟测。
 
 ## 当前阻塞
 
 - 当前环境未提供可用的本地 PostgreSQL 实例；`127.0.0.1:5432` 未监听，migration runner 尚未做真实连库烟测
+- 当前环境未安装 `flutter` 命令，无法执行 `flutter analyze`、`flutter test` 与 `flutter build apk --debug`
 
 ## 当前技术默认值
 
@@ -67,5 +69,5 @@
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前测试使用可替换内存仓储完成接口验证
-- 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；可通过 `--dart-define=OVERVIEW_API_BASE_URL=...` 切换到真实 API
+- 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式
 - Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常

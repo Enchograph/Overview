@@ -4,6 +4,96 @@ enum PlanningStatus { active, done, cancelled, archived }
 
 enum TaskStatus { todo, inProgress, done, cancelled }
 
+enum SyncState { localOnly, pendingPush, synced, pendingDelete, conflict }
+
+enum PlanningSyncPhase { idle, syncing, success, blocked, failed }
+
+class PlanningSyncStatus {
+  const PlanningSyncStatus({
+    required this.phase,
+    required this.isRemoteEnabled,
+    required this.pendingOperationCount,
+    required this.pendingItemCount,
+    this.lastAttemptAt,
+    this.lastSuccessAt,
+    this.lastError,
+  });
+
+  factory PlanningSyncStatus.initial({required bool isRemoteEnabled}) {
+    return PlanningSyncStatus(
+      phase: PlanningSyncPhase.idle,
+      isRemoteEnabled: isRemoteEnabled,
+      pendingOperationCount: 0,
+      pendingItemCount: 0,
+    );
+  }
+
+  final PlanningSyncPhase phase;
+  final bool isRemoteEnabled;
+  final int pendingOperationCount;
+  final int pendingItemCount;
+  final DateTime? lastAttemptAt;
+  final DateTime? lastSuccessAt;
+  final String? lastError;
+
+  bool get hasPendingWork => pendingOperationCount > 0 || pendingItemCount > 0;
+
+  PlanningSyncStatus copyWith({
+    PlanningSyncPhase? phase,
+    bool? isRemoteEnabled,
+    int? pendingOperationCount,
+    int? pendingItemCount,
+    DateTime? lastAttemptAt,
+    bool clearLastAttemptAt = false,
+    DateTime? lastSuccessAt,
+    bool clearLastSuccessAt = false,
+    String? lastError,
+    bool clearLastError = false,
+  }) {
+    return PlanningSyncStatus(
+      phase: phase ?? this.phase,
+      isRemoteEnabled: isRemoteEnabled ?? this.isRemoteEnabled,
+      pendingOperationCount: pendingOperationCount ?? this.pendingOperationCount,
+      pendingItemCount: pendingItemCount ?? this.pendingItemCount,
+      lastAttemptAt: clearLastAttemptAt
+          ? null
+          : lastAttemptAt ?? this.lastAttemptAt,
+      lastSuccessAt: clearLastSuccessAt
+          ? null
+          : lastSuccessAt ?? this.lastSuccessAt,
+      lastError: clearLastError ? null : lastError ?? this.lastError,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'phase': planningSyncPhaseApiValue(phase),
+      'isRemoteEnabled': isRemoteEnabled,
+      'pendingOperationCount': pendingOperationCount,
+      'pendingItemCount': pendingItemCount,
+      'lastAttemptAt': lastAttemptAt?.toIso8601String(),
+      'lastSuccessAt': lastSuccessAt?.toIso8601String(),
+      'lastError': lastError,
+    };
+  }
+
+  factory PlanningSyncStatus.fromJson(Map<String, dynamic> json) {
+    return PlanningSyncStatus(
+      phase: parsePlanningSyncPhase(json['phase'] as String?),
+      isRemoteEnabled: json['isRemoteEnabled'] as bool? ?? false,
+      pendingOperationCount: json['pendingOperationCount'] as int? ?? 0,
+      pendingItemCount: json['pendingItemCount'] as int? ?? 0,
+      lastAttemptAt: json['lastAttemptAt'] == null
+          ? null
+          : DateTime.parse(json['lastAttemptAt'] as String),
+      lastSuccessAt: json['lastSuccessAt'] == null
+          ? null
+          : DateTime.parse(json['lastSuccessAt'] as String),
+      lastError: json['lastError'] as String?,
+    );
+  }
+}
+
 class ScheduleItem {
   const ScheduleItem({
     required this.id,
@@ -15,6 +105,7 @@ class ScheduleItem {
     this.timezone,
     this.durationMinutes,
     this.status = PlanningStatus.active,
+    this.syncState = SyncState.synced,
   });
 
   factory ScheduleItem.fromJson(Map<String, dynamic> json) {
@@ -30,6 +121,7 @@ class ScheduleItem {
       timezone: json['timezone'] as String?,
       durationMinutes: json['durationMinutes'] as int?,
       status: parsePlanningStatus(json['status'] as String?),
+      syncState: parseSyncState(json['syncState'] as String?),
     );
   }
 
@@ -42,6 +134,7 @@ class ScheduleItem {
   final String? timezone;
   final int? durationMinutes;
   final PlanningStatus status;
+  final SyncState syncState;
 
   Map<String, dynamic> toJson() {
     return {
@@ -54,6 +147,7 @@ class ScheduleItem {
       'timezone': timezone,
       'durationMinutes': durationMinutes,
       'status': planningStatusApiValue(status),
+      'syncState': syncStateApiValue(syncState),
     };
   }
 }
@@ -71,6 +165,7 @@ class TaskItem {
     this.plannedDurationMinutes,
     this.status = TaskStatus.todo,
     this.completionAt,
+    this.syncState = SyncState.synced,
   });
 
   factory TaskItem.fromJson(Map<String, dynamic> json) {
@@ -90,6 +185,7 @@ class TaskItem {
       completionAt: json['completionAt'] == null
           ? null
           : DateTime.parse(json['completionAt'] as String),
+      syncState: parseSyncState(json['syncState'] as String?),
     );
   }
 
@@ -104,6 +200,7 @@ class TaskItem {
   final int? plannedDurationMinutes;
   final TaskStatus status;
   final DateTime? completionAt;
+  final SyncState syncState;
 
   Map<String, dynamic> toJson() {
     return {
@@ -118,6 +215,7 @@ class TaskItem {
       'plannedDurationMinutes': plannedDurationMinutes,
       'status': taskStatusApiValue(status),
       'completionAt': completionAt?.toIso8601String(),
+      'syncState': syncStateApiValue(syncState),
     };
   }
 }
@@ -133,6 +231,7 @@ class MemoItem {
     this.sortOrder,
     this.status = PlanningStatus.active,
     this.archivedAt,
+    this.syncState = SyncState.synced,
   });
 
   factory MemoItem.fromJson(Map<String, dynamic> json) {
@@ -148,6 +247,7 @@ class MemoItem {
       archivedAt: json['archivedAt'] == null
           ? null
           : DateTime.parse(json['archivedAt'] as String),
+      syncState: parseSyncState(json['syncState'] as String?),
     );
   }
 
@@ -160,6 +260,7 @@ class MemoItem {
   final int? sortOrder;
   final PlanningStatus status;
   final DateTime? archivedAt;
+  final SyncState syncState;
 
   bool get isArchived => status == PlanningStatus.archived;
 
@@ -174,6 +275,7 @@ class MemoItem {
       'sortOrder': sortOrder,
       'status': planningStatusApiValue(status),
       'archivedAt': archivedAt?.toIso8601String(),
+      'syncState': syncStateApiValue(syncState),
     };
   }
 }
@@ -229,5 +331,67 @@ String taskStatusApiValue(TaskStatus status) {
       return 'done';
     case TaskStatus.cancelled:
       return 'cancelled';
+  }
+}
+
+SyncState parseSyncState(String? value) {
+  switch (value) {
+    case 'local_only':
+      return SyncState.localOnly;
+    case 'pending_push':
+      return SyncState.pendingPush;
+    case 'pending_delete':
+      return SyncState.pendingDelete;
+    case 'conflict':
+      return SyncState.conflict;
+    case 'synced':
+    default:
+      return SyncState.synced;
+  }
+}
+
+String syncStateApiValue(SyncState state) {
+  switch (state) {
+    case SyncState.localOnly:
+      return 'local_only';
+    case SyncState.pendingPush:
+      return 'pending_push';
+    case SyncState.synced:
+      return 'synced';
+    case SyncState.pendingDelete:
+      return 'pending_delete';
+    case SyncState.conflict:
+      return 'conflict';
+  }
+}
+
+PlanningSyncPhase parsePlanningSyncPhase(String? value) {
+  switch (value) {
+    case 'syncing':
+      return PlanningSyncPhase.syncing;
+    case 'success':
+      return PlanningSyncPhase.success;
+    case 'blocked':
+      return PlanningSyncPhase.blocked;
+    case 'failed':
+      return PlanningSyncPhase.failed;
+    case 'idle':
+    default:
+      return PlanningSyncPhase.idle;
+  }
+}
+
+String planningSyncPhaseApiValue(PlanningSyncPhase phase) {
+  switch (phase) {
+    case PlanningSyncPhase.idle:
+      return 'idle';
+    case PlanningSyncPhase.syncing:
+      return 'syncing';
+    case PlanningSyncPhase.success:
+      return 'success';
+    case PlanningSyncPhase.blocked:
+      return 'blocked';
+    case PlanningSyncPhase.failed:
+      return 'failed';
   }
 }
