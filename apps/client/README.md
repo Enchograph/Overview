@@ -49,10 +49,12 @@ flutter run --dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000
 - `flutter analyze`
 - `flutter test`
 - `flutter build apk --debug`
+- `flutter build apk --release --no-pub`
 - `flutter build web`
 
-当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述四条命令。
+当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述五条命令。
 当前另已写入 `integration_test/main_flow_test.dart`；但本机尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时，受限于 Linux 桌面 `clang` 工具链缺失，尚未完成真实运行。
+当前 release APK 输出路径为 `build/app/outputs/flutter-apk/app-release.apk`；现阶段仍使用 debug keystore 进行 release 构建，仅用于交付验证。
 
 ## 数据接入
 

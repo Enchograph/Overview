@@ -3,7 +3,7 @@
 ## 最近一次交接
 
 - 日期：2026-03-12
-- 阶段：P5
+- 阶段：P6
 - 完成内容：
   - 为 Flutter 客户端新增 `lib/app/notifications/` 模块，封装通知权限状态、测试通知与本地提醒调度能力
   - 接入 `flutter_local_notifications` 与 `timezone`，为 Android Manifest 增加 `POST_NOTIFICATIONS` 权限，并在 Android Gradle 配置中补齐 desugaring 依赖
@@ -28,10 +28,14 @@
   - 新增根级 `README.md`，补齐仓库安装、API 启动、客户端运行、Android/Web/Windows 构建与 AI 环境变量说明
   - 新增 `docs/KNOWN_LIMITATIONS.md`，沉淀 Windows 主机构建、Linux 集成测试工具链、通知策略与 AI 凭据验证等已知限制
   - 更新客户端与 API README，并在 P6 TODO 中关闭“安装与运行说明”“整理已知限制”
+  - 执行 `flutter build apk --release --no-pub`，产出 `apps/client/build/app/outputs/flutter-apk/app-release.apk`
+  - 通过 `build.gradle.kts` 与本机 debug keystore 核对，确认当前 release 仍使用 debug keystore 签名
+  - 将 release APK 产物路径与 debug 签名限制回写到仓库文档和项目状态
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --release --no-pub`
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build web`
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test integration_test/main_flow_test.dart -d linux`，当前 Linux 主机因 Flutter Linux runner 缺少 `clang` 工具链而失败
@@ -39,10 +43,10 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进 Android 交付构建，先产出 release APK 并补齐交付说明
+  - 验证后端本地运行说明与命令闭环
 - 下一接手顺序：
-  1. 产出 Android release APK，并记录签名/当前调试签名状态
-  2. 验证后端本地运行说明与命令闭环
+  1. 验证后端本地运行说明与命令闭环
+  2. 清点后端本地运行过程中的真实阻塞缺陷并修复
   3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
@@ -51,6 +55,7 @@
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
   - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未真实执行
+  - 当前 Android release 仍是 debug keystore 签名，不适合正式商店分发
 
 ## 交接模板
 

@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：安装与运行说明已落地，继续推进已知限制清单与 Android 交付构建
+- 当前功能块：Android release APK 已产出，继续推进后端本地运行闭环
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -82,14 +82,16 @@
 - 已完成主流程测试静态验证：客户端 `flutter analyze`、`flutter test` 继续通过；当前 Linux 主机在尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时暴露本地 `clang` 工具链缺失，尚未完成真实运行
 - 已完成安装与运行说明：新增根级 `README.md`，补齐仓库安装、API 启动、客户端运行、Android/Web/Windows 构建和 AI 环境变量说明
 - 已完成已知限制清单第一版：新增 `docs/KNOWN_LIMITATIONS.md`，沉淀 Windows 主机构建、Linux 集成测试工具链、通知策略和 AI 凭据验证限制
+- 已完成 Android 首个交付构建：通过 `flutter build apk --release --no-pub` 产出 `apps/client/build/app/outputs/flutter-apk/app-release.apk`
+- 已确认当前 Android release 仍使用 debug keystore 签名，适用于当前仓库交付验证，不适用于正式商店分发
 
 ## 进行中
 
-- 推进 Android 交付构建，先产出 release APK 并补齐相关说明
+- 验证后端本地运行说明与命令闭环，确认第二条阻塞性交付线已打通
 
 ## 下一步唯一推荐动作
 
-构建 Android 安装包，先产出 release APK 并确认当前仓库的首个交付物可生成。
+验证后端本地运行，按文档完整执行 migration 与启动命令，确认本地开发模式可闭环。
 
 ## 当前阻塞
 
@@ -98,6 +100,7 @@
 - 当前环境不是 Windows 主机，`flutter build windows` 无法在仓库内完成真实构建验证
 - P5 仍缺少 Windows 主机上的真实构建验证
 - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未在仓库内真实执行
+- Android release 现阶段仍使用 debug keystore；正式发布签名材料与流程尚未进入仓库
 
 ## 当前技术默认值
 
@@ -114,6 +117,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
+- Android release APK 已产出，当前剩余首个交付阻塞点集中在后端本地运行闭环与正式签名材料缺失
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证

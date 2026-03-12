@@ -129,8 +129,14 @@ npm run shared:check
 ## 构建输出
 
 - Android debug APK：`apps/client/build/app/outputs/flutter-apk/app-debug.apk`
+- Android release APK：`apps/client/build/app/outputs/flutter-apk/app-release.apk`
 - Web 静态资源：`apps/client/build/web`
 - Windows：需在 Windows 主机运行 `cd apps/client && flutter build windows`
+
+当前 Android release 构建说明：
+
+- 已在 2026-03-12 通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --release --no-pub` 产出首个 release APK
+- 当前 `apps/client/android/app/build.gradle.kts` 仍将 `release` 绑定到 debug keystore，仅适合开发交付与安装验证，不适合作为正式商店分发签名
 
 ## AI 与语音
 

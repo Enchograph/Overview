@@ -8,6 +8,7 @@
 ## 客户端限制
 
 - Android 快捷入口已实现；Android 主屏小组件仍未实现
+- 当前 Android release APK 仍使用 debug keystore 签名，尚未接入正式发布签名材料
 - 通知调度当前使用固定策略：
   - 日程开始前 10 分钟
   - 任务到期前 30 分钟
