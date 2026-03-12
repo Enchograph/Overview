@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P5 通知、多端适配与小组件
-- 当前功能块：Android 通知已落地，继续推进 Android 平板竖屏适配
+- 当前功能块：Android 平板竖屏适配已落地，继续推进 Android 平板横屏适配
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -66,20 +66,22 @@
 - 已完成 AI 错误处理测试：客户端 widget 测试覆盖 AI 鉴权失败和 Azure Speech 未配置提示，API 测试覆盖 `/ai/transcribe` 错误码返回
 - 已完成 Android 通知第一版：客户端接入 `flutter_local_notifications`，按日程开始前 10 分钟与任务到期前 30 分钟自动重建本地提醒，并在设置页提供权限状态、启用通知与测试通知入口
 - 已完成 Android 通知验证：客户端测试覆盖 planning refresh 后的提醒调度与设置页通知入口，Android debug APK 已在通知插件与 desugaring 配置下重新构建通过
+- 已完成 Android 平板竖屏适配第一版：应用壳层在宽屏下切换为 `NavigationRail`，周视图/添加页/设置页在约 900px 断点下切换为双栏约束布局
+- 已完成 Android 平板竖屏验证：客户端 widget 测试覆盖宽屏导航和设置页卡片展示，Android debug APK 已在宽屏布局调整后重新构建通过
 
 ## 进行中
 
-- 推进 Android 平板竖屏适配，先建立大屏布局不崩坏的主链路
+- 推进 Android 平板横屏适配，先优化更宽场景下的信息密度与页面入口
 
 ## 下一步唯一推荐动作
 
-适配 Android 平板竖屏，先让首页、添加页和设置页在宽屏下具备稳定双栏或约束布局。
+适配 Android 平板横屏，先让周视图、备忘和设置页在更宽窗口下形成更稳定的信息分区与导航层级。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
 - Azure Speech 真实凭据尚未在仓库内验证；当前自动化仅覆盖接口、回退和未配置场景
-- Android 平板、Windows 和 Web 适配仍未开始实现，P5 多端能力仍未形成稳定布局体系
+- Android 平板横屏、Windows 和 Web 适配仍未开始实现，P5 多端能力仍未形成完整布局体系
 
 ## 当前技术默认值
 

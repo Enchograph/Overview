@@ -51,8 +51,77 @@ class _CapturePageState extends State<CapturePage> {
     final speechStore = SpeechInputScope.of(context);
     final suggestion = aiStore.lastSuggestion;
 
-    return ListView(
-      padding: const EdgeInsets.all(24),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTabletLayout = constraints.maxWidth >= 900;
+
+        return ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: isTabletLayout
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: _buildCapturePrimarySection(
+                              l10n,
+                              store,
+                              aiStore,
+                              speechStore,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            flex: 4,
+                            child: _buildCaptureSecondarySection(
+                              l10n,
+                              store,
+                              aiStore,
+                              speechStore,
+                              suggestion,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildCapturePrimarySection(
+                            l10n,
+                            store,
+                            aiStore,
+                            speechStore,
+                          ),
+                          const SizedBox(height: 24),
+                          _buildCaptureSecondarySection(
+                            l10n,
+                            store,
+                            aiStore,
+                            speechStore,
+                            suggestion,
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCapturePrimarySection(
+    AppLocalizations l10n,
+    PlanningStore store,
+    AiStore aiStore,
+    SpeechInputStore speechStore,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.captureHeadline,
             style: Theme.of(context).textTheme.headlineMedium),
@@ -128,8 +197,8 @@ class _CapturePageState extends State<CapturePage> {
             aiStore.isVoiceSubmitting
                 ? l10n.captureVoiceTranscribing
                 : (speechStore.isRecording
-                ? l10n.captureVoiceStopAction
-                : l10n.captureVoiceAction),
+                    ? l10n.captureVoiceStopAction
+                    : l10n.captureVoiceAction),
           ),
         ),
         const SizedBox(height: 12),
@@ -138,66 +207,23 @@ class _CapturePageState extends State<CapturePage> {
           icon: const Icon(Icons.auto_awesome_outlined),
           label: Text(l10n.aiShortcut),
         ),
-        if (suggestion != null) ...[
-          const SizedBox(height: 24),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.captureAiSuggestionTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.captureAiSuggestionBody(
-                      _typeLabel(l10n, suggestion.suggestedType),
-                      suggestion.title,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.captureAiConfidenceLabel(
-                      (suggestion.confidence * 100).round(),
-                    ),
-                  ),
-                  if (suggestion.requiresConfirmation.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.captureAiNeedsConfirm(
-                        suggestion.requiresConfirmation
-                            .map((field) => _fieldLabel(l10n, field))
-                            .join(', '),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  ..._buildStructuredFields(l10n, suggestion),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      FilledButton(
-                        onPressed: store.isSubmitting
-                            ? null
-                            : () => _confirmSuggestion(store, aiStore, suggestion),
-                        child: Text(l10n.captureAiConfirmAction),
-                      ),
-                      TextButton(
-                        onPressed: aiStore.clearSuggestion,
-                        child: Text(l10n.captureAiDismissAction),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildCaptureSecondarySection(
+    AppLocalizations l10n,
+    PlanningStore store,
+    AiStore aiStore,
+    SpeechInputStore speechStore,
+    AiSuggestion? suggestion,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (suggestion != null)
+          _buildSuggestionCard(l10n, store, aiStore, suggestion),
+        if (suggestion != null) const SizedBox(height: 16),
         Card(
           child: ListTile(
             leading: const Icon(Icons.lightbulb_outline),
@@ -222,7 +248,8 @@ class _CapturePageState extends State<CapturePage> {
               title: Text(l10n.captureAiSuggestionTitle),
               subtitle: Text(localizeAiError(l10n, aiStore.error!)),
               trailing: TextButton(
-                onPressed: aiStore.isSubmitting ? null : () => _parseWithAi(aiStore),
+                onPressed:
+                    aiStore.isSubmitting ? null : () => _parseWithAi(aiStore),
                 child: Text(l10n.retryAction),
               ),
             ),
@@ -244,9 +271,7 @@ class _CapturePageState extends State<CapturePage> {
                     : localizeSpeechInputError(l10n, speechStore.error!),
               ),
               trailing: TextButton(
-                onPressed: () {
-                  speechStore.clearError();
-                },
+                onPressed: speechStore.clearError,
                 child: Text(l10n.captureVoiceRetryAction),
               ),
             ),
@@ -272,6 +297,69 @@ class _CapturePageState extends State<CapturePage> {
     );
   }
 
+  Widget _buildSuggestionCard(
+    AppLocalizations l10n,
+    PlanningStore store,
+    AiStore aiStore,
+    AiSuggestion suggestion,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.captureAiSuggestionTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.captureAiSuggestionBody(
+                _typeLabel(l10n, suggestion.suggestedType),
+                suggestion.title,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.captureAiConfidenceLabel(
+                  (suggestion.confidence * 100).round()),
+            ),
+            if (suggestion.requiresConfirmation.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.captureAiNeedsConfirm(
+                  suggestion.requiresConfirmation
+                      .map((field) => _fieldLabel(l10n, field))
+                      .join(', '),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            ..._buildStructuredFields(l10n, suggestion),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                FilledButton(
+                  onPressed: store.isSubmitting
+                      ? null
+                      : () => _confirmSuggestion(store, aiStore, suggestion),
+                  child: Text(l10n.captureAiConfirmAction),
+                ),
+                TextButton(
+                  onPressed: aiStore.clearSuggestion,
+                  child: Text(l10n.captureAiDismissAction),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _submit(PlanningStore store) async {
     final title = _titleController.text.trim();
     final suggestion = AiScope.of(context).lastSuggestion;
@@ -282,12 +370,16 @@ class _CapturePageState extends State<CapturePage> {
     await store.createItem(
       kind: _selectedKind,
       title: title,
-      startAt: suggestion == null ? null : _parseDateTime(_startAtController.text),
+      startAt:
+          suggestion == null ? null : _parseDateTime(_startAtController.text),
       endAt: suggestion == null ? null : _parseDateTime(_endAtController.text),
       dueAt: suggestion == null ? null : _parseDateTime(_dueAtController.text),
-      location: suggestion == null ? null : _trimmedOrNull(_locationController.text),
-      durationMinutes: suggestion == null ? null : _parseInt(_durationController.text),
-      listId: suggestion == null ? null : _trimmedOrNull(_listIdController.text),
+      location:
+          suggestion == null ? null : _trimmedOrNull(_locationController.text),
+      durationMinutes:
+          suggestion == null ? null : _parseInt(_durationController.text),
+      listId:
+          suggestion == null ? null : _trimmedOrNull(_listIdController.text),
     );
     if (!mounted) {
       return;

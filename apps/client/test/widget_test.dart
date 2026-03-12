@@ -28,12 +28,39 @@ void main() {
     );
   }
 
+  Future<void> pumpAdaptiveApp(
+    WidgetTester tester, {
+    Size size = const Size(400, 900),
+    String initialRoute = AppRouter.homeRoute,
+    PlanningRepository? repository,
+    AuthRepository? authRepository,
+    AiRepository? aiRepository,
+    SpeechInputService? speechInputService,
+    NotificationService? notificationService,
+  }) async {
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialRoute: initialRoute,
+        repository: repository,
+        authRepository: authRepository,
+        aiRepository: aiRepository,
+        speechInputService: speechInputService,
+        notificationService: notificationService,
+      ),
+    );
+  }
+
   testWidgets('renders default week tab and shell navigation', (tester) async {
     final repository = FakePlanningRepository();
 
-    await tester.pumpWidget(
-      buildTestApp(repository: repository),
-    );
+    await pumpAdaptiveApp(tester, repository: repository);
     await tester.pumpAndSettle();
 
     expect(find.text('Week'), findsNWidgets(2));
@@ -54,9 +81,7 @@ void main() {
   });
 
   testWidgets('switches to Chinese locale from app bar action', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(),
-    );
+    await pumpAdaptiveApp(tester);
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Switch language'));
@@ -68,11 +93,10 @@ void main() {
   });
 
   testWidgets('starts from settings route and opens sync page', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.settingsRoute,
-        authRepository: FakeAuthRepository(),
-      ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.settingsRoute,
+      authRepository: FakeAuthRepository(),
     );
     await tester.pumpAndSettle();
 
@@ -91,11 +115,10 @@ void main() {
   testWidgets('creates a memo from capture page', (tester) async {
     final repository = FakePlanningRepository();
 
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.captureRoute,
-        repository: repository,
-      ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.captureRoute,
+      repository: repository,
     );
     await tester.pumpAndSettle();
 
@@ -114,11 +137,10 @@ void main() {
   });
 
   testWidgets('opens auth page and logs in from settings', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.settingsRoute,
-        authRepository: FakeAuthRepository(),
-      ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.settingsRoute,
+      authRepository: FakeAuthRepository(),
     );
     await tester.pumpAndSettle();
 
@@ -145,18 +167,17 @@ void main() {
       (tester) async {
     final repository = FakePlanningRepository();
 
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.captureRoute,
-        repository: repository,
-        aiRepository: FakeAiRepository(
-          suggestion: const AiSuggestion(
-            suggestedType: AiSuggestionType.memo,
-            title: 'Buy cat food',
-            confidence: 0.91,
-            requiresConfirmation: ['listId'],
-            extracted: {},
-          ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.captureRoute,
+      repository: repository,
+      aiRepository: FakeAiRepository(
+        suggestion: const AiSuggestion(
+          suggestedType: AiSuggestionType.memo,
+          title: 'Buy cat food',
+          confidence: 0.91,
+          requiresConfirmation: ['listId'],
+          extracted: {},
         ),
       ),
     );
@@ -193,14 +214,13 @@ void main() {
   });
 
   testWidgets('asks ai question from ai route', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.aiRoute,
-        aiRepository: FakeAiRepository(
-          answer: const AiAnswer(
-            answer: 'Start with Design review, then clear the memo inbox.',
-            referencedItemCount: 2,
-          ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.aiRoute,
+      aiRepository: FakeAiRepository(
+        answer: const AiAnswer(
+          answer: 'Start with Design review, then clear the memo inbox.',
+          referencedItemCount: 2,
         ),
       ),
     );
@@ -222,15 +242,14 @@ void main() {
   });
 
   testWidgets('shows localized ai auth error on ai route', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.aiRoute,
-        aiRepository: FakeAiRepository(
-          failure: const AiRepositoryException(
-            code: AiErrorCode.authorizationRequired,
-            message: 'Authorization required',
-            statusCode: 401,
-          ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.aiRoute,
+      aiRepository: FakeAiRepository(
+        failure: const AiRepositoryException(
+          code: AiErrorCode.authorizationRequired,
+          message: 'Authorization required',
+          statusCode: 401,
         ),
       ),
     );
@@ -248,23 +267,22 @@ void main() {
   });
 
   testWidgets('captures voice input and triggers ai parsing', (tester) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.captureRoute,
-        aiRepository: FakeAiRepository(
-          suggestion: const AiSuggestion(
-            suggestedType: AiSuggestionType.task,
-            title: 'Prepare board update',
-            confidence: 0.86,
-            requiresConfirmation: ['dueAt'],
-            extracted: {'dueAt': '2026-03-14T09:00:00.000Z'},
-          ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.captureRoute,
+      aiRepository: FakeAiRepository(
+        suggestion: const AiSuggestion(
+          suggestedType: AiSuggestionType.task,
+          title: 'Prepare board update',
+          confidence: 0.86,
+          requiresConfirmation: ['dueAt'],
+          extracted: {'dueAt': '2026-03-14T09:00:00.000Z'},
         ),
-        speechInputService: FakeSpeechInputService(
-          recordedAudio: const RecordedAudio(
-            bytes: [1, 2, 3],
-            mimeType: 'audio/wav',
-          ),
+      ),
+      speechInputService: FakeSpeechInputService(
+        recordedAudio: const RecordedAudio(
+          bytes: [1, 2, 3],
+          mimeType: 'audio/wav',
         ),
       ),
     );
@@ -289,18 +307,17 @@ void main() {
       'shows localized azure transcription config error on capture page', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.captureRoute,
-        aiRepository: FakeAiRepository(
-          failure: const AiRepositoryException(
-            code: AiErrorCode.azureSpeechNotConfigured,
-            message: 'Voice transcription requires Azure Speech configuration.',
-            statusCode: 503,
-          ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.captureRoute,
+      aiRepository: FakeAiRepository(
+        failure: const AiRepositoryException(
+          code: AiErrorCode.azureSpeechNotConfigured,
+          message: 'Voice transcription requires Azure Speech configuration.',
+          statusCode: 503,
         ),
-        speechInputService: FakeSpeechInputService(),
       ),
+      speechInputService: FakeSpeechInputService(),
     );
     await tester.pumpAndSettle();
 
@@ -328,12 +345,11 @@ void main() {
       permissionStatus: NotificationPermissionStatus.denied,
     );
 
-    await tester.pumpWidget(
-      buildTestApp(
-        initialRoute: AppRouter.settingsRoute,
-        authRepository: FakeAuthRepository(),
-        notificationService: notificationService,
-      ),
+    await pumpAdaptiveApp(
+      tester,
+      initialRoute: AppRouter.settingsRoute,
+      authRepository: FakeAuthRepository(),
+      notificationService: notificationService,
     );
     await tester.pumpAndSettle();
 
@@ -360,5 +376,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(notificationService.testNotificationShown, isTrue);
+  });
+
+  testWidgets('uses tablet navigation rail and keeps week summary visible', (
+    tester,
+  ) async {
+    await pumpAdaptiveApp(
+      tester,
+      size: const Size(960, 1280),
+      repository: FakePlanningRepository(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Planning summary'), findsOneWidget);
+    expect(find.text('Schedules'), findsOneWidget);
+    expect(find.text('Tasks'), findsOneWidget);
+  });
+
+  testWidgets('shows settings tablet cards without extra navigation', (
+    tester,
+  ) async {
+    await pumpAdaptiveApp(
+      tester,
+      size: const Size(960, 1280),
+      initialRoute: AppRouter.settingsRoute,
+      authRepository: FakeAuthRepository(),
+      notificationService: FakeNotificationService(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.text('Account status'), findsOneWidget);
+    expect(find.text('Data source'), findsOneWidget);
+    expect(find.text('Notifications'), findsOneWidget);
   });
 }

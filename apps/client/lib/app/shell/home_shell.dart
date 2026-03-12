@@ -56,43 +56,78 @@ class HomeShell extends StatelessWidget {
     final selectedIndex = tabs.indexWhere((tab) => tab.tab == currentTab);
     final selectedTab = tabs[selectedIndex];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(selectedTab.title),
-        actions: [
-          IconButton(
-            tooltip: l10n.localeToggleTooltip,
-            onPressed: onToggleLocale,
-            icon: const Icon(Icons.language_outlined),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: KeyedSubtree(
-            key: ValueKey(currentTab),
-            child: selectedTab.page,
-          ),
-        ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        destinations: tabs
-            .map(
-              (tab) => NavigationDestination(
-                icon: Icon(tab.icon),
-                label: tab.title,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTabletLayout = constraints.maxWidth >= 840;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(selectedTab.title),
+            actions: [
+              IconButton(
+                tooltip: l10n.localeToggleTooltip,
+                onPressed: onToggleLocale,
+                icon: const Icon(Icons.language_outlined),
               ),
-            )
-            .toList(),
-        onDestinationSelected: (index) {
-          final nextTab = tabs[index].tab;
-          if (nextTab != currentTab) {
-            _replaceShellRoute(context, nextTab);
-          }
-        },
-      ),
+            ],
+          ),
+          body: SafeArea(
+            child: isTabletLayout
+                ? Row(
+                    children: [
+                      NavigationRail(
+                        selectedIndex: selectedIndex,
+                        labelType: NavigationRailLabelType.all,
+                        destinations: tabs
+                            .map(
+                              (tab) => NavigationRailDestination(
+                                icon: Icon(tab.icon),
+                                label: Text(tab.title),
+                              ),
+                            )
+                            .toList(),
+                        onDestinationSelected: (index) {
+                          final nextTab = tabs[index].tab;
+                          if (nextTab != currentTab) {
+                            _replaceShellRoute(context, nextTab);
+                          }
+                        },
+                      ),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1280),
+                            child: _TabBody(
+                                currentTab: currentTab, page: selectedTab.page),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : _TabBody(currentTab: currentTab, page: selectedTab.page),
+          ),
+          bottomNavigationBar: isTabletLayout
+              ? null
+              : NavigationBar(
+                  selectedIndex: selectedIndex,
+                  destinations: tabs
+                      .map(
+                        (tab) => NavigationDestination(
+                          icon: Icon(tab.icon),
+                          label: tab.title,
+                        ),
+                      )
+                      .toList(),
+                  onDestinationSelected: (index) {
+                    final nextTab = tabs[index].tab;
+                    if (nextTab != currentTab) {
+                      _replaceShellRoute(context, nextTab);
+                    }
+                  },
+                ),
+        );
+      },
     );
   }
 
@@ -102,6 +137,27 @@ class HomeShell extends StatelessWidget {
 
   void _replaceShellRoute(BuildContext context, AppTab tab) {
     Navigator.of(context).pushReplacementNamed(AppRouter.shellRouteFor(tab));
+  }
+}
+
+class _TabBody extends StatelessWidget {
+  const _TabBody({
+    required this.currentTab,
+    required this.page,
+  });
+
+  final AppTab currentTab;
+  final Widget page;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: KeyedSubtree(
+        key: ValueKey(currentTab),
+        child: page,
+      ),
+    );
   }
 }
 
