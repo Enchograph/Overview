@@ -25,19 +25,23 @@ export interface UpdateMemoInput extends Partial<CreateMemoInput> {
 }
 
 export interface PlanningRepository {
-  listSchedules(): Promise<ScheduleItem[]>;
-  getSchedule(id: string): Promise<ScheduleItem | null>;
-  createSchedule(input: CreateScheduleInput): Promise<ScheduleItem>;
-  updateSchedule(id: string, input: UpdateScheduleInput): Promise<ScheduleItem | null>;
-  deleteSchedule(id: string): Promise<boolean>;
-  listTasks(): Promise<TaskItem[]>;
-  getTask(id: string): Promise<TaskItem | null>;
-  createTask(input: CreateTaskInput): Promise<TaskItem>;
-  updateTask(id: string, input: UpdateTaskInput): Promise<TaskItem | null>;
-  deleteTask(id: string): Promise<boolean>;
-  listMemos(): Promise<MemoItem[]>;
-  getMemo(id: string): Promise<MemoItem | null>;
-  createMemo(input: CreateMemoInput): Promise<MemoItem>;
-  updateMemo(id: string, input: UpdateMemoInput): Promise<MemoItem | null>;
-  deleteMemo(id: string): Promise<boolean>;
+  listSchedules(userId: string): Promise<ScheduleItem[]>;
+  getSchedule(id: string, userId: string): Promise<ScheduleItem | null>;
+  createSchedule(input: CreateScheduleInput, userId: string): Promise<ScheduleItem>;
+  updateSchedule(
+    id: string,
+    input: UpdateScheduleInput,
+    userId: string,
+  ): Promise<ScheduleItem | null>;
+  deleteSchedule(id: string, userId: string): Promise<boolean>;
+  listTasks(userId: string): Promise<TaskItem[]>;
+  getTask(id: string, userId: string): Promise<TaskItem | null>;
+  createTask(input: CreateTaskInput, userId: string): Promise<TaskItem>;
+  updateTask(id: string, input: UpdateTaskInput, userId: string): Promise<TaskItem | null>;
+  deleteTask(id: string, userId: string): Promise<boolean>;
+  listMemos(userId: string): Promise<MemoItem[]>;
+  getMemo(id: string, userId: string): Promise<MemoItem | null>;
+  createMemo(input: CreateMemoInput, userId: string): Promise<MemoItem>;
+  updateMemo(id: string, input: UpdateMemoInput, userId: string): Promise<MemoItem | null>;
+  deleteMemo(id: string, userId: string): Promise<boolean>;
 }

@@ -16,6 +16,9 @@
   - 扩展 API 测试与 PostgreSQL 烟测，验证邮箱注册、登录与第二个 migration
   - 新增客户端 auth 模块：本地会话持久化仓储、`AuthStore`、`AuthScope` 与账号页面
   - 将设置页接入真实账号状态展示与入口，并补齐 widget/repository 测试
+  - 为 API 新增 Bearer token 校验中间件，并将 `/planning/*` 切换为受保护路由
+  - 调整 planning 内存/PostgreSQL 仓储，按 `createdBy` 隔离当前登录用户的数据读写
+  - 扩展 planning 测试与 PostgreSQL 烟测，验证未授权 401 与登录后受保护 CRUD 主路径
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -25,16 +28,16 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进 token 校验与受保护接口，让认证结果能约束服务端数据访问
+  - 推进客户端 planning/sync 请求携带 token，让账号登录状态真正约束远端同步
 - 下一接手顺序：
-  1. 为 API 增加 token 校验中间件与当前用户解析
-  2. 让 planning 接口开始识别或限制当前登录用户
+  1. 让客户端 `HttpPlanningRepository` 与同步链路自动携带当前 session token
+  2. 补齐客户端真实 HTTP 联调测试，覆盖带 token 的 planning CRUD/同步
   3. 再继续推进同步恢复、冲突策略与受保护数据接口
-  4. 随后把客户端同步请求接到真实 token
+  4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-  - API 虽已返回 session token，但受保护接口与 token 校验尚未落地
-  - 当前客户端还未在 planning/sync 请求里发送 token，账号与数据访问仍未真正绑定
+  - 客户端还未在 planning/sync 请求里发送 token，账号与数据访问仍未真正绑定
+  - 当前 token 仅用于请求鉴权，尚未实现主动登出、session revoke 与多端冲突策略
 
 ## 交接模板
 

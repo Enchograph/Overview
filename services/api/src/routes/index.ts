@@ -1,5 +1,6 @@
 import { Router, type Router as ExpressRouter } from 'express';
 
+import { createRequireAuth } from '../auth/middleware.js';
 import type { AuthRepository } from '../auth/types.js';
 import type { PlanningRepository } from '../planning/types.js';
 import { createAuthRouter } from './auth.js';
@@ -14,7 +15,11 @@ export function createApiRouter(
 
   apiRouter.use('/health', healthRouter);
   apiRouter.use('/auth', createAuthRouter(authRepository));
-  apiRouter.use('/planning', createPlanningRouter(planningRepository));
+  apiRouter.use(
+    '/planning',
+    createRequireAuth(authRepository),
+    createPlanningRouter(planningRepository),
+  );
 
   return apiRouter;
 }

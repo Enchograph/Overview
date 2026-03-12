@@ -82,6 +82,24 @@ export class PostgresAuthRepository implements AuthRepository {
     return this.createSession(_mapUser(user));
   }
 
+  async getUserForToken(token: string): Promise<AuthUser | null> {
+    const result = await this.pool.query<AuthUserRow>(
+      `
+        SELECT u.id, u.email, u.password_hash, u.created_at, u.updated_at
+        FROM ${this.sessionsTableName} s
+        JOIN ${this.usersTableName} u ON u.id = s.user_id
+        WHERE s.token_hash = $1
+          AND s.revoked_at IS NULL
+          AND s.expires_at > NOW()
+        LIMIT 1
+      `,
+      [_hashToken(token)],
+    );
+
+    const row = result.rows[0];
+    return row ? _mapUser(row) : null;
+  }
+
   private async createSession(user: AuthUser): Promise<AuthSession> {
     const token = randomUUID();
     const expiresAt = new Date(

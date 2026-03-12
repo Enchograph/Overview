@@ -1,5 +1,6 @@
-import { Router, type Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 
+import type { AuthenticatedRequest } from '../auth/middleware.js';
 import { HttpError, toErrorResponse } from '../planning/errors.js';
 import {
   createMemoSchema,
@@ -40,9 +41,9 @@ async function requireById<T>(
 export function createPlanningRouter(repository: PlanningRepository): Router {
   const router = Router();
 
-  router.get('/schedules', (_req, res) =>
+  router.get('/schedules', (req, res) =>
     handleRequest(res, async () => {
-      res.json({ items: await repository.listSchedules() });
+      res.json({ items: await repository.listSchedules(_userId(req)) });
     }),
   );
 
@@ -50,7 +51,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
       const item = await requireById(
-        repository.getSchedule(params.id),
+        repository.getSchedule(params.id, _userId(req)),
         'Schedule not found',
       );
       res.json(item);
@@ -60,7 +61,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.post('/schedules', (req, res) =>
     handleRequest(res, async () => {
       const input = createScheduleSchema.parse(req.body);
-      const item = await repository.createSchedule(input);
+      const item = await repository.createSchedule(input, _userId(req));
       res.status(201).json(item);
     }),
   );
@@ -70,7 +71,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
       const params = idParamSchema.parse(req.params);
       const input = updateScheduleSchema.parse(req.body);
       const item = await requireById(
-        repository.updateSchedule(params.id, input),
+        repository.updateSchedule(params.id, input, _userId(req)),
         'Schedule not found',
       );
       res.json(item);
@@ -80,7 +81,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.delete('/schedules/:id', (req, res) =>
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
-      const deleted = await repository.deleteSchedule(params.id);
+      const deleted = await repository.deleteSchedule(params.id, _userId(req));
 
       if (!deleted) {
         throw new HttpError(404, 'Schedule not found');
@@ -90,16 +91,19 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
     }),
   );
 
-  router.get('/tasks', (_req, res) =>
+  router.get('/tasks', (req, res) =>
     handleRequest(res, async () => {
-      res.json({ items: await repository.listTasks() });
+      res.json({ items: await repository.listTasks(_userId(req)) });
     }),
   );
 
   router.get('/tasks/:id', (req, res) =>
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
-      const item = await requireById(repository.getTask(params.id), 'Task not found');
+      const item = await requireById(
+        repository.getTask(params.id, _userId(req)),
+        'Task not found',
+      );
       res.json(item);
     }),
   );
@@ -107,7 +111,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.post('/tasks', (req, res) =>
     handleRequest(res, async () => {
       const input = createTaskSchema.parse(req.body);
-      const item = await repository.createTask(input);
+      const item = await repository.createTask(input, _userId(req));
       res.status(201).json(item);
     }),
   );
@@ -117,7 +121,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
       const params = idParamSchema.parse(req.params);
       const input = updateTaskSchema.parse(req.body);
       const item = await requireById(
-        repository.updateTask(params.id, input),
+        repository.updateTask(params.id, input, _userId(req)),
         'Task not found',
       );
       res.json(item);
@@ -127,7 +131,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.delete('/tasks/:id', (req, res) =>
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
-      const deleted = await repository.deleteTask(params.id);
+      const deleted = await repository.deleteTask(params.id, _userId(req));
 
       if (!deleted) {
         throw new HttpError(404, 'Task not found');
@@ -137,16 +141,19 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
     }),
   );
 
-  router.get('/memos', (_req, res) =>
+  router.get('/memos', (req, res) =>
     handleRequest(res, async () => {
-      res.json({ items: await repository.listMemos() });
+      res.json({ items: await repository.listMemos(_userId(req)) });
     }),
   );
 
   router.get('/memos/:id', (req, res) =>
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
-      const item = await requireById(repository.getMemo(params.id), 'Memo not found');
+      const item = await requireById(
+        repository.getMemo(params.id, _userId(req)),
+        'Memo not found',
+      );
       res.json(item);
     }),
   );
@@ -154,7 +161,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.post('/memos', (req, res) =>
     handleRequest(res, async () => {
       const input = createMemoSchema.parse(req.body);
-      const item = await repository.createMemo(input);
+      const item = await repository.createMemo(input, _userId(req));
       res.status(201).json(item);
     }),
   );
@@ -164,7 +171,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
       const params = idParamSchema.parse(req.params);
       const input = updateMemoSchema.parse(req.body);
       const item = await requireById(
-        repository.updateMemo(params.id, input),
+        repository.updateMemo(params.id, input, _userId(req)),
         'Memo not found',
       );
       res.json(item);
@@ -174,7 +181,7 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   router.delete('/memos/:id', (req, res) =>
     handleRequest(res, async () => {
       const params = idParamSchema.parse(req.params);
-      const deleted = await repository.deleteMemo(params.id);
+      const deleted = await repository.deleteMemo(params.id, _userId(req));
 
       if (!deleted) {
         throw new HttpError(404, 'Memo not found');
@@ -185,4 +192,25 @@ export function createPlanningRouter(repository: PlanningRepository): Router {
   );
 
   return router;
+}
+
+function _userId(request: Request): string {
+  if (!_isAuthenticatedRequest(request)) {
+    throw new HttpError(401, 'Authorization required');
+  }
+
+  return request.authUser.id;
+}
+
+function _isAuthenticatedRequest(
+  request: Request,
+): request is AuthenticatedRequest {
+  const authUser = (request as { authUser?: unknown }).authUser;
+
+  return (
+    typeof authUser === 'object' &&
+    authUser !== null &&
+    'id' in authUser &&
+    typeof authUser.id === 'string'
+  );
 }

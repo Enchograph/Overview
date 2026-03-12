@@ -63,6 +63,18 @@ export class InMemoryAuthRepository implements AuthRepository {
     this.sessionsByTokenHash.set(_hashToken(session.token), session);
     return session;
   }
+
+  getUserForToken(token: string): Promise<AuthUser | null> {
+    const session = this.sessionsByTokenHash.get(_hashToken(token));
+    if (!session) {
+      return Promise.resolve(null);
+    }
+    if (new Date(session.expiresAt).getTime() <= Date.now()) {
+      this.sessionsByTokenHash.delete(_hashToken(token));
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(session.user);
+  }
 }
 
 function _toAuthUser(user: StoredUser): AuthUser {

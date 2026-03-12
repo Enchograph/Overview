@@ -213,6 +213,8 @@ async function main(): Promise<void> {
         password: 'Password123',
       })
       .expect(201);
+    const authToken = (registerResponse.body as { token: string }).token;
+    const authHeader = { Authorization: `Bearer ${authToken}` };
     assert.equal(
       (registerResponse.body as { user: { email: string } }).user.email,
       'pg-smoke@example.com',
@@ -228,6 +230,7 @@ async function main(): Promise<void> {
 
     const scheduleResponse = await request(app)
       .post('/planning/schedules')
+      .set(authHeader)
       .send({
         title: 'Production sync smoke',
         startAt: '2026-03-12T09:00:00.000Z',
@@ -239,6 +242,7 @@ async function main(): Promise<void> {
 
     await request(app)
       .patch(`/planning/schedules/${scheduleId}`)
+      .set(authHeader)
       .send({
         title: 'Production sync smoke updated',
         durationMinutes: 75,
@@ -247,6 +251,7 @@ async function main(): Promise<void> {
 
     await request(app)
       .post('/planning/tasks')
+      .set(authHeader)
       .send({
         title: 'Verify postgres-backed CRUD',
         plannedStartAt: '2026-03-12T13:00:00.000Z',
@@ -257,6 +262,7 @@ async function main(): Promise<void> {
 
     const memoCreateResponse = await request(app)
       .post('/planning/memos')
+      .set(authHeader)
       .send({
         title: 'Archive me',
         listId: 'inbox',
@@ -268,15 +274,27 @@ async function main(): Promise<void> {
 
     await request(app)
       .patch(`/planning/memos/${memoId}`)
+      .set(authHeader)
       .send({
         status: 'archived',
         archivedAt: '2026-03-12T18:00:00.000Z',
       })
       .expect(200);
 
-    const schedules = await request(app).get('/planning/schedules').expect(200);
-    const tasks = await request(app).get('/planning/tasks').expect(200);
-    const memos = await request(app).get('/planning/memos').expect(200);
+    await request(app).get('/planning/schedules').expect(401);
+
+    const schedules = await request(app)
+      .get('/planning/schedules')
+      .set(authHeader)
+      .expect(200);
+    const tasks = await request(app)
+      .get('/planning/tasks')
+      .set(authHeader)
+      .expect(200);
+    const memos = await request(app)
+      .get('/planning/memos')
+      .set(authHeader)
+      .expect(200);
 
     assert.equal((schedules.body as { items: unknown[] }).items.length, 1);
     assert.equal((tasks.body as { items: unknown[] }).items.length, 1);

@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P3 账号、同步与离线
-- 当前功能块：客户端 auth flow 已落地，继续推进 token 校验与受保护接口
+- 当前功能块：服务端受保护 planning API 已落地，继续推进客户端携带 token 同步
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -43,19 +43,21 @@
 - 已完成认证相关 API 测试与 PostgreSQL 烟测扩展，验证 auth migration 与真实登录流程
 - 已完成客户端 auth flow：新增本地会话持久化、认证状态 store、设置页账号状态卡片和邮箱注册/登录页面
 - 已完成客户端认证测试，验证本地会话持久化与设置页登录主路径
+- 已完成服务端 token 校验与受保护 planning 接口：`Authorization: Bearer <token>` 已接入 `/planning/*`，并按当前登录用户隔离读写
+- 已完成受保护 planning API 测试扩展，验证未授权 401、内存仓储与 PostgreSQL 烟测下的受保护 CRUD 主路径
 
 ## 进行中
 
-- 推进 token 校验与受保护接口，让认证结果能约束服务端数据访问
+- 推进客户端 planning/sync 请求携带 token，让账号登录状态真正约束远端同步
 
 ## 下一步唯一推荐动作
 
-实现服务端 token 校验与受保护接口基础，让 planning API 可识别当前登录用户。
+让客户端 planning/sync 请求自动携带当前 session token，打通登录后受保护数据同步主链路。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-- 认证 token 已生成但尚未用于受保护接口；planning 数据仍是匿名访问
+- 客户端尚未在 planning/sync 请求里发送 Bearer token；登录与远端 planning 数据访问还未完全打通
 
 ## 当前技术默认值
 
@@ -79,7 +81,7 @@
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `npx pnpm --filter @overview/api db:migrate` 入口，并通过嵌入式 PostgreSQL 自动化烟测验证首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前同时具备内存仓储测试与 PostgreSQL-backed 烟测
-- API 已提供 `/auth/register`、`/auth/login` 邮箱认证入口，当前返回 session token、过期时间与用户基本信息
+- API 已提供 `/auth/register`、`/auth/login` 邮箱认证入口，当前返回 session token、过期时间与用户基本信息；`/planning/*` 现要求 `Authorization: Bearer <token>`
 - 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式，且现已具备创建、归档、更新、删除的真实 HTTP 同步联调测试
 - 客户端已支持本地持久化邮箱会话，并可从设置页进入账号页面执行注册、登录、退出登录
 - Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常

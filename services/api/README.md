@@ -4,7 +4,7 @@ Node.js + TypeScript 后端 API 服务目录。
 
 当前状态：已升级为基于 Express 的 TypeScript API 服务骨架，并接入环境变量校验、lint、format、test 与 build 入口。
 当前已补充 PostgreSQL schema、首版 migration 机制，以及日程、任务、备忘的核心 CRUD API。
-当前也已补充邮箱注册/登录 API、密码哈希与 session token 生成。
+当前也已补充邮箱注册/登录 API、密码哈希、session token 生成，以及受保护 planning 接口。
 
 ## 当前内容
 
@@ -56,3 +56,9 @@ Node.js + TypeScript 后端 API 服务目录。
 - `GET|PATCH|DELETE /planning/tasks/:id`
 - `GET|POST /planning/memos`
 - `GET|PATCH|DELETE /planning/memos/:id`
+
+## 认证说明
+
+- `/auth/register` 与 `/auth/login` 返回 `token`、`expiresAt` 和 `user`
+- `/planning/*` 现在要求请求头携带 `Authorization: Bearer <token>`
+- planning 数据按当前登录用户隔离；未授权或 token 失效时返回 `401`

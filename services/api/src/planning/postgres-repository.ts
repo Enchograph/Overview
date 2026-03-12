@@ -180,19 +180,20 @@ export class PostgresPlanningRepository implements PlanningRepository {
     this.tableName = buildTableName(env);
   }
 
-  async listSchedules(): Promise<ScheduleItem[]> {
+  async listSchedules(userId: string): Promise<ScheduleItem[]> {
     const result = await this.pool.query<PlanningRow>(
-      `SELECT * FROM ${this.tableName} WHERE type = 'schedule' AND deleted_at IS NULL ORDER BY start_at ASC, created_at ASC`,
+      `SELECT * FROM ${this.tableName} WHERE type = 'schedule' AND created_by = $1 AND deleted_at IS NULL ORDER BY start_at ASC, created_at ASC`,
+      [userId],
     );
     return result.rows.map(mapSchedule);
   }
 
-  async getSchedule(id: string): Promise<ScheduleItem | null> {
-    const row = await this.getById(id, 'schedule');
+  async getSchedule(id: string, userId: string): Promise<ScheduleItem | null> {
+    const row = await this.getById(id, 'schedule', userId);
     return row ? mapSchedule(row) : null;
   }
 
-  async createSchedule(input: CreateScheduleInput): Promise<ScheduleItem> {
+  async createSchedule(input: CreateScheduleInput, userId: string): Promise<ScheduleItem> {
     const row = await this.insertRow('schedule', cleanUndefined({
       title: input.title,
       description: input.description,
@@ -200,6 +201,7 @@ export class PostgresPlanningRepository implements PlanningRepository {
       timezone: input.timezone,
       reminders: input.reminders,
       status: 'active',
+      createdBy: userId,
       syncState: 'synced',
       startAt: input.startAt,
       endAt: input.endAt,
@@ -209,28 +211,29 @@ export class PostgresPlanningRepository implements PlanningRepository {
     return mapSchedule(row);
   }
 
-  async updateSchedule(id: string, input: UpdateScheduleInput): Promise<ScheduleItem | null> {
-    const row = await this.updateRow(id, 'schedule', input);
+  async updateSchedule(id: string, input: UpdateScheduleInput, userId: string): Promise<ScheduleItem | null> {
+    const row = await this.updateRow(id, 'schedule', input, userId);
     return row ? mapSchedule(row) : null;
   }
 
-  async deleteSchedule(id: string): Promise<boolean> {
-    return this.softDelete(id, 'schedule');
+  async deleteSchedule(id: string, userId: string): Promise<boolean> {
+    return this.softDelete(id, 'schedule', userId);
   }
 
-  async listTasks(): Promise<TaskItem[]> {
+  async listTasks(userId: string): Promise<TaskItem[]> {
     const result = await this.pool.query<PlanningRow>(
-      `SELECT * FROM ${this.tableName} WHERE type = 'task' AND deleted_at IS NULL ORDER BY due_at ASC, created_at ASC`,
+      `SELECT * FROM ${this.tableName} WHERE type = 'task' AND created_by = $1 AND deleted_at IS NULL ORDER BY due_at ASC, created_at ASC`,
+      [userId],
     );
     return result.rows.map(mapTask);
   }
 
-  async getTask(id: string): Promise<TaskItem | null> {
-    const row = await this.getById(id, 'task');
+  async getTask(id: string, userId: string): Promise<TaskItem | null> {
+    const row = await this.getById(id, 'task', userId);
     return row ? mapTask(row) : null;
   }
 
-  async createTask(input: CreateTaskInput): Promise<TaskItem> {
+  async createTask(input: CreateTaskInput, userId: string): Promise<TaskItem> {
     const row = await this.insertRow('task', cleanUndefined({
       title: input.title,
       description: input.description,
@@ -238,6 +241,7 @@ export class PostgresPlanningRepository implements PlanningRepository {
       timezone: input.timezone,
       reminders: input.reminders,
       status: 'todo',
+      createdBy: userId,
       syncState: 'synced',
       plannedStartAt: input.plannedStartAt,
       plannedEndAt: input.plannedEndAt,
@@ -248,34 +252,36 @@ export class PostgresPlanningRepository implements PlanningRepository {
     return mapTask(row);
   }
 
-  async updateTask(id: string, input: UpdateTaskInput): Promise<TaskItem | null> {
-    const row = await this.updateRow(id, 'task', input);
+  async updateTask(id: string, input: UpdateTaskInput, userId: string): Promise<TaskItem | null> {
+    const row = await this.updateRow(id, 'task', input, userId);
     return row ? mapTask(row) : null;
   }
 
-  async deleteTask(id: string): Promise<boolean> {
-    return this.softDelete(id, 'task');
+  async deleteTask(id: string, userId: string): Promise<boolean> {
+    return this.softDelete(id, 'task', userId);
   }
 
-  async listMemos(): Promise<MemoItem[]> {
+  async listMemos(userId: string): Promise<MemoItem[]> {
     const result = await this.pool.query<PlanningRow>(
-      `SELECT * FROM ${this.tableName} WHERE type = 'memo' AND deleted_at IS NULL ORDER BY list_id ASC, sort_order ASC NULLS LAST, created_at ASC`,
+      `SELECT * FROM ${this.tableName} WHERE type = 'memo' AND created_by = $1 AND deleted_at IS NULL ORDER BY list_id ASC, sort_order ASC NULLS LAST, created_at ASC`,
+      [userId],
     );
     return result.rows.map(mapMemo);
   }
 
-  async getMemo(id: string): Promise<MemoItem | null> {
-    const row = await this.getById(id, 'memo');
+  async getMemo(id: string, userId: string): Promise<MemoItem | null> {
+    const row = await this.getById(id, 'memo', userId);
     return row ? mapMemo(row) : null;
   }
 
-  async createMemo(input: CreateMemoInput): Promise<MemoItem> {
+  async createMemo(input: CreateMemoInput, userId: string): Promise<MemoItem> {
     const row = await this.insertRow('memo', cleanUndefined({
       title: input.title,
       description: input.description,
       timezone: input.timezone,
       reminders: input.reminders,
       status: 'active',
+      createdBy: userId,
       syncState: 'synced',
       listId: input.listId,
       estimatedDurationMinutes: input.estimatedDurationMinutes,
@@ -284,22 +290,23 @@ export class PostgresPlanningRepository implements PlanningRepository {
     return mapMemo(row);
   }
 
-  async updateMemo(id: string, input: UpdateMemoInput): Promise<MemoItem | null> {
-    const row = await this.updateRow(id, 'memo', input);
+  async updateMemo(id: string, input: UpdateMemoInput, userId: string): Promise<MemoItem | null> {
+    const row = await this.updateRow(id, 'memo', input, userId);
     return row ? mapMemo(row) : null;
   }
 
-  async deleteMemo(id: string): Promise<boolean> {
-    return this.softDelete(id, 'memo');
+  async deleteMemo(id: string, userId: string): Promise<boolean> {
+    return this.softDelete(id, 'memo', userId);
   }
 
   private async getById(
     id: string,
     type: 'schedule' | 'task' | 'memo',
+    userId: string,
   ): Promise<PlanningRow | null> {
     const result = await this.pool.query<PlanningRow>(
-      `SELECT * FROM ${this.tableName} WHERE id = $1 AND type = $2 AND deleted_at IS NULL LIMIT 1`,
-      [id, type],
+      `SELECT * FROM ${this.tableName} WHERE id = $1 AND type = $2 AND created_by = $3 AND deleted_at IS NULL LIMIT 1`,
+      [id, type, userId],
     );
     return result.rows[0] ?? null;
   }
@@ -363,8 +370,9 @@ export class PostgresPlanningRepository implements PlanningRepository {
     id: string,
     type: 'schedule' | 'task' | 'memo',
     input: UpdatePayload,
+    userId: string,
   ): Promise<PlanningRow | null> {
-    const current = await this.getById(id, type);
+    const current = await this.getById(id, type, userId);
 
     if (!current) {
       return null;
@@ -427,6 +435,7 @@ export class PostgresPlanningRepository implements PlanningRepository {
           sort_order = $20,
           archived_at = $21
         WHERE id = $1 AND type = $2 AND deleted_at IS NULL
+          AND created_by = $22
         RETURNING *
       `,
       [
@@ -451,6 +460,7 @@ export class PostgresPlanningRepository implements PlanningRepository {
         next.estimatedDurationMinutes,
         next.sortOrder,
         next.archivedAt,
+        userId,
       ],
     );
 
@@ -460,14 +470,15 @@ export class PostgresPlanningRepository implements PlanningRepository {
   private async softDelete(
     id: string,
     type: 'schedule' | 'task' | 'memo',
+    userId: string,
   ): Promise<boolean> {
     const result = await this.pool.query(
       `
         UPDATE ${this.tableName}
         SET deleted_at = NOW(), updated_at = NOW()
-        WHERE id = $1 AND type = $2 AND deleted_at IS NULL
+        WHERE id = $1 AND type = $2 AND created_by = $3 AND deleted_at IS NULL
       `,
-      [id, type],
+      [id, type, userId],
     );
 
     return result.rowCount === 1;

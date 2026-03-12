@@ -24,4 +24,5 @@ export interface LoginInput {
 export interface AuthRepository {
   register(input: RegisterInput): Promise<AuthSession>;
   login(input: LoginInput): Promise<AuthSession>;
+  getUserForToken(token: string): Promise<AuthUser | null>;
 }

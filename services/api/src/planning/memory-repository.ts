@@ -25,19 +25,20 @@ export class InMemoryPlanningRepository implements PlanningRepository {
   private readonly tasks = new Map<string, TaskItem>();
   private readonly memos = new Map<string, MemoItem>();
 
-  listSchedules(): Promise<ScheduleItem[]> {
+  listSchedules(userId: string): Promise<ScheduleItem[]> {
     return Promise.resolve(
-      Array.from(this.schedules.values()).sort((left, right) =>
-        left.startAt.localeCompare(right.startAt),
-      ),
+      Array.from(this.schedules.values())
+        .filter((item) => item.createdBy === userId)
+        .sort((left, right) => left.startAt.localeCompare(right.startAt)),
     );
   }
 
-  getSchedule(id: string): Promise<ScheduleItem | null> {
-    return Promise.resolve(this.schedules.get(id) ?? null);
+  getSchedule(id: string, userId: string): Promise<ScheduleItem | null> {
+    const item = this.schedules.get(id);
+    return Promise.resolve(item?.createdBy == userId ? item : null);
   }
 
-  createSchedule(input: CreateScheduleInput): Promise<ScheduleItem> {
+  createSchedule(input: CreateScheduleInput, userId: string): Promise<ScheduleItem> {
     const timestamp = nowIso();
     const item: ScheduleItem = {
       id: randomUUID(),
@@ -50,6 +51,7 @@ export class InMemoryPlanningRepository implements PlanningRepository {
       status: 'active',
       createdAt: timestamp,
       updatedAt: timestamp,
+      createdBy: userId,
       syncState: 'synced',
       startAt: input.startAt,
       endAt: input.endAt,
@@ -64,10 +66,11 @@ export class InMemoryPlanningRepository implements PlanningRepository {
   updateSchedule(
     id: string,
     input: UpdateScheduleInput,
+    userId: string,
   ): Promise<ScheduleItem | null> {
     const current = this.schedules.get(id);
 
-    if (!current) {
+    if (!current || current.createdBy !== userId) {
       return Promise.resolve(null);
     }
 
@@ -81,23 +84,28 @@ export class InMemoryPlanningRepository implements PlanningRepository {
     return Promise.resolve(updated);
   }
 
-  deleteSchedule(id: string): Promise<boolean> {
+  deleteSchedule(id: string, userId: string): Promise<boolean> {
+    const current = this.schedules.get(id);
+    if (!current || current.createdBy !== userId) {
+      return Promise.resolve(false);
+    }
     return Promise.resolve(this.schedules.delete(id));
   }
 
-  listTasks(): Promise<TaskItem[]> {
+  listTasks(userId: string): Promise<TaskItem[]> {
     return Promise.resolve(
-      Array.from(this.tasks.values()).sort((left, right) =>
-        left.dueAt.localeCompare(right.dueAt),
-      ),
+      Array.from(this.tasks.values())
+        .filter((item) => item.createdBy === userId)
+        .sort((left, right) => left.dueAt.localeCompare(right.dueAt)),
     );
   }
 
-  getTask(id: string): Promise<TaskItem | null> {
-    return Promise.resolve(this.tasks.get(id) ?? null);
+  getTask(id: string, userId: string): Promise<TaskItem | null> {
+    const item = this.tasks.get(id);
+    return Promise.resolve(item?.createdBy === userId ? item : null);
   }
 
-  createTask(input: CreateTaskInput): Promise<TaskItem> {
+  createTask(input: CreateTaskInput, userId: string): Promise<TaskItem> {
     const timestamp = nowIso();
     const item: TaskItem = {
       id: randomUUID(),
@@ -110,6 +118,7 @@ export class InMemoryPlanningRepository implements PlanningRepository {
       status: 'todo',
       createdAt: timestamp,
       updatedAt: timestamp,
+      createdBy: userId,
       syncState: 'synced',
       plannedStartAt: input.plannedStartAt,
       plannedEndAt: input.plannedEndAt,
@@ -122,10 +131,10 @@ export class InMemoryPlanningRepository implements PlanningRepository {
     return Promise.resolve(item);
   }
 
-  updateTask(id: string, input: UpdateTaskInput): Promise<TaskItem | null> {
+  updateTask(id: string, input: UpdateTaskInput, userId: string): Promise<TaskItem | null> {
     const current = this.tasks.get(id);
 
-    if (!current) {
+    if (!current || current.createdBy !== userId) {
       return Promise.resolve(null);
     }
 
@@ -141,23 +150,28 @@ export class InMemoryPlanningRepository implements PlanningRepository {
     return Promise.resolve(updated);
   }
 
-  deleteTask(id: string): Promise<boolean> {
+  deleteTask(id: string, userId: string): Promise<boolean> {
+    const current = this.tasks.get(id);
+    if (!current || current.createdBy !== userId) {
+      return Promise.resolve(false);
+    }
     return Promise.resolve(this.tasks.delete(id));
   }
 
-  listMemos(): Promise<MemoItem[]> {
+  listMemos(userId: string): Promise<MemoItem[]> {
     return Promise.resolve(
-      Array.from(this.memos.values()).sort(
-        (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0),
-      ),
+      Array.from(this.memos.values())
+        .filter((item) => item.createdBy === userId)
+        .sort((left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0)),
     );
   }
 
-  getMemo(id: string): Promise<MemoItem | null> {
-    return Promise.resolve(this.memos.get(id) ?? null);
+  getMemo(id: string, userId: string): Promise<MemoItem | null> {
+    const item = this.memos.get(id);
+    return Promise.resolve(item?.createdBy === userId ? item : null);
   }
 
-  createMemo(input: CreateMemoInput): Promise<MemoItem> {
+  createMemo(input: CreateMemoInput, userId: string): Promise<MemoItem> {
     const timestamp = nowIso();
     const item: MemoItem = {
       id: randomUUID(),
@@ -169,6 +183,7 @@ export class InMemoryPlanningRepository implements PlanningRepository {
       status: 'active',
       createdAt: timestamp,
       updatedAt: timestamp,
+      createdBy: userId,
       syncState: 'synced',
       listId: input.listId,
       estimatedDurationMinutes: input.estimatedDurationMinutes,
@@ -179,10 +194,10 @@ export class InMemoryPlanningRepository implements PlanningRepository {
     return Promise.resolve(item);
   }
 
-  updateMemo(id: string, input: UpdateMemoInput): Promise<MemoItem | null> {
+  updateMemo(id: string, input: UpdateMemoInput, userId: string): Promise<MemoItem | null> {
     const current = this.memos.get(id);
 
-    if (!current) {
+    if (!current || current.createdBy !== userId) {
       return Promise.resolve(null);
     }
 
@@ -197,7 +212,11 @@ export class InMemoryPlanningRepository implements PlanningRepository {
     return Promise.resolve(updated);
   }
 
-  deleteMemo(id: string): Promise<boolean> {
+  deleteMemo(id: string, userId: string): Promise<boolean> {
+    const current = this.memos.get(id);
+    if (!current || current.createdBy !== userId) {
+      return Promise.resolve(false);
+    }
     return Promise.resolve(this.memos.delete(id));
   }
 }
