@@ -243,6 +243,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
       isRemoteEnabled: true,
       pendingOperationCount: 0,
       pendingItemCount: 0,
+      conflictItemCount: 0,
     );
   }
 
@@ -253,6 +254,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
       isRemoteEnabled: true,
       pendingOperationCount: 0,
       pendingItemCount: 0,
+      conflictItemCount: 0,
       lastAttemptAt: DateTime.now().toUtc(),
       lastSuccessAt: DateTime.now().toUtc(),
     );
@@ -396,6 +398,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw PlanningRepositoryException(
         'Request failed with ${response.statusCode}',
+        statusCode: response.statusCode,
       );
     }
 
@@ -422,6 +425,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw PlanningRepositoryException(
         body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
+        statusCode: response.statusCode,
       );
     }
 
@@ -442,6 +446,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw PlanningRepositoryException(
         body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
+        statusCode: response.statusCode,
       );
     }
   }
@@ -631,6 +636,7 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
       isRemoteEnabled: true,
       pendingOperationCount: 0,
       pendingItemCount: 0,
+      conflictItemCount: 0,
     );
   }
 
@@ -642,6 +648,7 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
       isRemoteEnabled: true,
       pendingOperationCount: 0,
       pendingItemCount: 0,
+      conflictItemCount: 0,
       lastAttemptAt: now,
       lastSuccessAt: now,
     );
@@ -1224,9 +1231,27 @@ class LocalPlanningRepository implements PlanningRepository {
     try {
       while (working.pendingOperations.isNotEmpty) {
         final operation = working.pendingOperations.first;
-        working = await _applyPendingOperation(working, operation);
-        working = _removePendingOperation(working, operation.id);
-        await _persistState(working);
+        try {
+          working = await _applyPendingOperation(working, operation);
+          working = _removePendingOperation(working, operation.id);
+          await _persistState(working);
+        } catch (error) {
+          if (_isConflictError(error)) {
+            final conflictedState = _recalculateState(
+              _markOperationConflict(working, operation).copyWith(
+                syncStatus: working.syncStatus.copyWith(
+                  phase: PlanningSyncPhase.blocked,
+                  lastAttemptAt: attemptAt,
+                  lastError: _formatConflictError(operation),
+                ),
+              ),
+            );
+            await _persistState(conflictedState);
+            return conflictedState.syncStatus;
+          }
+
+          rethrow;
+        }
       }
 
       final refreshed = _recalculateState(
@@ -1408,17 +1433,34 @@ class LocalPlanningRepository implements PlanningRepository {
             .length +
         state.tasks.where((item) => item.syncState != SyncState.synced).length +
         state.memos.where((item) => item.syncState != SyncState.synced).length;
+    final conflictItemCount = state.schedules
+            .where((item) => item.syncState == SyncState.conflict)
+            .length +
+        state.tasks
+            .where((item) => item.syncState == SyncState.conflict)
+            .length +
+        state.memos.where((item) => item.syncState == SyncState.conflict).length;
     return state.copyWith(
       syncStatus: state.syncStatus.copyWith(
         isRemoteEnabled: _isRemoteEnabled,
         pendingOperationCount: state.pendingOperations.length,
         pendingItemCount: pendingItemCount,
+        conflictItemCount: conflictItemCount,
       ),
     );
   }
 
   bool _isAuthBlockedError(Object error) {
     return error is PlanningRepositoryException && error.statusCode == 401;
+  }
+
+  bool _isConflictError(Object error) {
+    return error is PlanningRepositoryException &&
+        (error.statusCode == 404 || error.statusCode == 409);
+  }
+
+  String _formatConflictError(_PendingSyncOperation operation) {
+    return 'Sync conflict detected for ${operation.itemId}. Resolve it before retrying.';
   }
 }
 
@@ -1723,6 +1765,103 @@ _PlanningLocalState _removePendingOperation(
   return state.copyWith(
     pendingOperations: state.pendingOperations
         .where((operation) => operation.id != operationId)
+        .toList(),
+  );
+}
+
+_PlanningLocalState _markOperationConflict(
+  _PlanningLocalState state,
+  _PendingSyncOperation operation,
+) {
+  switch (operation.type) {
+    case _PendingSyncOperationType.createSchedule:
+    case _PendingSyncOperationType.updateSchedule:
+    case _PendingSyncOperationType.deleteSchedule:
+      final schedule = state.schedules.firstWhere(
+        (item) => item.id == operation.itemId,
+        orElse: () => throw const PlanningRepositoryException(
+          'Pending schedule not found',
+        ),
+      );
+      return _replaceSchedule(
+        _removeOperationsForItem(state, operation.itemId),
+        schedule.id,
+        ScheduleItem(
+          id: schedule.id,
+          title: schedule.title,
+          startAt: schedule.startAt,
+          endAt: schedule.endAt,
+          description: schedule.description,
+          location: schedule.location,
+          timezone: schedule.timezone,
+          durationMinutes: schedule.durationMinutes,
+          status: schedule.status,
+          syncState: SyncState.conflict,
+        ),
+      );
+    case _PendingSyncOperationType.createTask:
+    case _PendingSyncOperationType.updateTask:
+    case _PendingSyncOperationType.deleteTask:
+      final task = state.tasks.firstWhere(
+        (item) => item.id == operation.itemId,
+        orElse: () => throw const PlanningRepositoryException(
+          'Pending task not found',
+        ),
+      );
+      return _replaceTask(
+        _removeOperationsForItem(state, operation.itemId),
+        task.id,
+        TaskItem(
+          id: task.id,
+          title: task.title,
+          plannedStartAt: task.plannedStartAt,
+          dueAt: task.dueAt,
+          plannedEndAt: task.plannedEndAt,
+          description: task.description,
+          location: task.location,
+          timezone: task.timezone,
+          plannedDurationMinutes: task.plannedDurationMinutes,
+          status: task.status,
+          completionAt: task.completionAt,
+          syncState: SyncState.conflict,
+        ),
+      );
+    case _PendingSyncOperationType.createMemo:
+    case _PendingSyncOperationType.updateMemo:
+    case _PendingSyncOperationType.updateMemoArchive:
+    case _PendingSyncOperationType.deleteMemo:
+      final memo = state.memos.firstWhere(
+        (item) => item.id == operation.itemId,
+        orElse: () => throw const PlanningRepositoryException(
+          'Pending memo not found',
+        ),
+      );
+      return _replaceMemo(
+        _removeOperationsForItem(state, operation.itemId),
+        memo.id,
+        MemoItem(
+          id: memo.id,
+          title: memo.title,
+          listId: memo.listId,
+          description: memo.description,
+          timezone: memo.timezone,
+          estimatedDurationMinutes: memo.estimatedDurationMinutes,
+          sortOrder: memo.sortOrder,
+          status: memo.status,
+          archivedAt: memo.archivedAt,
+          syncState: SyncState.conflict,
+        ),
+      );
+  }
+}
+
+_PlanningLocalState _removeOperationsForItem(
+  _PlanningLocalState state,
+  String itemId,
+) {
+  return state.copyWith(
+    pendingOperations: state.pendingOperations
+        .where((operation) => operation.itemId != itemId)
         .toList(),
   );
 }

@@ -133,9 +133,13 @@ class AppLocalizations {
       _value('syncPendingBody')
           .replaceFirst('{operationCount}', '$operationCount')
           .replaceFirst('{itemCount}', '$itemCount');
+  String get syncConflictTitle => _value('syncConflictTitle');
+  String syncConflictBody(int itemCount) =>
+      _value('syncConflictBody').replaceFirst('{itemCount}', '$itemCount');
   String get syncLastAttemptLabel => _value('syncLastAttemptLabel');
   String get syncLastSuccessLabel => _value('syncLastSuccessLabel');
   String get syncLastErrorLabel => _value('syncLastErrorLabel');
+  String get syncConflictLabel => _value('syncConflictLabel');
   String get syncPhaseIdle => _value('syncPhaseIdle');
   String get syncPhaseSyncing => _value('syncPhaseSyncing');
   String get syncPhaseSuccess => _value('syncPhaseSuccess');

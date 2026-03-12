@@ -3,7 +3,7 @@
 ## 最近一次交接
 
 - 日期：2026-03-12
-- 阶段：P3
+- 阶段：P4
 - 完成内容：
   - 确认当前环境 Flutter SDK、Android SDK 与 JDK 可用，完成 `flutter analyze`、`flutter test`、`flutter build apk --debug`
   - 将根级与 API 工作区命令从当前环境不可用的 `corepack pnpm` 切换为 `npx pnpm`
@@ -23,6 +23,8 @@
   - 扩展客户端真实 HTTP 联调测试，强制校验 `Authorization: Bearer <token>` 后再执行 planning CRUD/同步
   - 为本地同步仓储增加 401/未鉴权阻塞语义，保留待同步队列并支持重新鉴权后继续重放
   - 扩展本地同步测试，验证 auth failure -> blocked -> 恢复鉴权后 success 的恢复主路径
+  - 为本地同步仓储增加冲突标记语义：远端 404/409 会将对应条目标记为 `conflict`，并移出自动重试队列
+  - 扩展同步页状态展示与本地同步测试，显示冲突数量并验证 conflict 状态落盘
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -32,16 +34,16 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进冲突策略第一版，补齐远端拒绝或数据偏差时的本地可恢复语义
+  - 推进 AI 服务接口基础，开始为文本录入和单轮问答建立受保护后端代理入口
 - 下一接手顺序：
-  1. 为同步失败项增加按条目标记，区分 auth blocked、远端 404/409 与普通网络失败
-  2. 定义并实现冲突态在本地模型/同步状态中的最小表达
-  3. 再继续推进受保护数据接口和更完整的端到端验证
+  1. 在 API 侧建立受保护的 AI 路由与服务抽象
+  2. 为 OpenAI 接入准备环境变量、请求/响应 schema 与错误映射
+  3. 先打通文本录入的服务端占位主路径，再推进客户端 AI 页面
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-  - 当前 token 仅用于请求鉴权，尚未实现主动登出、session revoke 与多端冲突策略
-  - 冲突项仍未在本地形成显式状态或人工处理入口，复杂同步失败场景可观测性不足
+  - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
+  - AI 能力尚未接入真实服务端接口与模型供应商，P4 仍处于空白起步阶段
 
 ## 交接模板
 

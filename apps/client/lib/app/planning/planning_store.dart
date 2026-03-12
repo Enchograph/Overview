@@ -24,6 +24,7 @@ class PlanningStore extends ChangeNotifier {
     isRemoteEnabled: false,
     pendingOperationCount: 0,
     pendingItemCount: 0,
+    conflictItemCount: 0,
   );
 
   bool get isLoading => _isLoading;

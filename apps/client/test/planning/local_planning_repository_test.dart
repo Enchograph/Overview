@@ -163,6 +163,37 @@ void main() {
     );
     expect(memos.every((memo) => memo.syncState == SyncState.synced), isTrue);
   });
+
+  test('marks item as conflict and drops pending operation on remote conflict', () async {
+    final remoteRepository = _ConflictPlanningRemote();
+    final repository = LocalPlanningRepository(
+      remoteRepository: remoteRepository,
+    );
+
+    await repository.createSchedule(title: 'Conflict schedule');
+    await repository.runSync();
+
+    final schedule = (await repository.fetchSchedules()).firstWhere(
+      (item) => item.title == 'Conflict schedule',
+    );
+    remoteRepository.conflictedScheduleIds.add(schedule.id);
+
+    await repository.updateScheduleTitle(
+      scheduleId: schedule.id,
+      title: 'Conflict schedule updated locally',
+    );
+
+    final conflictStatus = await repository.runSync();
+    final schedules = await repository.fetchSchedules();
+    final conflictedItem = schedules.firstWhere((item) => item.id == schedule.id);
+
+    expect(conflictStatus.phase, PlanningSyncPhase.blocked);
+    expect(conflictStatus.pendingOperationCount, 0);
+    expect(conflictStatus.conflictItemCount, 1);
+    expect(conflictStatus.lastError, contains(schedule.id));
+    expect(conflictedItem.title, 'Conflict schedule updated locally');
+    expect(conflictedItem.syncState, SyncState.conflict);
+  });
 }
 
 class _AuthBlockingPlanningRemote extends FakePlanningRepository {
@@ -260,5 +291,28 @@ class _AuthBlockingPlanningRemote extends FakePlanningRepository {
         statusCode: 401,
       );
     }
+  }
+}
+
+class _ConflictPlanningRemote extends FakePlanningRepository {
+  _ConflictPlanningRemote()
+      : super(
+          schedules: const [],
+          tasks: const [],
+          memos: const [],
+        );
+
+  final Set<String> conflictedScheduleIds = {};
+
+  @override
+  Future<ScheduleItem> updateSchedule(ScheduleItem item) async {
+    if (conflictedScheduleIds.contains(item.id)) {
+      throw const PlanningRepositoryException(
+        'Request failed with 409',
+        statusCode: 409,
+      );
+    }
+
+    return super.updateSchedule(item);
   }
 }

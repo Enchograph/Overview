@@ -52,6 +52,14 @@ class SyncRoute extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Card(
+            child: ListTile(
+              leading: const Icon(Icons.warning_amber_outlined),
+              title: Text(l10n.syncConflictTitle),
+              subtitle: Text(l10n.syncConflictBody(syncStatus.conflictItemCount)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -75,6 +83,11 @@ class SyncRoute extends StatelessWidget {
                   _StatusRow(
                     label: l10n.syncLastErrorLabel,
                     value: syncStatus.lastError ?? l10n.syncStatusPending,
+                  ),
+                  const SizedBox(height: 8),
+                  _StatusRow(
+                    label: l10n.syncConflictLabel,
+                    value: '${syncStatus.conflictItemCount}',
                   ),
                 ],
               ),

@@ -14,6 +14,7 @@ class PlanningSyncStatus {
     required this.isRemoteEnabled,
     required this.pendingOperationCount,
     required this.pendingItemCount,
+    required this.conflictItemCount,
     this.lastAttemptAt,
     this.lastSuccessAt,
     this.lastError,
@@ -25,6 +26,7 @@ class PlanningSyncStatus {
       isRemoteEnabled: isRemoteEnabled,
       pendingOperationCount: 0,
       pendingItemCount: 0,
+      conflictItemCount: 0,
     );
   }
 
@@ -32,6 +34,7 @@ class PlanningSyncStatus {
   final bool isRemoteEnabled;
   final int pendingOperationCount;
   final int pendingItemCount;
+  final int conflictItemCount;
   final DateTime? lastAttemptAt;
   final DateTime? lastSuccessAt;
   final String? lastError;
@@ -43,6 +46,7 @@ class PlanningSyncStatus {
     bool? isRemoteEnabled,
     int? pendingOperationCount,
     int? pendingItemCount,
+    int? conflictItemCount,
     DateTime? lastAttemptAt,
     bool clearLastAttemptAt = false,
     DateTime? lastSuccessAt,
@@ -55,6 +59,7 @@ class PlanningSyncStatus {
       isRemoteEnabled: isRemoteEnabled ?? this.isRemoteEnabled,
       pendingOperationCount: pendingOperationCount ?? this.pendingOperationCount,
       pendingItemCount: pendingItemCount ?? this.pendingItemCount,
+      conflictItemCount: conflictItemCount ?? this.conflictItemCount,
       lastAttemptAt: clearLastAttemptAt
           ? null
           : lastAttemptAt ?? this.lastAttemptAt,
@@ -71,6 +76,7 @@ class PlanningSyncStatus {
       'isRemoteEnabled': isRemoteEnabled,
       'pendingOperationCount': pendingOperationCount,
       'pendingItemCount': pendingItemCount,
+      'conflictItemCount': conflictItemCount,
       'lastAttemptAt': lastAttemptAt?.toIso8601String(),
       'lastSuccessAt': lastSuccessAt?.toIso8601String(),
       'lastError': lastError,
@@ -83,6 +89,7 @@ class PlanningSyncStatus {
       isRemoteEnabled: json['isRemoteEnabled'] as bool? ?? false,
       pendingOperationCount: json['pendingOperationCount'] as int? ?? 0,
       pendingItemCount: json['pendingItemCount'] as int? ?? 0,
+      conflictItemCount: json['conflictItemCount'] as int? ?? 0,
       lastAttemptAt: json['lastAttemptAt'] == null
           ? null
           : DateTime.parse(json['lastAttemptAt'] as String),
