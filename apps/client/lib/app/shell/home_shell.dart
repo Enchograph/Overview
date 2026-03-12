@@ -60,11 +60,28 @@ class HomeShell extends StatelessWidget {
       builder: (context, constraints) {
         final isTabletLayout = constraints.maxWidth >= 840;
         final isLandscapeTablet = constraints.maxWidth >= 1280;
+        final showQuickAccessActions = constraints.maxWidth >= 1180;
 
         return Scaffold(
           appBar: AppBar(
             title: Text(selectedTab.title),
             actions: [
+              if (showQuickAccessActions) ...[
+                TextButton.icon(
+                  onPressed: currentTab == AppTab.week
+                      ? null
+                      : () => _replaceShellRoute(context, AppTab.week),
+                  icon: const Icon(Icons.calendar_view_week_outlined),
+                  label: Text(l10n.shortcutsWeekLabel),
+                ),
+                TextButton.icon(
+                  onPressed: currentTab == AppTab.capture
+                      ? null
+                      : () => _replaceShellRoute(context, AppTab.capture),
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: Text(l10n.shortcutsCaptureLabel),
+                ),
+              ],
               IconButton(
                 tooltip: l10n.localeToggleTooltip,
                 onPressed: onToggleLocale,

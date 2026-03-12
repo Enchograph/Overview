@@ -484,4 +484,22 @@ void main() {
 
     expect(find.text('Add anything fast'), findsOneWidget);
   });
+
+  testWidgets('shows desktop quick access actions and opens capture page',
+      (tester) async {
+    await pumpAdaptiveApp(
+      tester,
+      size: const Size(1440, 900),
+      authRepository: FakeAuthRepository(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextButton, 'Open capture'), findsOneWidget);
+    expect(find.widgetWithText(TextButton, 'Open week'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Open capture'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add anything fast'), findsOneWidget);
+  });
 }

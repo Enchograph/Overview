@@ -45,10 +45,11 @@ Flutter 客户端主应用目录。
 - Windows 桌面基础工程现已生成；在桌面宽度下，周视图、备忘页和设置页会显示显式刷新按钮并启用滚动条，不再只依赖移动端下拉刷新
 - Web PWA 基础工程现已生成，可通过 `flutter build web` 产出浏览器静态资源；当前自适应壳层会在浏览器宽度下复用桌面/平板布局
 - Android 端现已接入应用快捷入口：长按应用图标后可直接进入周视图或添加页，设置页会显示对应说明
+- Windows 与 Web 桌面宽度下，app bar 现提供固定“打开周视图”“打开添加页”快捷入口，用于对齐 Android 长按图标快捷入口语义
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 定义 Windows 与 Web 等效入口策略
+- 建立主流程集成测试
 - 继续推进客户端与 Node API 的单进程端到端验证

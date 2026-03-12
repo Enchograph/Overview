@@ -22,6 +22,8 @@
   - 为客户端新增 `lib/app/launcher/` 模块，接入 `quick_actions` 并注册“打开周视图”“打开添加页”两个 Android 快捷入口
   - 为应用壳层增加快捷入口回调接线，支持从系统快捷入口直接路由到周视图或添加页
   - 将设置页补充为可见的快捷入口说明区，并扩展 widget 测试覆盖快捷入口注册与跳转
+  - 为桌面与浏览器宽度下的 app bar 增加固定“打开周视图”“打开添加页”快捷入口，对齐 Android 快捷入口语义
+  - 扩展 widget 测试覆盖桌面固定快捷入口跳转，并完成 Web/Android 构建回归
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -29,18 +31,18 @@
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build web`
 - 当前进行中：
-  - 推进 Windows 与 Web 等效入口策略，先为桌面和浏览器窗口建立稳定可见的固定快捷入口区
+  - 推进 P6 主流程测试，先为客户端启动、主要导航和关键入口跳转建立集成链路
 - 下一接手顺序：
-  1. 评估当前桌面/Web 壳层中最合适承载快捷入口的区域与交互形式
-  2. 先落地 Windows/Web 固定快捷入口区，并补 widget/Web 构建验证
-  3. 随后回看 Windows 真实主机构建验证与 P6 交付事项
+  1. 评估现有 Flutter 测试体系里最适合承载主流程集成验证的入口
+  2. 先落地一条“启动应用 -> 核心导航 -> 添加页/设置页入口”的主流程测试，并补构建验证
+  3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
-  - Windows 与 Web 等效入口策略仍未实现，P5 跨平台入口层仍不完整
+  - P5 仅剩 Windows 主机上的真实构建验证；P6 主流程集成测试仍未建立
 
 ## 交接模板
 
