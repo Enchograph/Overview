@@ -15,6 +15,7 @@ Flutter 客户端主应用目录。
 - `lib/app/notifications/`：本地通知服务、权限状态管理与作用域
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
+- `integration_test/`：客户端主流程集成测试脚手架
 - `windows/`：Flutter Windows 桌面 runner 与 CMake 工程
 - `web/`：Flutter Web / PWA 入口、manifest 和图标资源
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
@@ -28,8 +29,10 @@ Flutter 客户端主应用目录。
 - `flutter analyze`
 - `flutter test`
 - `flutter build apk --debug`
+- `flutter build web`
 
 当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述三条命令。
+当前另已写入 `integration_test/main_flow_test.dart`；但本机尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时，受限于 Linux 桌面 `clang` 工具链缺失，尚未完成真实运行。
 
 ## 数据接入
 
@@ -51,5 +54,5 @@ Flutter 客户端主应用目录。
 
 ## 下一步
 
-- 建立主流程集成测试
+- 编写安装与运行说明
 - 继续推进客户端与 Node API 的单进程端到端验证

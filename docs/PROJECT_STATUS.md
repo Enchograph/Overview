@@ -3,8 +3,8 @@
 ## 当前状态
 
 - 状态：进行中
-- 当前阶段：P5 通知、多端适配与小组件
-- 当前功能块：Windows 与 Web 等效入口策略已落地；P5 仅剩 Windows 主机构建验证，继续推进 P6 主流程测试
+- 当前阶段：P6 测试、打包与交付
+- 当前功能块：主流程集成测试脚手架已落地，受当前 Linux 主机桌面工具链限制暂未完成真实执行；继续推进安装与运行说明
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -78,21 +78,24 @@
 - 已完成 Android 快捷入口验证：客户端 widget 测试覆盖快捷入口注册与跳转到添加页，Android debug APK 已在接入快捷入口后重新构建通过
 - 已完成 Windows 与 Web 等效入口策略：桌面与浏览器宽度下，应用壳层 app bar 现提供固定“打开周视图”“打开添加页”快捷入口，与 Android 长按图标快捷入口保持一致语义
 - 已完成等效入口验证：客户端 widget 测试覆盖桌面固定快捷入口跳转到添加页，Web 与 Android 构建已在接入后重新通过
+- 已完成主流程集成测试脚手架：客户端新增 `integration_test/main_flow_test.dart`，覆盖启动应用、核心导航、添加条目、账号入口与 Android 快捷入口跳转主链路
+- 已完成主流程测试静态验证：客户端 `flutter analyze`、`flutter test` 继续通过；当前 Linux 主机在尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时暴露本地 `clang` 工具链缺失，尚未完成真实运行
 
 ## 进行中
 
-- 推进 P6 主流程测试，先补一条“启动应用 -> 登录/同步入口 -> 添加页”级别的集成主链路
+- 推进安装与运行说明，先补齐客户端多平台构建命令与当前环境限制说明
 
 ## 下一步唯一推荐动作
 
-建立主流程测试，先覆盖客户端启动、主要导航和关键入口跳转的集成链路。
+编写安装与运行说明，先沉淀 Android、Web、Windows 当前可用命令和已知环境限制。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
 - Azure Speech 真实凭据尚未在仓库内验证；当前自动化仅覆盖接口、回退和未配置场景
 - 当前环境不是 Windows 主机，`flutter build windows` 无法在仓库内完成真实构建验证
-- P5 仍缺少 Windows 主机上的真实构建验证；P6 主流程集成测试尚未建立
+- P5 仍缺少 Windows 主机上的真实构建验证
+- 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未在仓库内真实执行
 
 ## 当前技术默认值
 

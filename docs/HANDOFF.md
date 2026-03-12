@@ -24,17 +24,19 @@
   - 将设置页补充为可见的快捷入口说明区，并扩展 widget 测试覆盖快捷入口注册与跳转
   - 为桌面与浏览器宽度下的 app bar 增加固定“打开周视图”“打开添加页”快捷入口，对齐 Android 快捷入口语义
   - 扩展 widget 测试覆盖桌面固定快捷入口跳转，并完成 Web/Android 构建回归
+  - 新增 `integration_test/main_flow_test.dart`，覆盖启动应用、核心导航、添加条目、账号入口与 Android 快捷入口跳转主链路
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build web`
+  - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test integration_test/main_flow_test.dart -d linux`，当前 Linux 主机因 Flutter Linux runner 缺少 `clang` 工具链而失败
 - 当前进行中：
-  - 推进 P6 主流程测试，先为客户端启动、主要导航和关键入口跳转建立集成链路
+  - 推进安装与运行说明，先沉淀客户端多平台构建命令与当前环境限制
 - 下一接手顺序：
-  1. 评估现有 Flutter 测试体系里最适合承载主流程集成验证的入口
-  2. 先落地一条“启动应用 -> 核心导航 -> 添加页/设置页入口”的主流程测试，并补构建验证
+  1. 更新客户端与仓库级安装/运行说明，覆盖 Android、Web、Windows 当前可用命令与限制
+  2. 梳理已知限制清单，并明确 Windows 主机构建验证与 Linux 集成测试工具链问题
   3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
@@ -42,7 +44,7 @@
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
-  - P5 仅剩 Windows 主机上的真实构建验证；P6 主流程集成测试仍未建立
+  - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未真实执行
 
 ## 交接模板
 
