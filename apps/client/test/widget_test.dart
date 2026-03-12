@@ -172,4 +172,34 @@ void main() {
     final memos = await repository.fetchMemos();
     expect(memos.any((memo) => memo.title == 'Buy cat food'), isTrue);
   });
+
+  testWidgets('asks ai question from ai route', (tester) async {
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.aiRoute,
+        repository: FakePlanningRepository(),
+        aiRepository: FakeAiRepository(
+          answer: const AiAnswer(
+            answer: 'Start with Design review, then clear the memo inbox.',
+            referencedItemCount: 2,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Question'),
+      'What should I focus on tomorrow?',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Ask AI'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('AI answer'), findsOneWidget);
+    expect(
+      find.text('Start with Design review, then clear the memo inbox.'),
+      findsOneWidget,
+    );
+    expect(find.text('Referenced 2 planning items.'), findsOneWidget);
+  });
 }

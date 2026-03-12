@@ -135,6 +135,16 @@ class AppLocalizations {
   String get aiTitle => _value('aiTitle');
   String get aiBody => _value('aiBody');
   String get aiCta => _value('aiCta');
+  String get aiQuestionLabel => _value('aiQuestionLabel');
+  String get aiQuestionHint => _value('aiQuestionHint');
+  String get aiAskAction => _value('aiAskAction');
+  String get aiSubmitting => _value('aiSubmitting');
+  String get aiClearAction => _value('aiClearAction');
+  String get aiAnswerTitle => _value('aiAnswerTitle');
+  String aiReferencedItems(int count) =>
+      _value('aiReferencedItems').replaceFirst('{count}', '$count');
+  String get aiUnavailableTitle => _value('aiUnavailableTitle');
+  String get aiUnavailableBody => _value('aiUnavailableBody');
   String get syncTitle => _value('syncTitle');
   String get syncBody => _value('syncBody');
   String get syncStatusTitle => _value('syncStatusTitle');

@@ -28,6 +28,18 @@ void main() {
     expect(suggestion.title, '明晚 8 点做英语作业');
     expect(suggestion.requiresConfirmation, contains('dueAt'));
   });
+
+  test('asks question over HTTP with bearer token', () async {
+    final repository = HttpAiRepository(
+      baseUrl: server.baseUrl,
+      authSessionProvider: () async => server.createSession(),
+    );
+
+    final answer = await repository.askQuestion('明天应该先做什么？');
+
+    expect(answer.answer, contains('Design review'));
+    expect(answer.referencedItemCount, 2);
+  });
 }
 
 class _AiApiStubServer {
@@ -74,6 +86,17 @@ class _AiApiStubServer {
             'confidence': 0.84,
             'requiresConfirmation': ['dueAt'],
             'extracted': {'dueAt': '2026-03-13T12:00:00.000Z'},
+          },
+        );
+        return;
+      }
+
+      if (request.method == 'POST' && request.uri.path == '/ai/ask') {
+        await _writeJson(
+          request.response,
+          {
+            'answer': 'Start with Design review, then finish the launch memo.',
+            'referencedItemCount': 2,
           },
         );
         return;

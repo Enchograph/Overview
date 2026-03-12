@@ -34,6 +34,9 @@
   - 新增客户端 AI 仓储、作用域与 store，并让应用默认装配 AI HTTP 客户端
   - 将添加页接入 `/ai/ingest/text`，展示 AI 建议卡片、待确认字段和“按建议创建”主路径
   - 扩展客户端 AI HTTP 仓储测试与 widget 测试，验证解析请求和建议落地创建
+  - 扩展客户端 AI 仓储与 store，新增 `/ai/ask` 单轮问答请求、回答状态与错误状态
+  - 将 `AiRoute` 从占位页改为真实问答页，支持问题输入、提交态、清空操作和回答卡片展示
+  - 扩展客户端 AI HTTP 仓储测试与 widget 测试，验证 Bearer token 鉴权下的 AI 问答主路径
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -43,17 +46,17 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进 AI 单轮问答页，把 `/ai/ask` 接到客户端 AI 路由并展示回答
+  - 推进待确认结构化结果流，把 AI 解析出的字段差异改造成可逐项确认的录入体验
 - 下一接手顺序：
-  1. 为 `AiRoute` 接入 `/ai/ask`
-  2. 设计单轮问答输入框、提交态和回答展示
-  3. 再补齐 AI 错误处理与待确认结构化结果细节
+  1. 为 AI 解析建议增加可编辑的字段确认 UI，而不是直接按建议创建
+  2. 让 schedule/task/memo 根据 AI 提取字段填充到待确认表单
+  3. 再补齐 AI 错误处理细节与语音入口
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
   - 当前尚未验证真实 OpenAI 凭据调用；仓库内测试仍以 heuristic/工厂回退为主
-  - AI 问答页仍未接通真实接口，P4 主链路还差问答闭环
+  - AI 解析建议仍未进入逐字段确认流，P4 还差“待确认结构化结果”这条关键链路
 
 ## 交接模板
 

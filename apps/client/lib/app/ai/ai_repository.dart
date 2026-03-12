@@ -5,6 +5,23 @@ import '../auth/auth_repository.dart';
 
 enum AiSuggestionType { schedule, task, memo }
 
+class AiAnswer {
+  const AiAnswer({
+    required this.answer,
+    required this.referencedItemCount,
+  });
+
+  factory AiAnswer.fromJson(Map<String, dynamic> json) {
+    return AiAnswer(
+      answer: json['answer'] as String? ?? '',
+      referencedItemCount: (json['referencedItemCount'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  final String answer;
+  final int referencedItemCount;
+}
+
 class AiSuggestion {
   const AiSuggestion({
     required this.suggestedType,
@@ -49,6 +66,7 @@ AiSuggestionType parseAiSuggestionType(String? value) {
 abstract class AiRepository {
   bool get isRemoteEnabled;
   Future<AiSuggestion> ingestText(String text);
+  Future<AiAnswer> askQuestion(String question);
 }
 
 class HttpAiRepository implements AiRepository {
@@ -90,6 +108,29 @@ class HttpAiRepository implements AiRepository {
     throw const AiRepositoryException('Unexpected response payload');
   }
 
+  @override
+  Future<AiAnswer> askQuestion(String question) async {
+    final request = await _httpClient.postUrl(_baseUri.resolve('/ai/ask'));
+    request.headers.contentType = ContentType.json;
+    await _applyAuthorization(request);
+    request.write(jsonEncode({'question': question}));
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AiRepositoryException(
+        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
+      );
+    }
+
+    final decoded = jsonDecode(body);
+    if (decoded is Map<String, dynamic>) {
+      return AiAnswer.fromJson(decoded);
+    }
+
+    throw const AiRepositoryException('Unexpected response payload');
+  }
+
   Future<void> _applyAuthorization(HttpClientRequest request) async {
     final session = await _authSessionProvider?.call();
     final token = session?.token;
@@ -105,6 +146,7 @@ class FakeAiRepository implements AiRepository {
   FakeAiRepository({
     this.remoteEnabled = true,
     AiSuggestion? suggestion,
+    AiAnswer? answer,
   }) : _suggestion =
             suggestion ??
             const AiSuggestion(
@@ -113,10 +155,17 @@ class FakeAiRepository implements AiRepository {
               confidence: 0.82,
               requiresConfirmation: ['dueAt'],
               extracted: {},
+            ),
+        _answer =
+            answer ??
+            const AiAnswer(
+              answer: 'You have 3 active tasks and 1 schedule due tomorrow.',
+              referencedItemCount: 4,
             );
 
   final bool remoteEnabled;
   final AiSuggestion _suggestion;
+  final AiAnswer _answer;
 
   @override
   bool get isRemoteEnabled => remoteEnabled;
@@ -134,6 +183,15 @@ class FakeAiRepository implements AiRepository {
       requiresConfirmation: _suggestion.requiresConfirmation,
       extracted: _suggestion.extracted,
     );
+  }
+
+  @override
+  Future<AiAnswer> askQuestion(String question) async {
+    if (!remoteEnabled) {
+      throw const AiRepositoryException('Remote AI is not configured.');
+    }
+
+    return _answer;
   }
 }
 
