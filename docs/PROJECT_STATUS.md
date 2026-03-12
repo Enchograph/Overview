@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：客户端主流程烟测已可执行，继续推进单进程端到端验证
+- 当前功能块：客户端到 API 的单脚本端到端验证已落地，继续推进正式发布收尾
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -91,18 +91,20 @@
 - 已完成 Android release 回归验证：在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`
 - 已完成客户端主流程可执行验证：新增 `test/main_flow_smoke_test.dart`，并通过 `flutter test test/main_flow_smoke_test.dart`
 - 已完成客户端测试回归：新增主流程烟测后继续通过 `flutter analyze` 与 `flutter test`
+- 已完成客户端到 API 的单脚本端到端验证：新增 `npm run e2e:client-api`，可自动拉起嵌入式 API、预注册测试账号、运行客户端真实 HTTP 测试并校验远端 memo 写入
+- 已修复客户端真实 API 同步缺陷：`HttpPlanningRepository` 发送请求前现会剔除 `null` 字段，避免可选字段在服务端校验中触发 400
+- 已完成单脚本端到端验证回归：通过 `npm run e2e:client-api`
 
 ## 进行中
 
-- 推进客户端与 Node API 的单进程端到端编排，减少当前分层验证之间的空隙
+- 推进正式发布收尾，优先补齐 Android 正式签名材料接入说明与剩余阻塞缺陷收敛
 
 ## 下一步唯一推荐动作
 
-把客户端与 Node API 串成单进程端到端验证，优先覆盖启动 API、登录与一条 planning 写入链路。
+整理 Android 正式签名接入说明与发布前检查清单，明确从当前 debug 回退切换到正式分发签名的最短路径。
 
 ## 当前阻塞
 
-- Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
 - Azure Speech 真实凭据尚未在仓库内验证；当前自动化仅覆盖接口、回退和未配置场景
 - 当前环境不是 Windows 主机，`flutter build windows` 无法在仓库内完成真实构建验证
 - P5 仍缺少 Windows 主机上的真实构建验证
@@ -124,7 +126,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置与客户端主流程烟测现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失与缺少单进程端到端验证
+- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置、客户端主流程烟测与单脚本端到端验证现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证

@@ -16,6 +16,7 @@
     "api:format": "npx pnpm --filter @overview/api format",
     "api:typecheck": "npx pnpm --filter @overview/api typecheck",
     "api:build": "npx pnpm --filter @overview/api build",
+    "e2e:client-api": "node scripts/e2e-client-api.mjs",
     "shared:typecheck": "npx pnpm --filter @overview/shared typecheck",
     "shared:build": "npx pnpm --filter @overview/shared build",
     "shared:check": "npm run shared:build && node --experimental-strip-types scripts/check-shared.ts",

@@ -55,6 +55,7 @@ flutter run --dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000
 
 当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述六条命令。
 当前另已写入 `integration_test/main_flow_test.dart`；但本机尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时，受限于 Linux 桌面 `clang` 工具链缺失，尚未完成真实运行。
+当前另已接入 `npm run e2e:client-api`，可在根目录拉起真实嵌入式 API，并运行客户端到 API 的单脚本端到端验证。
 当前 release APK 输出路径为 `build/app/outputs/flutter-apk/app-release.apk`。
 
 ## Release 签名

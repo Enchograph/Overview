@@ -35,4 +35,5 @@
   - Flutter widget / repository 测试
   - API 路由测试
   - PostgreSQL 烟测
+  - 客户端到 API 的单脚本端到端编排
   为主

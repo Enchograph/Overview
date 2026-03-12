@@ -40,6 +40,9 @@
   - 在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`，确认 debug 回退路径仍可用
   - 新增 `apps/client/test/main_flow_smoke_test.dart`，把主导航、Capture、Notes、Settings、Account 与快捷入口跳转沉淀为可执行 widget smoke
   - 已通过 `flutter test test/main_flow_smoke_test.dart`，并在新增主流程烟测后继续通过 `flutter test` 与 `flutter analyze`
+  - 新增 `scripts/e2e-client-api.mjs` 与根级 `npm run e2e:client-api`，自动拉起嵌入式 API、预注册账号、运行客户端真实 HTTP 测试并校验远端写入
+  - 新增 `apps/client/test/client_api_e2e_test.dart`，覆盖客户端登录、memo 创建与 `runSync()` 通过真实 API 成功落库
+  - 修复 `HttpPlanningRepository` 对可选字段发送 `null` 导致服务端 400 的真实同步缺陷
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -53,14 +56,14 @@
   - 已通过 `npm run api:test`
   - 已通过 `npm run api:start:embedded`
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
+  - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 推进客户端与 Node API 的单进程端到端编排
+  - 推进正式发布收尾，优先补齐 Android 正式签名材料接入说明与发布前检查清单
 - 下一接手顺序：
-  1. 把客户端与 Node API 串成单进程端到端验证
+  1. 整理 Android 正式签名接入说明与发布前检查清单
   2. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
-  3. 随后继续收敛正式签名材料接入与发布说明
+  3. 随后继续收敛剩余已知限制与发布说明
 - 风险：
-  - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
   - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证

@@ -128,6 +128,7 @@ API：
 npm run api:lint
 npm run api:typecheck
 npm run api:test
+npm run e2e:client-api
 ```
 
 共享包：

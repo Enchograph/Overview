@@ -7,6 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/auth_repository.dart';
 import 'planning_models.dart';
 
+Map<String, dynamic> _omitNullEntries(Map<String, dynamic> value) {
+  return Map.fromEntries(
+    value.entries.where((entry) => entry.value != null),
+  );
+}
+
 abstract class PlanningRepository {
   Future<List<ScheduleItem>> fetchSchedules();
   Future<List<TaskItem>> fetchTasks();
@@ -456,7 +462,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
     final request = await _httpClient.openUrl(method, _baseUri.resolve(path));
     request.headers.contentType = ContentType.json;
     await _applyAuthorization(request);
-    request.write(jsonEncode(payload));
+    request.write(jsonEncode(_omitNullEntries(payload)));
     final response = await request.close();
     final body = await response.transform(utf8.decoder).join();
 
