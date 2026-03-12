@@ -11,6 +11,7 @@ Flutter 客户端主应用目录。
 - `lib/app/`：应用壳、命名路由、底部导航和页面模块
 - `lib/app/auth/`：客户端认证仓储、状态管理与作用域
 - `lib/app/ai/`：客户端 AI 仓储、录音服务、状态管理与作用域
+- `lib/app/launcher/`：Android 快捷入口服务与应用内路由跳转接线
 - `lib/app/notifications/`：本地通知服务、权限状态管理与作用域
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
@@ -43,10 +44,11 @@ Flutter 客户端主应用目录。
 - 周视图、添加页和设置页会在平板宽度下切换为双栏/约束布局，避免大屏设备仍保持单列手机排版
 - Windows 桌面基础工程现已生成；在桌面宽度下，周视图、备忘页和设置页会显示显式刷新按钮并启用滚动条，不再只依赖移动端下拉刷新
 - Web PWA 基础工程现已生成，可通过 `flutter build web` 产出浏览器静态资源；当前自适应壳层会在浏览器宽度下复用桌面/平板布局
+- Android 端现已接入应用快捷入口：长按应用图标后可直接进入周视图或添加页，设置页会显示对应说明
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 实现 Android 快捷入口/小组件第一版
+- 定义 Windows 与 Web 等效入口策略
 - 继续推进客户端与 Node API 的单进程端到端验证

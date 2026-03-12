@@ -17,6 +17,7 @@ dependencies:
   record: ^6.2.0
   shared_preferences: ^2.5.3
   timezone: ^0.10.1
+  quick_actions: ^1.1.0
 
 dev_dependencies:
   flutter_test:

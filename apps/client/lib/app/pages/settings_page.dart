@@ -75,6 +75,8 @@ class SettingsPage extends StatelessWidget {
                                 store.tasks.length,
                                 store.memos.length,
                               ),
+                              shortcutsTitle: l10n.shortcutsTitle,
+                              shortcutsBody: l10n.shortcutsBody,
                               notificationsTitle: l10n.notificationsTitle,
                               notificationsBody: _notificationStatusLabel(
                                 l10n,
@@ -130,6 +132,8 @@ class SettingsPage extends StatelessWidget {
                               store.tasks.length,
                               store.memos.length,
                             ),
+                            shortcutsTitle: l10n.shortcutsTitle,
+                            shortcutsBody: l10n.shortcutsBody,
                             notificationsTitle: l10n.notificationsTitle,
                             notificationsBody: _notificationStatusLabel(
                               l10n,
@@ -258,6 +262,8 @@ class _SettingsSecondaryColumn extends StatelessWidget {
     required this.dataSourceBody,
     required this.dataSummaryTitle,
     required this.dataSummaryBody,
+    required this.shortcutsTitle,
+    required this.shortcutsBody,
     required this.notificationsTitle,
     required this.notificationsBody,
     required this.notificationsEnableLabel,
@@ -272,6 +278,8 @@ class _SettingsSecondaryColumn extends StatelessWidget {
   final String dataSourceBody;
   final String dataSummaryTitle;
   final String dataSummaryBody;
+  final String shortcutsTitle;
+  final String shortcutsBody;
   final String notificationsTitle;
   final String notificationsBody;
   final String notificationsEnableLabel;
@@ -299,6 +307,14 @@ class _SettingsSecondaryColumn extends StatelessWidget {
             leading: const Icon(Icons.dataset_outlined),
             title: Text(dataSummaryTitle),
             subtitle: Text(dataSummaryBody),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.bolt_outlined),
+            title: Text(shortcutsTitle),
+            subtitle: Text(shortcutsBody),
           ),
         ),
         const SizedBox(height: 12),

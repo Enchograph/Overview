@@ -6,6 +6,7 @@ import 'package:overview_client/app/ai/ai_repository.dart';
 import 'package:overview_client/app/ai/speech_input_service.dart';
 import 'package:overview_client/app/app_router.dart';
 import 'package:overview_client/app/auth/auth_repository.dart';
+import 'package:overview_client/app/launcher/launcher_shortcut_service.dart';
 import 'package:overview_client/app/notifications/notification_service.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 
@@ -17,6 +18,7 @@ void main() {
     AiRepository? aiRepository,
     SpeechInputService? speechInputService,
     NotificationService? notificationService,
+    LauncherShortcutService? launcherShortcutService,
   }) {
     return OverviewApp(
       initialRoute: initialRoute,
@@ -25,6 +27,8 @@ void main() {
       aiRepository: aiRepository,
       speechInputService: speechInputService,
       notificationService: notificationService ?? FakeNotificationService(),
+      launcherShortcutService:
+          launcherShortcutService ?? FakeLauncherShortcutService(),
     );
   }
 
@@ -37,6 +41,7 @@ void main() {
     AiRepository? aiRepository,
     SpeechInputService? speechInputService,
     NotificationService? notificationService,
+    LauncherShortcutService? launcherShortcutService,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
@@ -53,6 +58,7 @@ void main() {
         aiRepository: aiRepository,
         speechInputService: speechInputService,
         notificationService: notificationService,
+        launcherShortcutService: launcherShortcutService,
       ),
     );
   }
@@ -451,5 +457,31 @@ void main() {
 
     expect(find.byType(NavigationRail), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Refresh data'), findsOneWidget);
+  });
+
+  testWidgets('registers launcher shortcuts and routes to capture page',
+      (tester) async {
+    final shortcutService = FakeLauncherShortcutService();
+
+    await pumpAdaptiveApp(
+      tester,
+      authRepository: FakeAuthRepository(),
+      launcherShortcutService: shortcutService,
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      shortcutService.items.map((item) => item.type),
+      contains('shortcut_week'),
+    );
+    expect(
+      shortcutService.items.map((item) => item.type),
+      contains('shortcut_capture'),
+    );
+
+    shortcutService.trigger('shortcut_capture');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add anything fast'), findsOneWidget);
   });
 }

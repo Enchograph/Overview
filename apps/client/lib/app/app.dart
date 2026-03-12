@@ -12,6 +12,7 @@ import 'app_router.dart';
 import 'auth/auth_repository.dart';
 import 'auth/auth_scope.dart';
 import 'auth/auth_store.dart';
+import 'launcher/launcher_shortcut_service.dart';
 import 'notifications/notification_scope.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_store.dart';
@@ -27,6 +28,7 @@ class OverviewApp extends StatefulWidget {
     this.aiRepository,
     this.speechInputService,
     this.notificationService,
+    this.launcherShortcutService,
     super.key,
   });
 
@@ -36,6 +38,7 @@ class OverviewApp extends StatefulWidget {
   final AiRepository? aiRepository;
   final SpeechInputService? speechInputService;
   final NotificationService? notificationService;
+  final LauncherShortcutService? launcherShortcutService;
 
   @override
   State<OverviewApp> createState() => _OverviewAppState();
@@ -50,6 +53,12 @@ class _OverviewAppState extends State<OverviewApp> {
   late final NotificationStore _notificationStore;
   late final NotificationService _resolvedNotificationService;
   late final AuthRepository _resolvedAuthRepository;
+  late final LauncherShortcutService _resolvedLauncherShortcutService;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  String? _pendingShortcutRoute;
+
+  static const _weekShortcutType = 'shortcut_week';
+  static const _captureShortcutType = 'shortcut_capture';
 
   @override
   void initState() {
@@ -58,6 +67,8 @@ class _OverviewAppState extends State<OverviewApp> {
         widget.authRepository ?? _createDefaultAuthRepository();
     _resolvedNotificationService =
         widget.notificationService ?? FlutterNotificationService();
+    _resolvedLauncherShortcutService =
+        widget.launcherShortcutService ?? QuickActionsLauncherShortcutService();
     _planningStore = PlanningStore(
       repository: widget.repository ??
           _createDefaultRepository(_resolvedAuthRepository),
@@ -74,6 +85,7 @@ class _OverviewAppState extends State<OverviewApp> {
     _notificationStore = NotificationStore(
       service: _resolvedNotificationService,
     )..refresh();
+    _initializeLauncherShortcuts();
   }
 
   PlanningRepository _createDefaultRepository(AuthRepository authRepository) {
@@ -121,10 +133,71 @@ class _OverviewAppState extends State<OverviewApp> {
       final nextLanguageCode = _locale?.languageCode == 'zh' ? 'en' : 'zh';
       _locale = Locale(nextLanguageCode);
     });
+    _registerLauncherShortcuts();
+  }
+
+  Future<void> _initializeLauncherShortcuts() async {
+    await _resolvedLauncherShortcutService.initialize(
+      onShortcutSelected: _handleShortcutSelection,
+    );
+    await _registerLauncherShortcuts();
+  }
+
+  Future<void> _registerLauncherShortcuts() async {
+    final l10n = AppLocalizations(_locale ?? const Locale('en'));
+    await _resolvedLauncherShortcutService.setShortcutItems([
+      AppLauncherShortcutItem(
+        type: _weekShortcutType,
+        title: l10n.shortcutsWeekLabel,
+      ),
+      AppLauncherShortcutItem(
+        type: _captureShortcutType,
+        title: l10n.shortcutsCaptureLabel,
+      ),
+    ]);
+  }
+
+  void _handleShortcutSelection(String shortcutType) {
+    final routeName = switch (shortcutType) {
+      _weekShortcutType => AppRouter.homeRoute,
+      _captureShortcutType => AppRouter.captureRoute,
+      _ => null,
+    };
+    if (routeName == null) {
+      return;
+    }
+
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null) {
+      _pendingShortcutRoute = routeName;
+      return;
+    }
+
+    _pendingShortcutRoute = null;
+    navigator.pushNamedAndRemoveUntil(routeName, (route) => false);
+  }
+
+  void _flushPendingShortcutRoute() {
+    final pendingShortcutRoute = _pendingShortcutRoute;
+    if (pendingShortcutRoute == null) {
+      return;
+    }
+
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null) {
+      return;
+    }
+
+    _pendingShortcutRoute = null;
+    navigator.pushNamedAndRemoveUntil(pendingShortcutRoute, (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _flushPendingShortcutRoute();
+    });
+
     return AuthScope(
       store: _authStore,
       child: SpeechInputScope(
@@ -136,6 +209,7 @@ class _OverviewAppState extends State<OverviewApp> {
             child: PlanningScope(
               store: _planningStore,
               child: MaterialApp(
+                navigatorKey: _navigatorKey,
                 title: 'Overview',
                 locale: _locale,
                 supportedLocales: AppLocalizations.supportedLocales,

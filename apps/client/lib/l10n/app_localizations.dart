@@ -140,6 +140,10 @@ class AppLocalizations {
       _value('notificationsUnsupportedBody');
   String get notificationsEnableAction => _value('notificationsEnableAction');
   String get notificationsTestAction => _value('notificationsTestAction');
+  String get shortcutsTitle => _value('shortcutsTitle');
+  String get shortcutsBody => _value('shortcutsBody');
+  String get shortcutsWeekLabel => _value('shortcutsWeekLabel');
+  String get shortcutsCaptureLabel => _value('shortcutsCaptureLabel');
   String get authTitle => _value('authTitle');
   String get authBody => _value('authBody');
   String get authEmailLabel => _value('authEmailLabel');
