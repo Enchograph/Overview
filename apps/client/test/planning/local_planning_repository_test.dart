@@ -86,4 +86,51 @@ void main() {
     expect(memos.any((memo) => memo.title == 'Push me'), isTrue);
     expect(memos.every((memo) => memo.syncState == SyncState.synced), isTrue);
   });
+
+  test('queues update and delete operations for synced items', () async {
+    final remoteRepository = FakePlanningRepository(
+      schedules: const [],
+      tasks: const [],
+      memos: const [],
+    );
+    final repository = LocalPlanningRepository(
+      remoteRepository: remoteRepository,
+    );
+
+    await repository.createSchedule(title: 'Schedule before update');
+    await repository.createTask(title: 'Task before delete');
+    await repository.createMemo(title: 'Memo before update');
+    await repository.runSync();
+
+    final schedule = (await repository.fetchSchedules())
+        .firstWhere((item) => item.title == 'Schedule before update');
+    final task = (await repository.fetchTasks())
+        .firstWhere((item) => item.title == 'Task before delete');
+    final memo = (await repository.fetchMemos())
+        .firstWhere((item) => item.title == 'Memo before update');
+
+    await repository.updateScheduleTitle(
+      scheduleId: schedule.id,
+      title: 'Schedule after update',
+    );
+    await repository.updateMemoTitle(
+      memoId: memo.id,
+      title: 'Memo after update',
+    );
+    await repository.deleteTask(taskId: task.id);
+
+    final beforeSync = await repository.fetchSyncStatus();
+    expect(beforeSync.pendingOperationCount, 3);
+
+    final syncResult = await repository.runSync();
+    final schedules = await repository.fetchSchedules();
+    final tasks = await repository.fetchTasks();
+    final memos = await repository.fetchMemos();
+
+    expect(syncResult.phase, PlanningSyncPhase.success);
+    expect(syncResult.pendingOperationCount, 0);
+    expect(schedules.any((item) => item.title == 'Schedule after update'), isTrue);
+    expect(tasks.any((item) => item.id == task.id), isFalse);
+    expect(memos.any((item) => item.title == 'Memo after update'), isTrue);
+  });
 }

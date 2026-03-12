@@ -25,20 +25,32 @@ void main() {
     await repository.createTask(title: 'HTTP task');
     await repository.createMemo(title: 'HTTP memo');
 
+    final schedulesBeforeUpdate = await repository.fetchSchedules();
+    final tasksBeforeDelete = await repository.fetchTasks();
     final memos = await repository.fetchMemos();
+    await repository.updateScheduleTitle(
+      scheduleId: schedulesBeforeUpdate.single.id,
+      title: 'HTTP schedule updated',
+    );
+    await repository.deleteTask(taskId: tasksBeforeDelete.single.id);
+    await repository.updateMemoTitle(
+      memoId: memos.single.id,
+      title: 'HTTP memo updated',
+    );
     await repository.setMemoArchived(memoId: memos.single.id, archived: true);
 
     final schedules = await repository.fetchSchedules();
     final tasks = await repository.fetchTasks();
     final archivedMemos = await repository.fetchMemos();
 
-    expect(schedules.single.title, 'HTTP schedule');
-    expect(tasks.single.title, 'HTTP task');
+    expect(schedules.single.title, 'HTTP schedule updated');
+    expect(tasks, isEmpty);
+    expect(archivedMemos.single.title, 'HTTP memo updated');
     expect(archivedMemos.single.isArchived, isTrue);
     expect(archivedMemos.single.syncState, SyncState.synced);
   });
 
-  test('runs local sync against an HTTP remote and clears pending work', () async {
+  test('runs local sync updates and deletes against an HTTP remote', () async {
     final repository = LocalPlanningRepository(
       remoteRepository: HttpPlanningRepository(baseUrl: server.baseUrl),
     );
@@ -58,7 +70,22 @@ void main() {
     expect(syncResult.pendingItemCount, 0);
     expect(syncResult.lastSuccessAt, isNotNull);
 
+    final syncedSchedule = (await repository.fetchSchedules()).firstWhere(
+      (item) => item.title == 'Sync schedule',
+    );
+    final syncedTask = (await repository.fetchTasks()).firstWhere(
+      (item) => item.title == 'Sync task',
+    );
     await repository.setMemoArchived(memoId: syncedMemo.id, archived: true);
+    await repository.updateScheduleTitle(
+      scheduleId: syncedSchedule.id,
+      title: 'Sync schedule updated',
+    );
+    await repository.deleteTask(taskId: syncedTask.id);
+    await repository.updateMemoTitle(
+      memoId: syncedMemo.id,
+      title: 'Sync memo updated',
+    );
     final archiveResult = await repository.runSync();
 
     final schedules = await repository.fetchSchedules();
@@ -66,16 +93,24 @@ void main() {
     final memos = await repository.fetchMemos();
 
     expect(archiveResult.phase, PlanningSyncPhase.success);
-    expect(schedules.any((item) => item.title == 'Sync schedule'), isTrue);
-    expect(tasks.any((item) => item.title == 'Sync task'), isTrue);
     expect(
-      memos.firstWhere((item) => item.title == 'Sync memo').isArchived,
+      schedules.any((item) => item.title == 'Sync schedule updated'),
       isTrue,
     );
-    expect(server.schedules.any((item) => item.title == 'Sync schedule'), isTrue);
-    expect(server.tasks.any((item) => item.title == 'Sync task'), isTrue);
+    expect(tasks.any((item) => item.title == 'Sync task'), isFalse);
     expect(
-      server.memos.firstWhere((item) => item.title == 'Sync memo').isArchived,
+      memos.firstWhere((item) => item.title == 'Sync memo updated').isArchived,
+      isTrue,
+    );
+    expect(
+      server.schedules.any((item) => item.title == 'Sync schedule updated'),
+      isTrue,
+    );
+    expect(server.tasks.any((item) => item.title == 'Sync task'), isFalse);
+    expect(
+      server.memos
+          .firstWhere((item) => item.title == 'Sync memo updated')
+          .isArchived,
       isTrue,
     );
   });
@@ -123,6 +158,21 @@ class _PlanningApiStubServer {
       return;
     }
 
+    if (request.method == 'GET' && path.startsWith('/planning/schedules/')) {
+      final scheduleId = path.split('/').last;
+      final schedule = _firstWhereOrNull(
+        schedules,
+        (item) => item.id == scheduleId,
+      );
+      if (schedule == null) {
+        request.response.statusCode = HttpStatus.notFound;
+        await _writeJson(request.response, {'error': 'Schedule not found'});
+        return;
+      }
+      await _writeJson(request.response, schedule.toJson());
+      return;
+    }
+
     if (request.method == 'POST' && path == '/planning/schedules') {
       final created = ScheduleItem(
         id: 'schedule-${schedules.length + 1}',
@@ -145,11 +195,64 @@ class _PlanningApiStubServer {
       return;
     }
 
+    if (request.method == 'PATCH' && path.startsWith('/planning/schedules/')) {
+      final scheduleId = path.split('/').last;
+      final index = schedules.indexWhere((item) => item.id == scheduleId);
+      if (index == -1) {
+        request.response.statusCode = HttpStatus.notFound;
+        await _writeJson(request.response, {'error': 'Schedule not found'});
+        return;
+      }
+
+      final current = schedules[index];
+      final updated = ScheduleItem(
+        id: current.id,
+        title: body['title'] as String? ?? current.title,
+        startAt: body['startAt'] == null
+            ? current.startAt
+            : DateTime.parse(body['startAt'] as String),
+        endAt: body['endAt'] == null
+            ? current.endAt
+            : DateTime.parse(body['endAt'] as String),
+        description: body['description'] as String? ?? current.description,
+        location: body['location'] as String? ?? current.location,
+        timezone: body['timezone'] as String? ?? current.timezone,
+        durationMinutes: body['durationMinutes'] as int? ?? current.durationMinutes,
+        status: body['status'] == null
+            ? current.status
+            : parsePlanningStatus(body['status'] as String?),
+        syncState: SyncState.synced,
+      );
+      schedules[index] = updated;
+      await _writeJson(request.response, updated.toJson());
+      return;
+    }
+
+    if (request.method == 'DELETE' && path.startsWith('/planning/schedules/')) {
+      final scheduleId = path.split('/').last;
+      schedules.removeWhere((item) => item.id == scheduleId);
+      request.response.statusCode = HttpStatus.noContent;
+      await request.response.close();
+      return;
+    }
+
     if (request.method == 'GET' && path == '/planning/tasks') {
       await _writeJson(
         request.response,
         {'items': tasks.map((item) => item.toJson()).toList()},
       );
+      return;
+    }
+
+    if (request.method == 'GET' && path.startsWith('/planning/tasks/')) {
+      final taskId = path.split('/').last;
+      final task = _firstWhereOrNull(tasks, (item) => item.id == taskId);
+      if (task == null) {
+        request.response.statusCode = HttpStatus.notFound;
+        await _writeJson(request.response, {'error': 'Task not found'});
+        return;
+      }
+      await _writeJson(request.response, task.toJson());
       return;
     }
 
@@ -176,11 +279,71 @@ class _PlanningApiStubServer {
       return;
     }
 
+    if (request.method == 'PATCH' && path.startsWith('/planning/tasks/')) {
+      final taskId = path.split('/').last;
+      final index = tasks.indexWhere((item) => item.id == taskId);
+      if (index == -1) {
+        request.response.statusCode = HttpStatus.notFound;
+        await _writeJson(request.response, {'error': 'Task not found'});
+        return;
+      }
+
+      final current = tasks[index];
+      final updated = TaskItem(
+        id: current.id,
+        title: body['title'] as String? ?? current.title,
+        plannedStartAt: body['plannedStartAt'] == null
+            ? current.plannedStartAt
+            : DateTime.parse(body['plannedStartAt'] as String),
+        dueAt: body['dueAt'] == null
+            ? current.dueAt
+            : DateTime.parse(body['dueAt'] as String),
+        plannedEndAt: body['plannedEndAt'] == null
+            ? current.plannedEndAt
+            : DateTime.parse(body['plannedEndAt'] as String),
+        description: body['description'] as String? ?? current.description,
+        location: body['location'] as String? ?? current.location,
+        timezone: body['timezone'] as String? ?? current.timezone,
+        plannedDurationMinutes:
+            body['plannedDurationMinutes'] as int? ?? current.plannedDurationMinutes,
+        status: body['status'] == null
+            ? current.status
+            : parseTaskStatus(body['status'] as String?),
+        completionAt: body['completionAt'] == null
+            ? current.completionAt
+            : DateTime.parse(body['completionAt'] as String),
+        syncState: SyncState.synced,
+      );
+      tasks[index] = updated;
+      await _writeJson(request.response, updated.toJson());
+      return;
+    }
+
+    if (request.method == 'DELETE' && path.startsWith('/planning/tasks/')) {
+      final taskId = path.split('/').last;
+      tasks.removeWhere((item) => item.id == taskId);
+      request.response.statusCode = HttpStatus.noContent;
+      await request.response.close();
+      return;
+    }
+
     if (request.method == 'GET' && path == '/planning/memos') {
       await _writeJson(
         request.response,
         {'items': memos.map((item) => item.toJson()).toList()},
       );
+      return;
+    }
+
+    if (request.method == 'GET' && path.startsWith('/planning/memos/')) {
+      final memoId = path.split('/').last;
+      final memo = _firstWhereOrNull(memos, (item) => item.id == memoId);
+      if (memo == null) {
+        request.response.statusCode = HttpStatus.notFound;
+        await _writeJson(request.response, {'error': 'Memo not found'});
+        return;
+      }
+      await _writeJson(request.response, memo.toJson());
       return;
     }
 
@@ -215,20 +378,31 @@ class _PlanningApiStubServer {
       final current = memos[index];
       final updated = MemoItem(
         id: current.id,
-        title: current.title,
-        listId: current.listId,
-        description: current.description,
-        timezone: current.timezone,
-        estimatedDurationMinutes: current.estimatedDurationMinutes,
-        sortOrder: current.sortOrder,
-        status: parsePlanningStatus(body['status'] as String?),
+        title: body['title'] as String? ?? current.title,
+        listId: body['listId'] as String? ?? current.listId,
+        description: body['description'] as String? ?? current.description,
+        timezone: body['timezone'] as String? ?? current.timezone,
+        estimatedDurationMinutes: body['estimatedDurationMinutes'] as int? ??
+            current.estimatedDurationMinutes,
+        sortOrder: body['sortOrder'] as int? ?? current.sortOrder,
+        status: body['status'] == null
+            ? current.status
+            : parsePlanningStatus(body['status'] as String?),
         archivedAt: body['archivedAt'] == null
-            ? null
+            ? current.archivedAt
             : DateTime.parse(body['archivedAt'] as String),
         syncState: SyncState.synced,
       );
       memos[index] = updated;
       await _writeJson(request.response, updated.toJson());
+      return;
+    }
+
+    if (request.method == 'DELETE' && path.startsWith('/planning/memos/')) {
+      final memoId = path.split('/').last;
+      memos.removeWhere((item) => item.id == memoId);
+      request.response.statusCode = HttpStatus.noContent;
+      await request.response.close();
       return;
     }
 
@@ -256,4 +430,13 @@ class _PlanningApiStubServer {
     response.write(jsonEncode(payload));
     await response.close();
   }
+}
+
+T? _firstWhereOrNull<T>(Iterable<T> items, bool Function(T item) test) {
+  for (final item in items) {
+    if (test(item)) {
+      return item;
+    }
+  }
+  return null;
 }

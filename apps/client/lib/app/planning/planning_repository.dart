@@ -13,6 +13,21 @@ abstract class PlanningRepository {
   Future<void> createSchedule({required String title});
   Future<void> createTask({required String title});
   Future<void> createMemo({required String title});
+  Future<void> updateScheduleTitle({
+    required String scheduleId,
+    required String title,
+  });
+  Future<void> updateTaskTitle({
+    required String taskId,
+    required String title,
+  });
+  Future<void> updateMemoTitle({
+    required String memoId,
+    required String title,
+  });
+  Future<void> deleteSchedule({required String scheduleId});
+  Future<void> deleteTask({required String taskId});
+  Future<void> deleteMemo({required String memoId});
   Future<void> setMemoArchived({
     required String memoId,
     required bool archived,
@@ -26,8 +41,14 @@ abstract class PlanningSyncRemote {
   Future<List<TaskItem>> fetchTasks();
   Future<List<MemoItem>> fetchMemos();
   Future<ScheduleItem> pushSchedule(ScheduleItem item);
+  Future<ScheduleItem> updateSchedule(ScheduleItem item);
+  Future<void> deleteSchedule({required String scheduleId});
   Future<TaskItem> pushTask(TaskItem item);
+  Future<TaskItem> updateTask(TaskItem item);
+  Future<void> deleteTask({required String taskId});
   Future<MemoItem> pushMemo(MemoItem item);
+  Future<MemoItem> updateMemo(MemoItem item);
+  Future<void> deleteMemo({required String memoId});
   Future<MemoItem> pushMemoArchive(MemoItem item);
 }
 
@@ -105,6 +126,97 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
+  Future<void> updateScheduleTitle({
+    required String scheduleId,
+    required String title,
+  }) async {
+    final current = await _requestJson('/planning/schedules/$scheduleId');
+    await updateSchedule(
+      ScheduleItem(
+        id: current['id'] as String,
+        title: title,
+        startAt: DateTime.parse(current['startAt'] as String),
+        endAt: current['endAt'] == null
+            ? null
+            : DateTime.parse(current['endAt'] as String),
+        description: current['description'] as String?,
+        location: current['location'] as String?,
+        timezone: current['timezone'] as String?,
+        durationMinutes: current['durationMinutes'] as int?,
+        status: parsePlanningStatus(current['status'] as String?),
+        syncState: parseSyncState(current['syncState'] as String?),
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateTaskTitle({
+    required String taskId,
+    required String title,
+  }) async {
+    final current = await _requestJson('/planning/tasks/$taskId');
+    await updateTask(
+      TaskItem(
+        id: current['id'] as String,
+        title: title,
+        plannedStartAt: DateTime.parse(current['plannedStartAt'] as String),
+        dueAt: DateTime.parse(current['dueAt'] as String),
+        plannedEndAt: current['plannedEndAt'] == null
+            ? null
+            : DateTime.parse(current['plannedEndAt'] as String),
+        description: current['description'] as String?,
+        location: current['location'] as String?,
+        timezone: current['timezone'] as String?,
+        plannedDurationMinutes: current['plannedDurationMinutes'] as int?,
+        status: parseTaskStatus(current['status'] as String?),
+        completionAt: current['completionAt'] == null
+            ? null
+            : DateTime.parse(current['completionAt'] as String),
+        syncState: parseSyncState(current['syncState'] as String?),
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateMemoTitle({
+    required String memoId,
+    required String title,
+  }) async {
+    final current = await _requestJson('/planning/memos/$memoId');
+    await updateMemo(
+      MemoItem(
+        id: current['id'] as String,
+        title: title,
+        listId: current['listId'] as String,
+        description: current['description'] as String?,
+        timezone: current['timezone'] as String?,
+        estimatedDurationMinutes: current['estimatedDurationMinutes'] as int?,
+        sortOrder: current['sortOrder'] as int?,
+        status: parsePlanningStatus(current['status'] as String?),
+        archivedAt: current['archivedAt'] == null
+            ? null
+            : DateTime.parse(current['archivedAt'] as String),
+        syncState: parseSyncState(current['syncState'] as String?),
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteSchedule({required String scheduleId}) async {
+    await _requestEmpty('DELETE', '/planning/schedules/$scheduleId');
+  }
+
+  @override
+  Future<void> deleteTask({required String taskId}) async {
+    await _requestEmpty('DELETE', '/planning/tasks/$taskId');
+  }
+
+  @override
+  Future<void> deleteMemo({required String memoId}) async {
+    await _requestEmpty('DELETE', '/planning/memos/$memoId');
+  }
+
+  @override
   Future<void> setMemoArchived({
     required String memoId,
     required bool archived,
@@ -162,6 +274,25 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
+  Future<ScheduleItem> updateSchedule(ScheduleItem item) async {
+    final updated = await _requestItem(
+      'PATCH',
+      '/planning/schedules/${item.id}',
+      {
+        'title': item.title,
+        'startAt': item.startAt.toIso8601String(),
+        'endAt': item.endAt?.toIso8601String(),
+        'description': item.description,
+        'location': item.location,
+        'timezone': item.timezone,
+        'durationMinutes': item.durationMinutes,
+        'status': planningStatusApiValue(item.status),
+      },
+    );
+    return ScheduleItem.fromJson(updated);
+  }
+
+  @override
   Future<TaskItem> pushTask(TaskItem item) async {
     final created = await _requestItem(
       'POST',
@@ -182,6 +313,27 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
+  Future<TaskItem> updateTask(TaskItem item) async {
+    final updated = await _requestItem(
+      'PATCH',
+      '/planning/tasks/${item.id}',
+      {
+        'title': item.title,
+        'plannedStartAt': item.plannedStartAt.toIso8601String(),
+        'dueAt': item.dueAt.toIso8601String(),
+        'plannedEndAt': item.plannedEndAt?.toIso8601String(),
+        'description': item.description,
+        'location': item.location,
+        'timezone': item.timezone,
+        'plannedDurationMinutes': item.plannedDurationMinutes,
+        'status': taskStatusApiValue(item.status),
+        'completionAt': item.completionAt?.toIso8601String(),
+      },
+    );
+    return TaskItem.fromJson(updated);
+  }
+
+  @override
   Future<MemoItem> pushMemo(MemoItem item) async {
     final created = await _requestItem(
       'POST',
@@ -197,6 +349,25 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
       },
     );
     return MemoItem.fromJson(created);
+  }
+
+  @override
+  Future<MemoItem> updateMemo(MemoItem item) async {
+    final updated = await _requestItem(
+      'PATCH',
+      '/planning/memos/${item.id}',
+      {
+        'title': item.title,
+        'listId': item.listId,
+        'description': item.description,
+        'timezone': item.timezone,
+        'estimatedDurationMinutes': item.estimatedDurationMinutes,
+        'sortOrder': item.sortOrder,
+        'status': planningStatusApiValue(item.status),
+        'archivedAt': item.archivedAt?.toIso8601String(),
+      },
+    );
+    return MemoItem.fromJson(updated);
   }
 
   @override
@@ -254,6 +425,18 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
     }
 
     throw const PlanningRepositoryException('Unexpected response payload');
+  }
+
+  Future<void> _requestEmpty(String method, String path) async {
+    final request = await _httpClient.openUrl(method, _baseUri.resolve(path));
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw PlanningRepositoryException(
+        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
+      );
+    }
   }
 }
 
@@ -318,6 +501,84 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
         title: title,
         listId: 'inbox',
         sortOrder: _memos.length,
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateScheduleTitle({
+    required String scheduleId,
+    required String title,
+  }) async {
+    final current = _schedules.firstWhere(
+      (item) => item.id == scheduleId,
+      orElse: () =>
+          throw const PlanningRepositoryException('Schedule not found'),
+    );
+    await updateSchedule(
+      ScheduleItem(
+        id: current.id,
+        title: title,
+        startAt: current.startAt,
+        endAt: current.endAt,
+        description: current.description,
+        location: current.location,
+        timezone: current.timezone,
+        durationMinutes: current.durationMinutes,
+        status: current.status,
+        syncState: current.syncState,
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateTaskTitle({
+    required String taskId,
+    required String title,
+  }) async {
+    final current = _tasks.firstWhere(
+      (item) => item.id == taskId,
+      orElse: () => throw const PlanningRepositoryException('Task not found'),
+    );
+    await updateTask(
+      TaskItem(
+        id: current.id,
+        title: title,
+        plannedStartAt: current.plannedStartAt,
+        dueAt: current.dueAt,
+        plannedEndAt: current.plannedEndAt,
+        description: current.description,
+        location: current.location,
+        timezone: current.timezone,
+        plannedDurationMinutes: current.plannedDurationMinutes,
+        status: current.status,
+        completionAt: current.completionAt,
+        syncState: current.syncState,
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateMemoTitle({
+    required String memoId,
+    required String title,
+  }) async {
+    final current = _memos.firstWhere(
+      (item) => item.id == memoId,
+      orElse: () => throw const PlanningRepositoryException('Memo not found'),
+    );
+    await updateMemo(
+      MemoItem(
+        id: current.id,
+        title: title,
+        listId: current.listId,
+        description: current.description,
+        timezone: current.timezone,
+        estimatedDurationMinutes: current.estimatedDurationMinutes,
+        sortOrder: current.sortOrder,
+        status: current.status,
+        archivedAt: current.archivedAt,
+        syncState: current.syncState,
       ),
     );
   }
@@ -390,6 +651,38 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
+  Future<ScheduleItem> updateSchedule(ScheduleItem item) async {
+    final index = _schedules.indexWhere((schedule) => schedule.id == item.id);
+    if (index == -1) {
+      throw const PlanningRepositoryException('Schedule not found');
+    }
+
+    final updated = ScheduleItem(
+      id: item.id,
+      title: item.title,
+      startAt: item.startAt,
+      endAt: item.endAt,
+      description: item.description,
+      location: item.location,
+      timezone: item.timezone,
+      durationMinutes: item.durationMinutes,
+      status: item.status,
+      syncState: SyncState.synced,
+    );
+    _schedules[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteSchedule({required String scheduleId}) async {
+    final beforeLength = _schedules.length;
+    _schedules.removeWhere((item) => item.id == scheduleId);
+    if (_schedules.length == beforeLength) {
+      throw const PlanningRepositoryException('Schedule not found');
+    }
+  }
+
+  @override
   Future<TaskItem> pushTask(TaskItem item) async {
     final synced = TaskItem(
       id: item.id.startsWith('local-') ? 'task-${_tasks.length + 1}' : item.id,
@@ -412,6 +705,40 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
+  Future<TaskItem> updateTask(TaskItem item) async {
+    final index = _tasks.indexWhere((task) => task.id == item.id);
+    if (index == -1) {
+      throw const PlanningRepositoryException('Task not found');
+    }
+
+    final updated = TaskItem(
+      id: item.id,
+      title: item.title,
+      plannedStartAt: item.plannedStartAt,
+      dueAt: item.dueAt,
+      plannedEndAt: item.plannedEndAt,
+      description: item.description,
+      location: item.location,
+      timezone: item.timezone,
+      plannedDurationMinutes: item.plannedDurationMinutes,
+      status: item.status,
+      completionAt: item.completionAt,
+      syncState: SyncState.synced,
+    );
+    _tasks[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteTask({required String taskId}) async {
+    final beforeLength = _tasks.length;
+    _tasks.removeWhere((item) => item.id == taskId);
+    if (_tasks.length == beforeLength) {
+      throw const PlanningRepositoryException('Task not found');
+    }
+  }
+
+  @override
   Future<MemoItem> pushMemo(MemoItem item) async {
     final synced = MemoItem(
       id: item.id.startsWith('local-') ? 'memo-${_memos.length + 1}' : item.id,
@@ -429,6 +756,38 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
     _memos.removeWhere((existing) => existing.id == item.id);
     _memos.add(synced);
     return synced;
+  }
+
+  @override
+  Future<MemoItem> updateMemo(MemoItem item) async {
+    final index = _memos.indexWhere((memo) => memo.id == item.id);
+    if (index == -1) {
+      throw const PlanningRepositoryException('Memo not found');
+    }
+
+    final updated = MemoItem(
+      id: item.id,
+      title: item.title,
+      listId: item.listId,
+      description: item.description,
+      timezone: item.timezone,
+      estimatedDurationMinutes: item.estimatedDurationMinutes,
+      sortOrder: item.sortOrder,
+      status: item.status,
+      archivedAt: item.archivedAt,
+      syncState: SyncState.synced,
+    );
+    _memos[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteMemo({required String memoId}) async {
+    final beforeLength = _memos.length;
+    _memos.removeWhere((item) => item.id == memoId);
+    if (_memos.length == beforeLength) {
+      throw const PlanningRepositoryException('Memo not found');
+    }
   }
 
   @override
@@ -565,6 +924,213 @@ class LocalPlanningRepository implements PlanningRepository {
   }
 
   @override
+  Future<void> updateScheduleTitle({
+    required String scheduleId,
+    required String title,
+  }) async {
+    await _updateState((current) {
+      final schedule = current.schedules.firstWhere(
+        (item) => item.id == scheduleId,
+        orElse: () =>
+            throw const PlanningRepositoryException('Schedule not found'),
+      );
+      final updated = ScheduleItem(
+        id: schedule.id,
+        title: title,
+        startAt: schedule.startAt,
+        endAt: schedule.endAt,
+        description: schedule.description,
+        location: schedule.location,
+        timezone: schedule.timezone,
+        durationMinutes: schedule.durationMinutes,
+        status: schedule.status,
+        syncState: schedule.syncState == SyncState.synced
+            ? SyncState.pendingPush
+            : schedule.syncState,
+      );
+      return _queueScheduleMutation(
+        _replaceSchedule(current, schedule.id, updated),
+        scheduleId: schedule.id,
+        type: _PendingSyncOperationType.updateSchedule,
+      );
+    });
+  }
+
+  @override
+  Future<void> updateTaskTitle({
+    required String taskId,
+    required String title,
+  }) async {
+    await _updateState((current) {
+      final task = current.tasks.firstWhere(
+        (item) => item.id == taskId,
+        orElse: () => throw const PlanningRepositoryException('Task not found'),
+      );
+      final updated = TaskItem(
+        id: task.id,
+        title: title,
+        plannedStartAt: task.plannedStartAt,
+        dueAt: task.dueAt,
+        plannedEndAt: task.plannedEndAt,
+        description: task.description,
+        location: task.location,
+        timezone: task.timezone,
+        plannedDurationMinutes: task.plannedDurationMinutes,
+        status: task.status,
+        completionAt: task.completionAt,
+        syncState: task.syncState == SyncState.synced
+            ? SyncState.pendingPush
+            : task.syncState,
+      );
+      return _queueTaskMutation(
+        _replaceTask(current, task.id, updated),
+        taskId: task.id,
+        type: _PendingSyncOperationType.updateTask,
+      );
+    });
+  }
+
+  @override
+  Future<void> updateMemoTitle({
+    required String memoId,
+    required String title,
+  }) async {
+    await _updateState((current) {
+      final memo = current.memos.firstWhere(
+        (item) => item.id == memoId,
+        orElse: () => throw const PlanningRepositoryException('Memo not found'),
+      );
+      final updated = MemoItem(
+        id: memo.id,
+        title: title,
+        listId: memo.listId,
+        description: memo.description,
+        timezone: memo.timezone,
+        estimatedDurationMinutes: memo.estimatedDurationMinutes,
+        sortOrder: memo.sortOrder,
+        status: memo.status,
+        archivedAt: memo.archivedAt,
+        syncState: memo.syncState == SyncState.synced
+            ? SyncState.pendingPush
+            : memo.syncState,
+      );
+      return _queueMemoMutation(
+        _replaceMemo(current, memo.id, updated),
+        memoId: memo.id,
+        type: _PendingSyncOperationType.updateMemo,
+      );
+    });
+  }
+
+  @override
+  Future<void> deleteSchedule({required String scheduleId}) async {
+    await _updateState((current) {
+      final schedule = current.schedules.firstWhere(
+        (item) => item.id == scheduleId,
+        orElse: () =>
+            throw const PlanningRepositoryException('Schedule not found'),
+      );
+      if (_hasPendingOperation(
+        current,
+        itemId: scheduleId,
+        type: _PendingSyncOperationType.createSchedule,
+      )) {
+        return _removeScheduleAndOperations(current, scheduleId);
+      }
+
+      final updated = ScheduleItem(
+        id: schedule.id,
+        title: schedule.title,
+        startAt: schedule.startAt,
+        endAt: schedule.endAt,
+        description: schedule.description,
+        location: schedule.location,
+        timezone: schedule.timezone,
+        durationMinutes: schedule.durationMinutes,
+        status: schedule.status,
+        syncState: SyncState.pendingDelete,
+      );
+      return _queueScheduleMutation(
+        _replaceSchedule(current, schedule.id, updated),
+        scheduleId: schedule.id,
+        type: _PendingSyncOperationType.deleteSchedule,
+      );
+    });
+  }
+
+  @override
+  Future<void> deleteTask({required String taskId}) async {
+    await _updateState((current) {
+      final task = current.tasks.firstWhere(
+        (item) => item.id == taskId,
+        orElse: () => throw const PlanningRepositoryException('Task not found'),
+      );
+      if (_hasPendingOperation(
+        current,
+        itemId: taskId,
+        type: _PendingSyncOperationType.createTask,
+      )) {
+        return _removeTaskAndOperations(current, taskId);
+      }
+
+      final updated = TaskItem(
+        id: task.id,
+        title: task.title,
+        plannedStartAt: task.plannedStartAt,
+        dueAt: task.dueAt,
+        plannedEndAt: task.plannedEndAt,
+        description: task.description,
+        location: task.location,
+        timezone: task.timezone,
+        plannedDurationMinutes: task.plannedDurationMinutes,
+        status: task.status,
+        completionAt: task.completionAt,
+        syncState: SyncState.pendingDelete,
+      );
+      return _queueTaskMutation(
+        _replaceTask(current, task.id, updated),
+        taskId: task.id,
+        type: _PendingSyncOperationType.deleteTask,
+      );
+    });
+  }
+
+  @override
+  Future<void> deleteMemo({required String memoId}) async {
+    await _updateState((current) {
+      final memo = current.memos.firstWhere(
+        (item) => item.id == memoId,
+        orElse: () => throw const PlanningRepositoryException('Memo not found'),
+      );
+      if (_hasPendingOperation(
+        current,
+        itemId: memoId,
+        type: _PendingSyncOperationType.createMemo,
+      )) {
+        return _removeMemoAndOperations(current, memoId);
+      }
+
+      final updated = MemoItem(
+        id: memo.id,
+        title: memo.title,
+        listId: memo.listId,
+        description: memo.description,
+        timezone: memo.timezone,
+        estimatedDurationMinutes: memo.estimatedDurationMinutes,
+        sortOrder: memo.sortOrder,
+        status: memo.status,
+        archivedAt: memo.archivedAt,
+        syncState: SyncState.pendingDelete,
+      );
+      return _queueMemoMutation(
+        _replaceMemo(current, memo.id, updated),
+        memoId: memo.id,
+        type: _PendingSyncOperationType.deleteMemo,
+      );
+    });
+  }
+
+  @override
   Future<void> setMemoArchived({
     required String memoId,
     required bool archived,
@@ -591,12 +1157,10 @@ class LocalPlanningRepository implements PlanningRepository {
         syncState: SyncState.pendingPush,
       );
 
-      return _withPendingOperation(
+      return _queueMemoMutation(
         current.copyWith(memos: nextMemos),
-        _PendingSyncOperation.create(
-          type: _PendingSyncOperationType.updateMemoArchive,
-          itemId: memoId,
-        ),
+        memoId: memoId,
+        type: _PendingSyncOperationType.updateMemoArchive,
       );
     });
   }
@@ -714,6 +1278,31 @@ class LocalPlanningRepository implements PlanningRepository {
         );
         final remote = await _remoteRepository!.pushMemo(local);
         return _replaceMemo(state, local.id, _markMemoSynced(remote));
+      case _PendingSyncOperationType.updateSchedule:
+        final local = state.schedules.firstWhere(
+          (item) => item.id == operation.itemId,
+          orElse: () => throw const PlanningRepositoryException(
+            'Pending schedule not found',
+          ),
+        );
+        final remote = await _remoteRepository!.updateSchedule(local);
+        return _replaceSchedule(state, local.id, _markScheduleSynced(remote));
+      case _PendingSyncOperationType.updateTask:
+        final local = state.tasks.firstWhere(
+          (item) => item.id == operation.itemId,
+          orElse: () =>
+              throw const PlanningRepositoryException('Pending task not found'),
+        );
+        final remote = await _remoteRepository!.updateTask(local);
+        return _replaceTask(state, local.id, _markTaskSynced(remote));
+      case _PendingSyncOperationType.updateMemo:
+        final local = state.memos.firstWhere(
+          (item) => item.id == operation.itemId,
+          orElse: () =>
+              throw const PlanningRepositoryException('Pending memo not found'),
+        );
+        final remote = await _remoteRepository!.updateMemo(local);
+        return _replaceMemo(state, local.id, _markMemoSynced(remote));
       case _PendingSyncOperationType.updateMemoArchive:
         final local = state.memos.firstWhere(
           (item) => item.id == operation.itemId,
@@ -722,6 +1311,15 @@ class LocalPlanningRepository implements PlanningRepository {
         );
         final remote = await _remoteRepository!.pushMemoArchive(local);
         return _replaceMemo(state, local.id, _markMemoSynced(remote));
+      case _PendingSyncOperationType.deleteSchedule:
+        await _remoteRepository!.deleteSchedule(scheduleId: operation.itemId);
+        return _removeScheduleAndOperations(state, operation.itemId);
+      case _PendingSyncOperationType.deleteTask:
+        await _remoteRepository!.deleteTask(taskId: operation.itemId);
+        return _removeTaskAndOperations(state, operation.itemId);
+      case _PendingSyncOperationType.deleteMemo:
+        await _remoteRepository!.deleteMemo(memoId: operation.itemId);
+        return _removeMemoAndOperations(state, operation.itemId);
     }
   }
 
@@ -898,7 +1496,13 @@ enum _PendingSyncOperationType {
   createSchedule,
   createTask,
   createMemo,
+  updateSchedule,
+  updateTask,
+  updateMemo,
   updateMemoArchive,
+  deleteSchedule,
+  deleteTask,
+  deleteMemo,
 }
 
 class _PendingSyncOperation {
@@ -963,8 +1567,20 @@ _PendingSyncOperationType _parsePendingSyncOperationType(String value) {
       return _PendingSyncOperationType.createTask;
     case 'createMemo':
       return _PendingSyncOperationType.createMemo;
+    case 'updateSchedule':
+      return _PendingSyncOperationType.updateSchedule;
+    case 'updateTask':
+      return _PendingSyncOperationType.updateTask;
+    case 'updateMemo':
+      return _PendingSyncOperationType.updateMemo;
     case 'updateMemoArchive':
       return _PendingSyncOperationType.updateMemoArchive;
+    case 'deleteSchedule':
+      return _PendingSyncOperationType.deleteSchedule;
+    case 'deleteTask':
+      return _PendingSyncOperationType.deleteTask;
+    case 'deleteMemo':
+      return _PendingSyncOperationType.deleteMemo;
     case 'createSchedule':
     default:
       return _PendingSyncOperationType.createSchedule;
@@ -984,6 +1600,95 @@ _PlanningLocalState _withPendingOperation(
   );
 }
 
+_PlanningLocalState _queueScheduleMutation(
+  _PlanningLocalState state, {
+  required String scheduleId,
+  required _PendingSyncOperationType type,
+}) {
+  if (_hasPendingOperation(
+    state,
+    itemId: scheduleId,
+    type: _PendingSyncOperationType.createSchedule,
+  )) {
+    return state;
+  }
+
+  return _enqueueOperation(
+    state,
+    _PendingSyncOperation.create(type: type, itemId: scheduleId),
+    replacedTypes: {
+      _PendingSyncOperationType.updateSchedule,
+      _PendingSyncOperationType.deleteSchedule,
+    },
+  );
+}
+
+_PlanningLocalState _queueTaskMutation(
+  _PlanningLocalState state, {
+  required String taskId,
+  required _PendingSyncOperationType type,
+}) {
+  if (_hasPendingOperation(
+    state,
+    itemId: taskId,
+    type: _PendingSyncOperationType.createTask,
+  )) {
+    return state;
+  }
+
+  return _enqueueOperation(
+    state,
+    _PendingSyncOperation.create(type: type, itemId: taskId),
+    replacedTypes: {
+      _PendingSyncOperationType.updateTask,
+      _PendingSyncOperationType.deleteTask,
+    },
+  );
+}
+
+_PlanningLocalState _queueMemoMutation(
+  _PlanningLocalState state, {
+  required String memoId,
+  required _PendingSyncOperationType type,
+}) {
+  final hasPendingCreate = _hasPendingOperation(
+    state,
+    itemId: memoId,
+    type: _PendingSyncOperationType.createMemo,
+  );
+  if (hasPendingCreate && type != _PendingSyncOperationType.updateMemoArchive) {
+    return state;
+  }
+
+  return _enqueueOperation(
+    state,
+    _PendingSyncOperation.create(type: type, itemId: memoId),
+    replacedTypes: {
+      _PendingSyncOperationType.updateMemo,
+      _PendingSyncOperationType.updateMemoArchive,
+      _PendingSyncOperationType.deleteMemo,
+    },
+  );
+}
+
+_PlanningLocalState _enqueueOperation(
+  _PlanningLocalState state,
+  _PendingSyncOperation operation, {
+  required Set<_PendingSyncOperationType> replacedTypes,
+}) {
+  final nextOperations = state.pendingOperations
+      .where(
+        (existing) =>
+            existing.itemId != operation.itemId ||
+            !replacedTypes.contains(existing.type),
+      )
+      .toList();
+  return _withPendingOperation(
+    state.copyWith(pendingOperations: nextOperations),
+    operation,
+  );
+}
+
 _PlanningLocalState _removePendingOperation(
   _PlanningLocalState state,
   String operationId,
@@ -992,6 +1697,16 @@ _PlanningLocalState _removePendingOperation(
     pendingOperations: state.pendingOperations
         .where((operation) => operation.id != operationId)
         .toList(),
+  );
+}
+
+bool _hasPendingOperation(
+  _PlanningLocalState state, {
+  required String itemId,
+  required _PendingSyncOperationType type,
+}) {
+  return state.pendingOperations.any(
+    (operation) => operation.itemId == itemId && operation.type == type,
   );
 }
 
@@ -1038,6 +1753,44 @@ _PlanningLocalState _replaceMemo(
         .map((operation) => operation.itemId == oldId
             ? operation.copyWith(itemId: next.id)
             : operation)
+        .toList(),
+  );
+}
+
+_PlanningLocalState _removeScheduleAndOperations(
+  _PlanningLocalState state,
+  String scheduleId,
+) {
+  return state.copyWith(
+    schedules: state.schedules
+        .where((item) => item.id != scheduleId)
+        .toList(),
+    pendingOperations: state.pendingOperations
+        .where((operation) => operation.itemId != scheduleId)
+        .toList(),
+  );
+}
+
+_PlanningLocalState _removeTaskAndOperations(
+  _PlanningLocalState state,
+  String taskId,
+) {
+  return state.copyWith(
+    tasks: state.tasks.where((item) => item.id != taskId).toList(),
+    pendingOperations: state.pendingOperations
+        .where((operation) => operation.itemId != taskId)
+        .toList(),
+  );
+}
+
+_PlanningLocalState _removeMemoAndOperations(
+  _PlanningLocalState state,
+  String memoId,
+) {
+  return state.copyWith(
+    memos: state.memos.where((item) => item.id != memoId).toList(),
+    pendingOperations: state.pendingOperations
+        .where((operation) => operation.itemId != memoId)
         .toList(),
   );
 }
