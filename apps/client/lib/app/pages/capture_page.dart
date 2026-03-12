@@ -18,11 +18,25 @@ class CapturePage extends StatefulWidget {
 
 class _CapturePageState extends State<CapturePage> {
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _startAtController = TextEditingController();
+  final TextEditingController _endAtController = TextEditingController();
+  final TextEditingController _dueAtController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
+  final TextEditingController _listIdController = TextEditingController(
+    text: 'inbox',
+  );
   CaptureItemKind _selectedKind = CaptureItemKind.task;
 
   @override
   void dispose() {
     _titleController.dispose();
+    _startAtController.dispose();
+    _endAtController.dispose();
+    _dueAtController.dispose();
+    _locationController.dispose();
+    _durationController.dispose();
+    _listIdController.dispose();
     super.dispose();
   }
 
@@ -133,10 +147,14 @@ class _CapturePageState extends State<CapturePage> {
                     const SizedBox(height: 8),
                     Text(
                       l10n.captureAiNeedsConfirm(
-                        suggestion.requiresConfirmation.join(', '),
+                        suggestion.requiresConfirmation
+                            .map((field) => _fieldLabel(l10n, field))
+                            .join(', '),
                       ),
                     ),
                   ],
+                  const SizedBox(height: 16),
+                  ..._buildStructuredFields(l10n, suggestion),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 12,
@@ -145,8 +163,8 @@ class _CapturePageState extends State<CapturePage> {
                       FilledButton(
                         onPressed: store.isSubmitting
                             ? null
-                            : () => _applySuggestion(store, aiStore, suggestion),
-                        child: Text(l10n.captureAiApplyAction),
+                            : () => _confirmSuggestion(store, aiStore, suggestion),
+                        child: Text(l10n.captureAiConfirmAction),
                       ),
                       TextButton(
                         onPressed: aiStore.clearSuggestion,
@@ -191,17 +209,27 @@ class _CapturePageState extends State<CapturePage> {
 
   Future<void> _submit(PlanningStore store) async {
     final title = _titleController.text.trim();
+    final suggestion = AiScope.of(context).lastSuggestion;
     if (title.isEmpty) {
       return;
     }
 
-    await store.createItem(kind: _selectedKind, title: title);
+    await store.createItem(
+      kind: _selectedKind,
+      title: title,
+      startAt: suggestion == null ? null : _parseDateTime(_startAtController.text),
+      endAt: suggestion == null ? null : _parseDateTime(_endAtController.text),
+      dueAt: suggestion == null ? null : _parseDateTime(_dueAtController.text),
+      location: suggestion == null ? null : _trimmedOrNull(_locationController.text),
+      durationMinutes: suggestion == null ? null : _parseInt(_durationController.text),
+      listId: suggestion == null ? null : _trimmedOrNull(_listIdController.text),
+    );
     if (!mounted) {
       return;
     }
 
     if (store.errorMessage == null) {
-      _titleController.clear();
+      _resetForm();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.captureSuccess)),
       );
@@ -215,9 +243,13 @@ class _CapturePageState extends State<CapturePage> {
     }
 
     await aiStore.ingestText(title);
+    final suggestion = aiStore.lastSuggestion;
+    if (suggestion != null) {
+      _prefillStructuredFields(suggestion);
+    }
   }
 
-  Future<void> _applySuggestion(
+  Future<void> _confirmSuggestion(
     PlanningStore store,
     AiStore aiStore,
     AiSuggestion suggestion,
@@ -234,7 +266,9 @@ class _CapturePageState extends State<CapturePage> {
     });
 
     await _submit(store);
-    aiStore.clearSuggestion();
+    if (store.errorMessage == null) {
+      aiStore.clearSuggestion();
+    }
   }
 
   String _typeLabel(AppLocalizations l10n, AiSuggestionType type) {
@@ -243,5 +277,170 @@ class _CapturePageState extends State<CapturePage> {
       AiSuggestionType.task => l10n.captureTypeTask,
       AiSuggestionType.memo => l10n.captureTypeMemo,
     };
+  }
+
+  List<Widget> _buildStructuredFields(
+    AppLocalizations l10n,
+    AiSuggestion suggestion,
+  ) {
+    switch (suggestion.suggestedType) {
+      case AiSuggestionType.schedule:
+        return [
+          TextField(
+            controller: _startAtController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiStartAtLabel,
+              hintText: l10n.captureAiDateTimeHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _endAtController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiEndAtLabel,
+              hintText: l10n.captureAiDateTimeHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _locationController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiLocationLabel,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _durationController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiDurationLabel,
+              hintText: l10n.captureAiDurationHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ];
+      case AiSuggestionType.task:
+        return [
+          TextField(
+            controller: _dueAtController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiDueAtLabel,
+              hintText: l10n.captureAiDateTimeHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _locationController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiLocationLabel,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _durationController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiDurationLabel,
+              hintText: l10n.captureAiDurationHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ];
+      case AiSuggestionType.memo:
+        return [
+          TextField(
+            controller: _listIdController,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiListIdLabel,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _durationController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.captureAiDurationLabel,
+              hintText: l10n.captureAiDurationHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ];
+    }
+  }
+
+  void _prefillStructuredFields(AiSuggestion suggestion) {
+    final extracted = suggestion.extracted;
+    setState(() {
+      _selectedKind = switch (suggestion.suggestedType) {
+        AiSuggestionType.schedule => CaptureItemKind.schedule,
+        AiSuggestionType.task => CaptureItemKind.task,
+        AiSuggestionType.memo => CaptureItemKind.memo,
+      };
+      _titleController.text = suggestion.title;
+      _startAtController.text = extracted['startAt'] as String? ?? '';
+      _endAtController.text = extracted['endAt'] as String? ?? '';
+      _dueAtController.text = extracted['dueAt'] as String? ?? '';
+      _locationController.text = extracted['location'] as String? ?? '';
+      _durationController.text = extracted['durationMinutes']?.toString() ?? '';
+      _listIdController.text = extracted['listId'] as String? ?? 'inbox';
+    });
+  }
+
+  void _resetForm() {
+    _titleController.clear();
+    _startAtController.clear();
+    _endAtController.clear();
+    _dueAtController.clear();
+    _locationController.clear();
+    _durationController.clear();
+    _listIdController.text = 'inbox';
+  }
+
+  String _fieldLabel(AppLocalizations l10n, String field) {
+    switch (field) {
+      case 'startAt':
+        return l10n.captureAiStartAtLabel;
+      case 'endAt':
+        return l10n.captureAiEndAtLabel;
+      case 'dueAt':
+        return l10n.captureAiDueAtLabel;
+      case 'location':
+        return l10n.captureAiLocationLabel;
+      case 'durationMinutes':
+        return l10n.captureAiDurationLabel;
+      case 'listId':
+        return l10n.captureAiListIdLabel;
+      default:
+        return field;
+    }
+  }
+
+  DateTime? _parseDateTime(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    return DateTime.tryParse(trimmed)?.toUtc();
+  }
+
+  int? _parseInt(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    return int.tryParse(trimmed);
+  }
+
+  String? _trimmedOrNull(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 }

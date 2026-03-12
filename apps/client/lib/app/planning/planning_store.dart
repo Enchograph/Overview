@@ -67,6 +67,12 @@ class PlanningStore extends ChangeNotifier {
   Future<void> createItem({
     required CaptureItemKind kind,
     required String title,
+    DateTime? startAt,
+    DateTime? endAt,
+    DateTime? dueAt,
+    String? location,
+    int? durationMinutes,
+    String? listId,
   }) async {
     _isSubmitting = true;
     _errorMessage = null;
@@ -75,11 +81,27 @@ class PlanningStore extends ChangeNotifier {
     try {
       switch (kind) {
         case CaptureItemKind.schedule:
-          await _repository.createSchedule(title: title);
+          await _repository.createSchedule(
+            title: title,
+            startAt: startAt,
+            endAt: endAt,
+            location: location,
+            durationMinutes: durationMinutes,
+          );
         case CaptureItemKind.task:
-          await _repository.createTask(title: title);
+          await _repository.createTask(
+            title: title,
+            plannedStartAt: startAt,
+            dueAt: dueAt,
+            location: location,
+            plannedDurationMinutes: durationMinutes,
+          );
         case CaptureItemKind.memo:
-          await _repository.createMemo(title: title);
+          await _repository.createMemo(
+            title: title,
+            listId: listId,
+            estimatedDurationMinutes: durationMinutes,
+          );
       }
       await refresh();
     } catch (error) {

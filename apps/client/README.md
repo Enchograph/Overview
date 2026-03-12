@@ -3,7 +3,7 @@
 Flutter 客户端主应用目录。
 
 当前状态：已完成 Flutter 工程初始化，并为周视图、备忘页、添加页接入应用级状态；默认使用 SharedPreferences 本地仓储持久化数据，并已接入同步骨架初版。
-当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析与单轮问答主路径。
+当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析、待确认结构化结果与单轮问答主路径。
 
 ## 当前内容
 
@@ -31,12 +31,12 @@ Flutter 客户端主应用目录。
 
 - 默认使用 `LocalPlanningRepository` 读写 SharedPreferences，并在首次启动时注入示例数据
 - 设置 `--dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000` 后，客户端会启用“本地优先 + 远端同步骨架”模式，并自动把本地持久化 session token 附加到 `/planning/*` 请求
-- 添加页现在可调用 `/ai/ingest/text` 获取 AI 建议，并按建议类型创建基础条目
+- 添加页现在可调用 `/ai/ingest/text` 获取 AI 建议，并在确认时间、地点、时长、列表等字段后创建条目
 - AI 页面现在可调用 `/ai/ask` 发起单轮规划问答，并展示回答与引用条目数量
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 推进 AI 解析后的逐字段确认流
-- 接入语音入口与更细粒度的 AI 错误处理
+- 接入语音入口
+- 补齐更细粒度的 AI 错误处理

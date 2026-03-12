@@ -11,9 +11,25 @@ abstract class PlanningRepository {
   Future<List<ScheduleItem>> fetchSchedules();
   Future<List<TaskItem>> fetchTasks();
   Future<List<MemoItem>> fetchMemos();
-  Future<void> createSchedule({required String title});
-  Future<void> createTask({required String title});
-  Future<void> createMemo({required String title});
+  Future<void> createSchedule({
+    required String title,
+    DateTime? startAt,
+    DateTime? endAt,
+    String? location,
+    int? durationMinutes,
+  });
+  Future<void> createTask({
+    required String title,
+    DateTime? plannedStartAt,
+    DateTime? dueAt,
+    String? location,
+    int? plannedDurationMinutes,
+  });
+  Future<void> createMemo({
+    required String title,
+    String? listId,
+    int? estimatedDurationMinutes,
+  });
   Future<void> updateScheduleTitle({
     required String scheduleId,
     required String title,
@@ -94,37 +110,59 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   }
 
   @override
-  Future<void> createSchedule({required String title}) async {
+  Future<void> createSchedule({
+    required String title,
+    DateTime? startAt,
+    DateTime? endAt,
+    String? location,
+    int? durationMinutes,
+  }) async {
+    final resolvedStartAt = startAt ?? DateTime.now().toUtc();
     await pushSchedule(
       ScheduleItem(
         id: 'local',
         title: title,
-        startAt: DateTime.now().toUtc(),
-        endAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        startAt: resolvedStartAt,
+        endAt: endAt ?? resolvedStartAt.add(const Duration(hours: 1)),
+        location: location,
+        durationMinutes: durationMinutes,
       ),
     );
   }
 
   @override
-  Future<void> createTask({required String title}) async {
-    final plannedStartAt = DateTime.now().toUtc();
+  Future<void> createTask({
+    required String title,
+    DateTime? plannedStartAt,
+    DateTime? dueAt,
+    String? location,
+    int? plannedDurationMinutes,
+  }) async {
+    final resolvedStartAt = plannedStartAt ?? DateTime.now().toUtc();
     await pushTask(
       TaskItem(
         id: 'local',
         title: title,
-        plannedStartAt: plannedStartAt,
-        dueAt: plannedStartAt.add(const Duration(days: 1)),
+        plannedStartAt: resolvedStartAt,
+        dueAt: dueAt ?? resolvedStartAt.add(const Duration(days: 1)),
+        location: location,
+        plannedDurationMinutes: plannedDurationMinutes,
       ),
     );
   }
 
   @override
-  Future<void> createMemo({required String title}) async {
+  Future<void> createMemo({
+    required String title,
+    String? listId,
+    int? estimatedDurationMinutes,
+  }) async {
     await pushMemo(
       MemoItem(
         id: 'local',
         title: title,
-        listId: 'inbox',
+        listId: listId ?? 'inbox',
+        estimatedDurationMinutes: estimatedDurationMinutes,
       ),
     );
   }
@@ -485,43 +523,63 @@ class FakePlanningRepository implements PlanningRepository, PlanningSyncRemote {
   Future<List<MemoItem>> fetchMemos() async => List.of(_memos);
 
   @override
-  Future<void> createSchedule({required String title}) async {
+  Future<void> createSchedule({
+    required String title,
+    DateTime? startAt,
+    DateTime? endAt,
+    String? location,
+    int? durationMinutes,
+  }) async {
+    final resolvedStartAt =
+        startAt ??
+        DateTime.utc(2026, 3, 12, 9).add(Duration(hours: _schedules.length));
     await pushSchedule(
       ScheduleItem(
         id: 'local-${_schedules.length + 1}',
         title: title,
-        startAt: DateTime.utc(2026, 3, 12, 9).add(
-          Duration(hours: _schedules.length),
-        ),
-        endAt: DateTime.utc(2026, 3, 12, 10).add(
-          Duration(hours: _schedules.length),
-        ),
+        startAt: resolvedStartAt,
+        endAt: endAt ?? resolvedStartAt.add(const Duration(hours: 1)),
+        location: location,
+        durationMinutes: durationMinutes,
       ),
     );
   }
 
   @override
-  Future<void> createTask({required String title}) async {
-    final plannedStartAt = DateTime.utc(2026, 3, 12, 13).add(
-      Duration(hours: _tasks.length),
-    );
+  Future<void> createTask({
+    required String title,
+    DateTime? plannedStartAt,
+    DateTime? dueAt,
+    String? location,
+    int? plannedDurationMinutes,
+  }) async {
+    final resolvedStartAt =
+        plannedStartAt ??
+        DateTime.utc(2026, 3, 12, 13).add(Duration(hours: _tasks.length));
     await pushTask(
       TaskItem(
         id: 'local-${_tasks.length + 1}',
         title: title,
-        plannedStartAt: plannedStartAt,
-        dueAt: plannedStartAt.add(const Duration(days: 1)),
+        plannedStartAt: resolvedStartAt,
+        dueAt: dueAt ?? resolvedStartAt.add(const Duration(days: 1)),
+        location: location,
+        plannedDurationMinutes: plannedDurationMinutes,
       ),
     );
   }
 
   @override
-  Future<void> createMemo({required String title}) async {
+  Future<void> createMemo({
+    required String title,
+    String? listId,
+    int? estimatedDurationMinutes,
+  }) async {
     await pushMemo(
       MemoItem(
         id: 'local-${_memos.length + 1}',
         title: title,
-        listId: 'inbox',
+        listId: listId ?? 'inbox',
+        estimatedDurationMinutes: estimatedDurationMinutes,
         sortOrder: _memos.length,
       ),
     );
@@ -875,16 +933,25 @@ class LocalPlanningRepository implements PlanningRepository {
   }
 
   @override
-  Future<void> createSchedule({required String title}) async {
+  Future<void> createSchedule({
+    required String title,
+    DateTime? startAt,
+    DateTime? endAt,
+    String? location,
+    int? durationMinutes,
+  }) async {
     final now = DateTime.now().toUtc();
     await _updateState((current) {
       final nextIndex = current.schedules.length + 1;
-      final startAt = now.add(Duration(hours: current.schedules.length));
+      final resolvedStartAt =
+          startAt ?? now.add(Duration(hours: current.schedules.length));
       final item = ScheduleItem(
         id: 'local-schedule-${now.microsecondsSinceEpoch}-$nextIndex',
         title: title,
-        startAt: startAt,
-        endAt: startAt.add(const Duration(hours: 1)),
+        startAt: resolvedStartAt,
+        endAt: endAt ?? resolvedStartAt.add(const Duration(hours: 1)),
+        location: location,
+        durationMinutes: durationMinutes,
         syncState: SyncState.pendingPush,
       );
       return _withPendingOperation(
@@ -900,15 +967,24 @@ class LocalPlanningRepository implements PlanningRepository {
   }
 
   @override
-  Future<void> createTask({required String title}) async {
+  Future<void> createTask({
+    required String title,
+    DateTime? plannedStartAt,
+    DateTime? dueAt,
+    String? location,
+    int? plannedDurationMinutes,
+  }) async {
     final now = DateTime.now().toUtc();
     await _updateState((current) {
       final nextIndex = current.tasks.length + 1;
+      final resolvedStartAt = plannedStartAt ?? now;
       final item = TaskItem(
         id: 'local-task-${now.microsecondsSinceEpoch}-$nextIndex',
         title: title,
-        plannedStartAt: now,
-        dueAt: now.add(const Duration(days: 1)),
+        plannedStartAt: resolvedStartAt,
+        dueAt: dueAt ?? resolvedStartAt.add(const Duration(days: 1)),
+        location: location,
+        plannedDurationMinutes: plannedDurationMinutes,
         syncState: SyncState.pendingPush,
       );
       return _withPendingOperation(
@@ -924,14 +1000,19 @@ class LocalPlanningRepository implements PlanningRepository {
   }
 
   @override
-  Future<void> createMemo({required String title}) async {
+  Future<void> createMemo({
+    required String title,
+    String? listId,
+    int? estimatedDurationMinutes,
+  }) async {
     final now = DateTime.now().toUtc();
     await _updateState((current) {
       final nextIndex = current.memos.length + 1;
       final item = MemoItem(
         id: 'local-memo-${now.microsecondsSinceEpoch}-$nextIndex',
         title: title,
-        listId: 'inbox',
+        listId: listId ?? 'inbox',
+        estimatedDurationMinutes: estimatedDurationMinutes,
         sortOrder: current.memos.length,
         syncState: SyncState.pendingPush,
       );

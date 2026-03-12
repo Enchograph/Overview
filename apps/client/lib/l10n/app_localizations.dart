@@ -95,6 +95,15 @@ class AppLocalizations {
   String captureAiNeedsConfirm(String fields) =>
       _value('captureAiNeedsConfirm').replaceFirst('{fields}', fields);
   String get captureAiApplyAction => _value('captureAiApplyAction');
+  String get captureAiConfirmAction => _value('captureAiConfirmAction');
+  String get captureAiStartAtLabel => _value('captureAiStartAtLabel');
+  String get captureAiEndAtLabel => _value('captureAiEndAtLabel');
+  String get captureAiDueAtLabel => _value('captureAiDueAtLabel');
+  String get captureAiLocationLabel => _value('captureAiLocationLabel');
+  String get captureAiDurationLabel => _value('captureAiDurationLabel');
+  String get captureAiListIdLabel => _value('captureAiListIdLabel');
+  String get captureAiDateTimeHint => _value('captureAiDateTimeHint');
+  String get captureAiDurationHint => _value('captureAiDurationHint');
   String get captureAiDismissAction => _value('captureAiDismissAction');
   String get captureSuccess => _value('captureSuccess');
   String get captureHintTitle => _value('captureHintTitle');

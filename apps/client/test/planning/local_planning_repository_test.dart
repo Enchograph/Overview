@@ -50,6 +50,29 @@ void main() {
     expect(archivedMemo.archivedAt, isNotNull);
   });
 
+  test('persists structured task fields from ai confirmation flow', () async {
+    final repository = LocalPlanningRepository();
+
+    await repository.createTask(
+      title: 'Prepare board update',
+      dueAt: DateTime.parse('2026-03-14T09:00:00.000Z').toUtc(),
+      location: 'Room 501',
+      plannedDurationMinutes: 45,
+    );
+
+    final anotherRepository = LocalPlanningRepository();
+    final createdTask = (await anotherRepository.fetchTasks()).firstWhere(
+      (task) => task.title == 'Prepare board update',
+    );
+
+    expect(createdTask.location, 'Room 501');
+    expect(
+      createdTask.dueAt,
+      DateTime.parse('2026-03-14T09:00:00.000Z').toUtc(),
+    );
+    expect(createdTask.plannedDurationMinutes, 45);
+  });
+
   test('tracks pending sync status after local mutation', () async {
     final repository = LocalPlanningRepository();
 

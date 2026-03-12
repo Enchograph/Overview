@@ -153,11 +153,11 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('AI suggestion'), findsOneWidget);
-    expect(find.textContaining('Buy cat food'), findsOneWidget);
+    expect(find.text('AI suggests a Memo: Buy cat food'), findsOneWidget);
 
     final applyButton = find.widgetWithText(
       FilledButton,
-      'Create from suggestion',
+      'Confirm and create',
     );
     await tester.scrollUntilVisible(
       applyButton,
