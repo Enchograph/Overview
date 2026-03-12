@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P4 AI 能力
-- 当前功能块：OpenAI provider 已接入，继续推进文本录入解析流
+- 当前功能块：文本录入解析流已落地，继续推进 AI 单轮问答页
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -53,19 +53,21 @@
 - 已完成 AI API 测试与 PostgreSQL 烟测扩展，验证未授权 401、登录后 AI 文本解析与问答主路径
 - 已完成 OpenAI provider 接入：API 新增 `AI_PROVIDER`、`OPENAI_API_KEY`、`OPENAI_MODEL` 配置，可在 `auto` 模式下自动选择 OpenAI 或 heuristic provider
 - 已完成 OpenAI provider 工厂测试，验证无 key 回退 heuristic、有显式 `openai` 配置时缺 key 会快速失败
+- 已完成客户端文本录入解析流：添加页可调用 `/ai/ingest/text`，展示 AI 结构化建议并按建议类型创建基础条目
+- 已完成客户端 AI HTTP 仓储测试与 widget 测试，验证 Bearer token 鉴权下的解析请求和建议应用主路径
 
 ## 进行中
 
-- 推进文本录入解析流，把 AI 结构化建议真正接到客户端可确认结果
+- 推进 AI 单轮问答页，接通 `/ai/ask` 并展示单轮回答结果
 
 ## 下一步唯一推荐动作
 
-实现文本录入解析流，把 `/ai/ingest/text` 接到客户端添加页和待确认结构化结果展示。
+实现 AI 单轮问答页，把 `/ai/ask` 接到客户端 AI 路由并展示回答。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-- 客户端 AI 页面与添加页仍未接到真实 AI 接口；当前 AI 能力还停留在服务端 API 层
+- 客户端 AI 问答页仍是占位状态；当前只打通了添加页文本解析流
 
 ## 当前技术默认值
 

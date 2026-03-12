@@ -31,6 +31,9 @@
   - 为 API 增加 OpenAI provider 工厂、环境变量与 `auto|heuristic|openai` 选择策略
   - 新增 `OpenAiService`，通过官方 `openai` SDK 调用 Responses API，并在无 key 环境下保持 heuristic 回退
   - 新增 AI provider 工厂测试，并修正 embedded Postgres 关闭阶段的 pool error 假红
+  - 新增客户端 AI 仓储、作用域与 store，并让应用默认装配 AI HTTP 客户端
+  - 将添加页接入 `/ai/ingest/text`，展示 AI 建议卡片、待确认字段和“按建议创建”主路径
+  - 扩展客户端 AI HTTP 仓储测试与 widget 测试，验证解析请求和建议落地创建
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -40,16 +43,17 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进文本录入解析流，把 AI 结构化建议真正接到客户端可确认结果
+  - 推进 AI 单轮问答页，把 `/ai/ask` 接到客户端 AI 路由并展示回答
 - 下一接手顺序：
-  1. 为客户端添加页接入 `/ai/ingest/text`
-  2. 设计并实现待确认结构化结果卡片/流程
-  3. 再推进 AI 单轮问答页的真实接口接线
+  1. 为 `AiRoute` 接入 `/ai/ask`
+  2. 设计单轮问答输入框、提交态和回答展示
+  3. 再补齐 AI 错误处理与待确认结构化结果细节
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
   - 当前尚未验证真实 OpenAI 凭据调用；仓库内测试仍以 heuristic/工厂回退为主
+  - AI 问答页仍未接通真实接口，P4 主链路还差问答闭环
 
 ## 交接模板
 

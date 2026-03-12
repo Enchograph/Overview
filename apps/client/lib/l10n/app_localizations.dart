@@ -82,6 +82,20 @@ class AppLocalizations {
   String get captureTitleHint => _value('captureTitleHint');
   String get captureSubmitAction => _value('captureSubmitAction');
   String get captureSubmitting => _value('captureSubmitting');
+  String get captureAiParseAction => _value('captureAiParseAction');
+  String get captureAiParsing => _value('captureAiParsing');
+  String get captureAiSuggestionTitle => _value('captureAiSuggestionTitle');
+  String captureAiSuggestionBody(String typeLabel, String title) => _value(
+        'captureAiSuggestionBody',
+      )
+          .replaceFirst('{typeLabel}', typeLabel)
+          .replaceFirst('{title}', title);
+  String captureAiConfidenceLabel(int percent) =>
+      _value('captureAiConfidenceLabel').replaceFirst('{percent}', '$percent');
+  String captureAiNeedsConfirm(String fields) =>
+      _value('captureAiNeedsConfirm').replaceFirst('{fields}', fields);
+  String get captureAiApplyAction => _value('captureAiApplyAction');
+  String get captureAiDismissAction => _value('captureAiDismissAction');
   String get captureSuccess => _value('captureSuccess');
   String get captureHintTitle => _value('captureHintTitle');
   String get captureHintBody => _value('captureHintBody');

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:overview_client/app/app.dart';
+import 'package:overview_client/app/ai/ai_repository.dart';
 import 'package:overview_client/app/app_router.dart';
 import 'package:overview_client/app/auth/auth_repository.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
@@ -120,5 +121,55 @@ void main() {
 
     expect(find.text('Account session is ready.'), findsOneWidget);
     expect(find.text('user@example.com'), findsOneWidget);
+  });
+
+  testWidgets('parses capture text with ai and applies suggestion', (tester) async {
+    final repository = FakePlanningRepository();
+
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.captureRoute,
+        repository: repository,
+        aiRepository: FakeAiRepository(
+          suggestion: const AiSuggestion(
+            suggestedType: AiSuggestionType.memo,
+            title: 'Buy cat food',
+            confidence: 0.91,
+            requiresConfirmation: ['listId'],
+            extracted: {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '记得买猫粮');
+    await tester.tap(find.text('Parse with AI'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('AI suggestion'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('AI suggestion'), findsOneWidget);
+    expect(find.textContaining('Buy cat food'), findsOneWidget);
+
+    final applyButton = find.widgetWithText(
+      FilledButton,
+      'Create from suggestion',
+    );
+    await tester.scrollUntilVisible(
+      applyButton,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(applyButton);
+    await tester.pumpAndSettle();
+    await tester.tap(applyButton);
+    await tester.pumpAndSettle();
+
+    final memos = await repository.fetchMemos();
+    expect(memos.any((memo) => memo.title == 'Buy cat food'), isTrue);
   });
 }
