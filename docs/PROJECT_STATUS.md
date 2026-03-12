@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：Android 可选正式签名配置已落地，继续推进主流程测试可执行验证
+- 当前功能块：客户端主流程烟测已可执行，继续推进单进程端到端验证
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -89,14 +89,16 @@
 - 已完成后端启动自动化烟测：`npm run api:test` 现额外覆盖 `test/start.embedded.test.ts`，验证嵌入式 PostgreSQL 启动、API 拉起、`/health` 成功与进程回收
 - 已完成 Android 可选正式签名配置：`app/build.gradle.kts` 现支持 `android/key.properties` 或 `OVERVIEW_ANDROID_*` 环境变量注入正式签名材料；缺失材料时继续回退 debug keystore
 - 已完成 Android release 回归验证：在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`
+- 已完成客户端主流程可执行验证：新增 `test/main_flow_smoke_test.dart`，并通过 `flutter test test/main_flow_smoke_test.dart`
+- 已完成客户端测试回归：新增主流程烟测后继续通过 `flutter analyze` 与 `flutter test`
 
 ## 进行中
 
-- 推进主流程测试可执行验证，优先解决当前环境下集成测试只静态落地的问题
+- 推进客户端与 Node API 的单进程端到端编排，减少当前分层验证之间的空隙
 
 ## 下一步唯一推荐动作
 
-推动客户端主流程测试从静态脚手架走向可执行验证，优先补仓库内可运行的自动化路径。
+把客户端与 Node API 串成单进程端到端验证，优先覆盖启动 API、登录与一条 planning 写入链路。
 
 ## 当前阻塞
 
@@ -122,7 +124,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK、后端本地开发启动、后端启动烟测与可选正式签名配置现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失与客户端主流程缺少真实可执行验证
+- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置与客户端主流程烟测现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失与缺少单进程端到端验证
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证

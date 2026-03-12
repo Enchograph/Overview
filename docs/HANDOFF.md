@@ -38,6 +38,8 @@
   - 为 Android release 增加可选正式签名配置：支持 `android/key.properties` 与 `OVERVIEW_ANDROID_*` 环境变量
   - 新增 `apps/client/android/key.properties.example`，沉淀正式签名配置模板
   - 在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`，确认 debug 回退路径仍可用
+  - 新增 `apps/client/test/main_flow_smoke_test.dart`，把主导航、Capture、Notes、Settings、Account 与快捷入口跳转沉淀为可执行 widget smoke
+  - 已通过 `flutter test test/main_flow_smoke_test.dart`，并在新增主流程烟测后继续通过 `flutter test` 与 `flutter analyze`
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -52,11 +54,11 @@
   - 已通过 `npm run api:start:embedded`
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
 - 当前进行中：
-  - 推进主流程测试可执行验证，优先解决客户端 `integration_test` 仅静态落地的问题
+  - 推进客户端与 Node API 的单进程端到端编排
 - 下一接手顺序：
-  1. 推动客户端主流程测试从静态脚手架走向可执行验证
+  1. 把客户端与 Node API 串成单进程端到端验证
   2. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
-  3. 随后考虑把客户端与 Node API 串成单进程端到端验证
+  3. 随后继续收敛正式签名材料接入与发布说明
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景

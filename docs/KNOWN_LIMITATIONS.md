@@ -30,7 +30,7 @@
 
 ## 测试限制
 
-- 已有主流程集成测试脚手架，但当前仓库内仅完成静态落地，未在可用桌面 runner 上真实执行
+- 已有 `flutter test test/main_flow_smoke_test.dart` 主流程烟测；但 `integration_test/main_flow_test.dart` 仍未在可用桌面 runner 上真实执行
 - 当前自动化仍以：
   - Flutter widget / repository 测试
   - API 路由测试
