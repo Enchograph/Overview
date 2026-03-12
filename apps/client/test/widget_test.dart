@@ -429,4 +429,27 @@ void main() {
     expect(find.text('Ask for final icon set'), findsOneWidget);
     expect(find.text('Draft onboarding copy'), findsOneWidget);
   });
+
+  testWidgets(
+      'shows explicit refresh actions on desktop-sized week and settings pages',
+      (
+    tester,
+  ) async {
+    await pumpAdaptiveApp(
+      tester,
+      size: const Size(1440, 900),
+      repository: FakePlanningRepository(),
+      authRepository: FakeAuthRepository(),
+      notificationService: FakeNotificationService(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(OutlinedButton, 'Refresh data'), findsOneWidget);
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Refresh data'), findsOneWidget);
+  });
 }

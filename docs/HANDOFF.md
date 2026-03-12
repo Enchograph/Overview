@@ -14,23 +14,27 @@
   - 为应用壳层增加宽屏断点逻辑，在平板宽度下使用 `NavigationRail` 取代底部导航
   - 将周视图、添加页和设置页升级为平板竖屏双栏/约束布局，避免大宽度下仍沿用单列手机排版
   - 在更宽的横屏窗口下扩展 `NavigationRail` 标签展示，并将备忘页升级为摘要区 + 备忘列表分栏布局
-  - 扩展 widget 测试覆盖宽屏导航、设置页平板布局和横屏备忘页布局，并更新客户端 README、项目状态和 P5 TODO
+  - 为客户端生成 `windows/` 平台工程，补齐 Flutter Windows runner 与 CMake 配置
+  - 为周视图、备忘页和设置页补齐桌面宽度下的显式刷新按钮与滚动条，避免桌面端仍依赖移动端下拉刷新手势
+  - 扩展 widget 测试覆盖桌面显式刷新入口，并更新客户端 README 与项目状态
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
+  - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
 - 当前进行中：
-  - 推进 Windows 桌面基础布局，先为桌面窗口建立稳定可用的主壳层和核心页面排版
+  - 推进 Web PWA 基础适配，先为浏览器窗口建立稳定可用的主壳层和核心页面排版
 - 下一接手顺序：
-  1. 评估当前壳层、周视图和设置页在 Windows 窗口下的交互方式与桌面布局断点
-  2. 先落地 Windows 桌面基础布局，并补最小 widget 或构建验证
-  3. 随后继续推进 Web PWA 基础适配
+  1. 为客户端生成 `web/` 平台工程，并检查现有插件在 Web 下的最小可运行性
+  2. 先落地 Web PWA 基础布局，并补最小 widget/构建验证
+  3. 随后定义 Windows 与 Web 的等效入口策略
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
-  - Windows 和 Web 适配仍未开始实现，P5 多端布局体系仍不完整
+  - 当前环境不是 Windows 主机，仓库内无法完成真实 Windows 二进制构建验证
+  - Web 适配仍未开始实现，P5 多端布局体系仍不完整
 
 ## 交接模板
 

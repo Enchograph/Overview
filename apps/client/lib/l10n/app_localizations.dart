@@ -207,6 +207,7 @@ class AppLocalizations {
   String get captureShortcut => _value('captureShortcut');
   String get aiShortcut => _value('aiShortcut');
   String get syncShortcut => _value('syncShortcut');
+  String get refreshAction => _value('refreshAction');
   String get retryAction => _value('retryAction');
   String get dataStatusIdle => _value('dataStatusIdle');
   String dataStatusUpdated(String timestamp) =>

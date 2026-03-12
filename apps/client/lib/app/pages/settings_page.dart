@@ -27,13 +27,13 @@ class SettingsPage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTabletLayout = constraints.maxWidth >= 900;
-
-        return ListView(
+        final isDesktopLayout = constraints.maxWidth >= 1180;
+        final content = ListView(
           padding: const EdgeInsets.all(24),
           children: [
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
+                constraints: const BoxConstraints(maxWidth: 1280),
                 child: isTabletLayout
                     ? Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,8 +44,11 @@ class SettingsPage extends StatelessWidget {
                               body: l10n.settingsBody,
                               onOpenSync: onOpenSync,
                               onOpenAuth: onOpenAuth,
+                              onRefresh: store.refresh,
+                              showRefreshAction: isDesktopLayout,
                               syncLabel: l10n.syncShortcut,
                               authLabel: l10n.authShortcut,
+                              refreshLabel: l10n.refreshAction,
                               authStatusTitle: l10n.authStatusTitle,
                               authStatusBody: !authStore.isRemoteEnabled
                                   ? l10n.authUnavailableBody
@@ -99,8 +102,11 @@ class SettingsPage extends StatelessWidget {
                             body: l10n.settingsBody,
                             onOpenSync: onOpenSync,
                             onOpenAuth: onOpenAuth,
+                            onRefresh: store.refresh,
+                            showRefreshAction: false,
                             syncLabel: l10n.syncShortcut,
                             authLabel: l10n.authShortcut,
+                            refreshLabel: l10n.refreshAction,
                             authStatusTitle: l10n.authStatusTitle,
                             authStatusBody: !authStore.isRemoteEnabled
                                 ? l10n.authUnavailableBody
@@ -145,6 +151,8 @@ class SettingsPage extends StatelessWidget {
             ),
           ],
         );
+
+        return isDesktopLayout ? Scrollbar(child: content) : content;
       },
     );
   }
@@ -172,8 +180,11 @@ class _SettingsPrimaryColumn extends StatelessWidget {
     required this.body,
     required this.onOpenSync,
     required this.onOpenAuth,
+    required this.onRefresh,
+    required this.showRefreshAction,
     required this.syncLabel,
     required this.authLabel,
+    required this.refreshLabel,
     required this.authStatusTitle,
     required this.authStatusBody,
     required this.authLogoutLabel,
@@ -184,8 +195,11 @@ class _SettingsPrimaryColumn extends StatelessWidget {
   final String body;
   final VoidCallback onOpenSync;
   final VoidCallback onOpenAuth;
+  final Future<void> Function() onRefresh;
+  final bool showRefreshAction;
   final String syncLabel;
   final String authLabel;
+  final String refreshLabel;
   final String authStatusTitle;
   final String authStatusBody;
   final String authLogoutLabel;
@@ -211,6 +225,14 @@ class _SettingsPrimaryColumn extends StatelessWidget {
           icon: const Icon(Icons.person_outline),
           label: Text(authLabel),
         ),
+        if (showRefreshAction) ...[
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh_outlined),
+            label: Text(refreshLabel),
+          ),
+        ],
         const SizedBox(height: 24),
         Card(
           child: ListTile(

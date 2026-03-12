@@ -17,83 +17,56 @@ class NotesPage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscapeTablet = constraints.maxWidth >= 1100;
-
-        return RefreshIndicator(
-          onRefresh: store.refresh,
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1280),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (store.isLoading) const LinearProgressIndicator(),
-                      if (store.errorMessage != null) ...[
-                        if (store.isLoading) const SizedBox(height: 16),
-                        Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.error_outline),
-                            title: Text(store.errorMessage!),
-                            trailing: TextButton(
-                              onPressed: store.refresh,
-                              child: Text(l10n.retryAction),
-                            ),
+        final isDesktopLayout = constraints.maxWidth >= 1180;
+        final content = ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1280),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (store.isLoading) const LinearProgressIndicator(),
+                    if (store.errorMessage != null) ...[
+                      if (store.isLoading) const SizedBox(height: 16),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.error_outline),
+                          title: Text(store.errorMessage!),
+                          trailing: TextButton(
+                            onPressed: store.refresh,
+                            child: Text(l10n.retryAction),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                      ],
-                      isLandscapeTablet
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 4,
-                                  child: _NotesSummaryColumn(
-                                    headline: l10n.notesHeadline,
-                                    body: l10n.notesBody,
-                                    aiLabel: l10n.aiShortcut,
-                                    onOpenAi: onOpenAi,
-                                    summaryTitle: l10n.notesSummaryTitle,
-                                    summaryBody: l10n.notesSummaryBody(
-                                      store.activeMemoCount,
-                                      store.memos.length,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  flex: 6,
-                                  child: _NotesMemoColumn(
-                                    emptyMessage: l10n.memoEmpty,
-                                    memos: store.memos,
-                                    onToggleMemo: (memo) {
-                                      store.setMemoArchived(
-                                        memoId: memo.id,
-                                        archived: !memo.isArchived,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _NotesSummaryColumn(
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    isLandscapeTablet
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: _NotesSummaryColumn(
                                   headline: l10n.notesHeadline,
                                   body: l10n.notesBody,
                                   aiLabel: l10n.aiShortcut,
+                                  refreshLabel: l10n.refreshAction,
                                   onOpenAi: onOpenAi,
+                                  onRefresh: store.refresh,
+                                  showRefreshAction: isDesktopLayout,
                                   summaryTitle: l10n.notesSummaryTitle,
                                   summaryBody: l10n.notesSummaryBody(
                                     store.activeMemoCount,
                                     store.memos.length,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
-                                _NotesMemoColumn(
+                              ),
+                              const SizedBox(width: 24),
+                              Expanded(
+                                flex: 6,
+                                child: _NotesMemoColumn(
                                   emptyMessage: l10n.memoEmpty,
                                   memos: store.memos,
                                   onToggleMemo: (memo) {
@@ -103,14 +76,49 @@ class NotesPage extends StatelessWidget {
                                     );
                                   },
                                 ),
-                              ],
-                            ),
-                    ],
-                  ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _NotesSummaryColumn(
+                                headline: l10n.notesHeadline,
+                                body: l10n.notesBody,
+                                aiLabel: l10n.aiShortcut,
+                                refreshLabel: l10n.refreshAction,
+                                onOpenAi: onOpenAi,
+                                onRefresh: store.refresh,
+                                showRefreshAction: false,
+                                summaryTitle: l10n.notesSummaryTitle,
+                                summaryBody: l10n.notesSummaryBody(
+                                  store.activeMemoCount,
+                                  store.memos.length,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _NotesMemoColumn(
+                                emptyMessage: l10n.memoEmpty,
+                                memos: store.memos,
+                                onToggleMemo: (memo) {
+                                  store.setMemoArchived(
+                                    memoId: memo.id,
+                                    archived: !memo.isArchived,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
+        );
+
+        return RefreshIndicator(
+          onRefresh: store.refresh,
+          child: isDesktopLayout ? Scrollbar(child: content) : content,
         );
       },
     );
@@ -122,7 +130,10 @@ class _NotesSummaryColumn extends StatelessWidget {
     required this.headline,
     required this.body,
     required this.aiLabel,
+    required this.refreshLabel,
     required this.onOpenAi,
+    required this.onRefresh,
+    required this.showRefreshAction,
     required this.summaryTitle,
     required this.summaryBody,
   });
@@ -130,7 +141,10 @@ class _NotesSummaryColumn extends StatelessWidget {
   final String headline;
   final String body;
   final String aiLabel;
+  final String refreshLabel;
   final VoidCallback onOpenAi;
+  final Future<void> Function() onRefresh;
+  final bool showRefreshAction;
   final String summaryTitle;
   final String summaryBody;
 
@@ -148,6 +162,14 @@ class _NotesSummaryColumn extends StatelessWidget {
           icon: const Icon(Icons.auto_awesome_outlined),
           label: Text(aiLabel),
         ),
+        if (showRefreshAction) ...[
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh_outlined),
+            label: Text(refreshLabel),
+          ),
+        ],
         const SizedBox(height: 24),
         Card(
           child: ListTile(

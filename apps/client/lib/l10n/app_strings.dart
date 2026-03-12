@@ -104,8 +104,10 @@ const localizedValues = <String, Map<String, String>>{
     'settingsDataSummaryBody':
         '{scheduleCount} schedules, {taskCount} tasks, and {memoCount} memos currently in memory.',
     'notificationsTitle': 'Notifications',
-    'notificationsUnknownBody': 'Notification permission status has not been checked yet.',
-    'notificationsEnabledBody': 'Local planning reminders are enabled on this device.',
+    'notificationsUnknownBody':
+        'Notification permission status has not been checked yet.',
+    'notificationsEnabledBody':
+        'Local planning reminders are enabled on this device.',
     'notificationsDisabledBody':
         'Notifications are disabled. Enable them to receive local reminders.',
     'notificationsUnsupportedBody':
@@ -157,8 +159,7 @@ const localizedValues = <String, Map<String, String>>{
         'AI could not answer right now. Try asking again in a moment.',
     'aiErrorParseFailed':
         'AI could not parse this input. Edit the text and try again.',
-    'aiErrorGeneric':
-        'AI is temporarily unavailable. Try again in a moment.',
+    'aiErrorGeneric': 'AI is temporarily unavailable. Try again in a moment.',
     'syncTitle': 'Sync status',
     'syncBody':
         'This page shows the local queue, last sync times, and the current remote connectivity state.',
@@ -188,6 +189,7 @@ const localizedValues = <String, Map<String, String>>{
     'captureShortcut': 'Go to capture',
     'aiShortcut': 'Open AI',
     'syncShortcut': 'View sync',
+    'refreshAction': 'Refresh data',
     'retryAction': 'Retry',
     'dataStatusIdle': 'Waiting',
     'dataStatusUpdated': 'Updated {timestamp}',
@@ -345,6 +347,7 @@ const localizedValues = <String, Map<String, String>>{
     'captureShortcut': '前往添加',
     'aiShortcut': '打开 AI',
     'syncShortcut': '查看同步',
+    'refreshAction': '刷新数据',
     'retryAction': '重试',
     'dataStatusIdle': '等待加载',
     'dataStatusUpdated': '更新于 {timestamp}',

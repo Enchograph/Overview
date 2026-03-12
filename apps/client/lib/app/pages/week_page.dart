@@ -17,73 +17,39 @@ class WeekPage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTabletLayout = constraints.maxWidth >= 900;
-
-        return RefreshIndicator(
-          onRefresh: store.refresh,
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (store.isLoading) const LinearProgressIndicator(),
-                      if (store.errorMessage != null) ...[
-                        if (store.isLoading) const SizedBox(height: 16),
-                        _ErrorCard(
-                          message: store.errorMessage!,
-                          actionLabel: l10n.retryAction,
-                          onRetry: store.refresh,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      isTabletLayout
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: _WeekPrimaryColumn(
-                                    headline: l10n.weekHeadline,
-                                    body: l10n.weekBody,
-                                    captureLabel: l10n.captureShortcut,
-                                    onOpenCapture: onOpenCapture,
-                                    summaryTitle: l10n.weekSummaryTitle,
-                                    summaryBody: l10n.weekSummaryBody(
-                                      store.schedules.length,
-                                      store.tasks.length,
-                                    ),
-                                    summaryTrailing: store.lastUpdatedAt == null
-                                        ? l10n.dataStatusIdle
-                                        : l10n.dataStatusUpdated(
-                                            _formatTimestamp(
-                                                store.lastUpdatedAt!),
-                                          ),
-                                    scheduleSectionTitle:
-                                        l10n.scheduleSectionTitle,
-                                    schedules: store.schedules,
-                                    scheduleEmpty: l10n.scheduleEmpty,
-                                  ),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: _WeekTaskColumn(
-                                    title: l10n.taskSectionTitle,
-                                    emptyMessage: l10n.taskEmpty,
-                                    tasks: store.tasks,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _WeekPrimaryColumn(
+        final isDesktopLayout = constraints.maxWidth >= 1180;
+        final content = ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1280),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (store.isLoading) const LinearProgressIndicator(),
+                    if (store.errorMessage != null) ...[
+                      if (store.isLoading) const SizedBox(height: 16),
+                      _ErrorCard(
+                        message: store.errorMessage!,
+                        actionLabel: l10n.retryAction,
+                        onRetry: store.refresh,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    isTabletLayout
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _WeekPrimaryColumn(
                                   headline: l10n.weekHeadline,
                                   body: l10n.weekBody,
                                   captureLabel: l10n.captureShortcut,
+                                  refreshLabel: l10n.refreshAction,
                                   onOpenCapture: onOpenCapture,
+                                  onRefresh: store.refresh,
+                                  showRefreshAction: isDesktopLayout,
                                   summaryTitle: l10n.weekSummaryTitle,
                                   summaryBody: l10n.weekSummaryBody(
                                     store.schedules.length,
@@ -100,20 +66,60 @@ class WeekPage extends StatelessWidget {
                                   schedules: store.schedules,
                                   scheduleEmpty: l10n.scheduleEmpty,
                                 ),
-                                const SizedBox(height: 16),
-                                _WeekTaskColumn(
+                              ),
+                              const SizedBox(width: 24),
+                              Expanded(
+                                child: _WeekTaskColumn(
                                   title: l10n.taskSectionTitle,
                                   emptyMessage: l10n.taskEmpty,
                                   tasks: store.tasks,
                                 ),
-                              ],
-                            ),
-                    ],
-                  ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _WeekPrimaryColumn(
+                                headline: l10n.weekHeadline,
+                                body: l10n.weekBody,
+                                captureLabel: l10n.captureShortcut,
+                                refreshLabel: l10n.refreshAction,
+                                onOpenCapture: onOpenCapture,
+                                onRefresh: store.refresh,
+                                showRefreshAction: false,
+                                summaryTitle: l10n.weekSummaryTitle,
+                                summaryBody: l10n.weekSummaryBody(
+                                  store.schedules.length,
+                                  store.tasks.length,
+                                ),
+                                summaryTrailing: store.lastUpdatedAt == null
+                                    ? l10n.dataStatusIdle
+                                    : l10n.dataStatusUpdated(
+                                        _formatTimestamp(store.lastUpdatedAt!),
+                                      ),
+                                scheduleSectionTitle: l10n.scheduleSectionTitle,
+                                schedules: store.schedules,
+                                scheduleEmpty: l10n.scheduleEmpty,
+                              ),
+                              const SizedBox(height: 16),
+                              _WeekTaskColumn(
+                                title: l10n.taskSectionTitle,
+                                emptyMessage: l10n.taskEmpty,
+                                tasks: store.tasks,
+                              ),
+                            ],
+                          ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
+        );
+
+        return RefreshIndicator(
+          onRefresh: store.refresh,
+          child: isDesktopLayout ? Scrollbar(child: content) : content,
         );
       },
     );
@@ -125,7 +131,10 @@ class _WeekPrimaryColumn extends StatelessWidget {
     required this.headline,
     required this.body,
     required this.captureLabel,
+    required this.refreshLabel,
     required this.onOpenCapture,
+    required this.onRefresh,
+    required this.showRefreshAction,
     required this.summaryTitle,
     required this.summaryBody,
     required this.summaryTrailing,
@@ -137,7 +146,10 @@ class _WeekPrimaryColumn extends StatelessWidget {
   final String headline;
   final String body;
   final String captureLabel;
+  final String refreshLabel;
   final VoidCallback onOpenCapture;
+  final Future<void> Function() onRefresh;
+  final bool showRefreshAction;
   final String summaryTitle;
   final String summaryBody;
   final String summaryTrailing;
@@ -154,10 +166,22 @@ class _WeekPrimaryColumn extends StatelessWidget {
         const SizedBox(height: 12),
         Text(body, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: onOpenCapture,
-          icon: const Icon(Icons.add_circle_outline),
-          label: Text(captureLabel),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            FilledButton.icon(
+              onPressed: onOpenCapture,
+              icon: const Icon(Icons.add_circle_outline),
+              label: Text(captureLabel),
+            ),
+            if (showRefreshAction)
+              OutlinedButton.icon(
+                onPressed: onRefresh,
+                icon: const Icon(Icons.refresh_outlined),
+                label: Text(refreshLabel),
+              ),
+          ],
         ),
         const SizedBox(height: 24),
         _SummaryCard(
