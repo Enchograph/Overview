@@ -1251,12 +1251,17 @@ class LocalPlanningRepository implements PlanningRepository {
       await _persistState(refreshed);
       return refreshed.syncStatus;
     } catch (error) {
+      final isAuthBlocked = _isAuthBlockedError(error);
       final failedState = _recalculateState(
         working.copyWith(
           syncStatus: working.syncStatus.copyWith(
-            phase: PlanningSyncPhase.failed,
+            phase: isAuthBlocked
+                ? PlanningSyncPhase.blocked
+                : PlanningSyncPhase.failed,
             lastAttemptAt: attemptAt,
-            lastError: error.toString(),
+            lastError: isAuthBlocked
+                ? 'Authentication required before sync can continue.'
+                : error.toString(),
           ),
         ),
       );
@@ -1411,12 +1416,17 @@ class LocalPlanningRepository implements PlanningRepository {
       ),
     );
   }
+
+  bool _isAuthBlockedError(Object error) {
+    return error is PlanningRepositoryException && error.statusCode == 401;
+  }
 }
 
 class PlanningRepositoryException implements Exception {
-  const PlanningRepositoryException(this.message);
+  const PlanningRepositoryException(this.message, {this.statusCode});
 
   final String message;
+  final int? statusCode;
 
   @override
   String toString() => message;
