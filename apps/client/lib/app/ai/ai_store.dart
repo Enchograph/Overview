@@ -12,29 +12,32 @@ class AiStore extends ChangeNotifier {
   bool _isSubmitting = false;
   bool _isAnswerSubmitting = false;
   bool _isVoiceSubmitting = false;
-  String? _errorMessage;
-  String? _answerErrorMessage;
-  String? _voiceErrorMessage;
+  AiRepositoryException? _error;
+  AiRepositoryException? _answerError;
+  AiRepositoryException? _voiceError;
 
   AiSuggestion? get lastSuggestion => _lastSuggestion;
   AiAnswer? get lastAnswer => _lastAnswer;
   bool get isSubmitting => _isSubmitting;
   bool get isAnswerSubmitting => _isAnswerSubmitting;
   bool get isVoiceSubmitting => _isVoiceSubmitting;
-  String? get errorMessage => _errorMessage;
-  String? get answerErrorMessage => _answerErrorMessage;
-  String? get voiceErrorMessage => _voiceErrorMessage;
+  AiRepositoryException? get error => _error;
+  AiRepositoryException? get answerError => _answerError;
+  AiRepositoryException? get voiceError => _voiceError;
+  String? get errorMessage => _error?.message;
+  String? get answerErrorMessage => _answerError?.message;
+  String? get voiceErrorMessage => _voiceError?.message;
   bool get isRemoteEnabled => _repository.isRemoteEnabled;
 
   Future<void> ingestText(String text) async {
     _isSubmitting = true;
-    _errorMessage = null;
+    _error = null;
     notifyListeners();
 
     try {
       _lastSuggestion = await _repository.ingestText(text);
     } catch (error) {
-      _errorMessage = error.toString();
+      _error = _asRepositoryException(error);
     } finally {
       _isSubmitting = false;
       notifyListeners();
@@ -43,19 +46,19 @@ class AiStore extends ChangeNotifier {
 
   void clearSuggestion() {
     _lastSuggestion = null;
-    _errorMessage = null;
+    _error = null;
     notifyListeners();
   }
 
   Future<void> askQuestion(String question) async {
     _isAnswerSubmitting = true;
-    _answerErrorMessage = null;
+    _answerError = null;
     notifyListeners();
 
     try {
       _lastAnswer = await _repository.askQuestion(question);
     } catch (error) {
-      _answerErrorMessage = error.toString();
+      _answerError = _asRepositoryException(error);
     } finally {
       _isAnswerSubmitting = false;
       notifyListeners();
@@ -64,7 +67,7 @@ class AiStore extends ChangeNotifier {
 
   void clearAnswer() {
     _lastAnswer = null;
-    _answerErrorMessage = null;
+    _answerError = null;
     notifyListeners();
   }
 
@@ -74,7 +77,7 @@ class AiStore extends ChangeNotifier {
     required String locale,
   }) async {
     _isVoiceSubmitting = true;
-    _voiceErrorMessage = null;
+    _voiceError = null;
     notifyListeners();
 
     try {
@@ -84,11 +87,22 @@ class AiStore extends ChangeNotifier {
         locale: locale,
       );
     } catch (error) {
-      _voiceErrorMessage = error.toString();
+      _voiceError = _asRepositoryException(error);
       return null;
     } finally {
       _isVoiceSubmitting = false;
       notifyListeners();
     }
+  }
+
+  AiRepositoryException _asRepositoryException(Object error) {
+    if (error is AiRepositoryException) {
+      return error;
+    }
+
+    return AiRepositoryException(
+      code: AiErrorCode.requestFailed,
+      message: error.toString(),
+    );
   }
 }

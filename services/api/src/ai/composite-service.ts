@@ -1,3 +1,4 @@
+import { AiErrorCodes } from './error-codes.js';
 import { HttpError } from '../planning/errors.js';
 import type {
   AiAnswer,
@@ -33,6 +34,7 @@ export class CompositeAiService implements AiService {
       throw new HttpError(
         503,
         'Voice transcription requires Azure Speech configuration.',
+        AiErrorCodes.azureSpeechNotConfigured,
       );
     }
 

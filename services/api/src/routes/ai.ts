@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 
+import { AiErrorCodes } from '../ai/error-codes.js';
 import {
   ingestTextSchema,
   askQuestionSchema,
@@ -53,7 +54,11 @@ export function createAiRouter(service: AiService): Router {
 
 function _userId(request: Request): string {
   if (!_isAuthenticatedRequest(request)) {
-    throw new HttpError(401, 'Authorization required');
+    throw new HttpError(
+      401,
+      'Authorization required',
+      AiErrorCodes.authorizationRequired,
+    );
   }
 
   return request.authUser.id;

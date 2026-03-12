@@ -9,18 +9,22 @@ class SpeechInputStore extends ChangeNotifier {
 
   bool _isRecording = false;
   bool _hasPermission = true;
-  String? _errorMessage;
+  SpeechInputException? _error;
 
   bool get isRecording => _isRecording;
   bool get hasPermission => _hasPermission;
-  String? get errorMessage => _errorMessage;
+  SpeechInputException? get error => _error;
+  String? get errorMessage => _error?.message;
 
   Future<bool> startRecording() async {
-    _errorMessage = null;
+    _error = null;
     final hasPermission = await _service.hasPermission();
     _hasPermission = hasPermission;
     if (!hasPermission) {
-      _errorMessage = 'Microphone permission is not granted.';
+      _error = const SpeechInputException(
+        code: SpeechInputErrorCode.microphonePermissionDenied,
+        message: 'Microphone permission is not granted.',
+      );
       notifyListeners();
       return false;
     }
@@ -31,7 +35,12 @@ class SpeechInputStore extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (error) {
-      _errorMessage = error.toString();
+      _error = error is SpeechInputException
+          ? error
+          : SpeechInputException(
+              code: SpeechInputErrorCode.recordingStartFailed,
+              message: error.toString(),
+            );
       notifyListeners();
       return false;
     }
@@ -44,7 +53,12 @@ class SpeechInputStore extends ChangeNotifier {
       notifyListeners();
       return audio;
     } catch (error) {
-      _errorMessage = error.toString();
+      _error = error is SpeechInputException
+          ? error
+          : SpeechInputException(
+              code: SpeechInputErrorCode.recordingStopFailed,
+              message: error.toString(),
+            );
       _isRecording = false;
       notifyListeners();
       return null;
@@ -52,7 +66,7 @@ class SpeechInputStore extends ChangeNotifier {
   }
 
   void clearError() {
-    _errorMessage = null;
+    _error = null;
     notifyListeners();
   }
 }

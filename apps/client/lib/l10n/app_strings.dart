@@ -77,6 +77,11 @@ const localizedValues = <String, Map<String, String>>{
     'captureVoiceUnavailableBody':
         'Microphone permission is required before recording voice input.',
     'captureVoiceErrorTitle': 'Voice capture failed',
+    'captureVoiceStartErrorBody':
+        'Voice recording could not start. Check microphone access and try again.',
+    'captureVoiceStopErrorBody':
+        'Voice recording could not be finalized. Try recording again.',
+    'captureVoiceRetryAction': 'Record again',
     'captureSuccess': 'Saved to your planning list.',
     'captureHintTitle': 'Current capture behavior',
     'captureHintBody':
@@ -130,6 +135,21 @@ const localizedValues = <String, Map<String, String>>{
     'aiUnavailableTitle': 'AI unavailable',
     'aiUnavailableBody':
         'Set OVERVIEW_API_BASE_URL before using AI assistance.',
+    'aiErrorAuthorization': 'Log in again before using AI features.',
+    'aiErrorAzureConfig':
+        'Voice transcription is not configured on the server yet.',
+    'aiErrorAzureFailed':
+        'Voice transcription failed. Try recording again in a quieter place.',
+    'aiErrorAzureEmpty':
+        'No speech was recognized. Try speaking more clearly and record again.',
+    'aiErrorInvalidRequest':
+        'The AI request is invalid. Check the input and try again.',
+    'aiErrorAnswerFailed':
+        'AI could not answer right now. Try asking again in a moment.',
+    'aiErrorParseFailed':
+        'AI could not parse this input. Edit the text and try again.',
+    'aiErrorGeneric':
+        'AI is temporarily unavailable. Try again in a moment.',
     'syncTitle': 'Sync status',
     'syncBody':
         'This page shows the local queue, last sync times, and the current remote connectivity state.',
@@ -232,6 +252,9 @@ const localizedValues = <String, Map<String, String>>{
     'captureVoiceUnavailableTitle': '语音不可用',
     'captureVoiceUnavailableBody': '请先授予麦克风权限，再开始语音录入。',
     'captureVoiceErrorTitle': '语音录入失败',
+    'captureVoiceStartErrorBody': '无法开始录音，请检查麦克风权限后重试。',
+    'captureVoiceStopErrorBody': '无法完成本次录音，请重新录一遍。',
+    'captureVoiceRetryAction': '重新录音',
     'captureSuccess': '已保存到计划列表。',
     'captureHintTitle': '当前录入规则',
     'captureHintBody': '日程默认创建 1 小时时间块，任务默认明日到期，备忘默认进入 inbox。',
@@ -274,6 +297,14 @@ const localizedValues = <String, Map<String, String>>{
     'aiReferencedItems': '引用了 {count} 个计划条目。',
     'aiUnavailableTitle': 'AI 不可用',
     'aiUnavailableBody': '请先设置 OVERVIEW_API_BASE_URL，再使用 AI 问答。',
+    'aiErrorAuthorization': '请重新登录后再使用 AI 功能。',
+    'aiErrorAzureConfig': '服务端暂未配置语音转写。',
+    'aiErrorAzureFailed': '语音转写失败，请换个更安静的环境后再试。',
+    'aiErrorAzureEmpty': '没有识别到有效语音，请更清晰地说一遍再试。',
+    'aiErrorInvalidRequest': 'AI 请求无效，请检查输入后重试。',
+    'aiErrorAnswerFailed': 'AI 暂时无法回答，请稍后再试。',
+    'aiErrorParseFailed': 'AI 暂时无法解析这段内容，请编辑后重试。',
+    'aiErrorGeneric': 'AI 暂时不可用，请稍后再试。',
     'syncTitle': '同步状态',
     'syncBody': '这里会展示账号状态、最近同步时间以及冲突处理入口。',
     'syncStatusTitle': '同步总览',

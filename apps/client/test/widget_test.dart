@@ -204,6 +204,33 @@ void main() {
     expect(find.text('Referenced 2 planning items.'), findsOneWidget);
   });
 
+  testWidgets('shows localized ai auth error on ai route', (tester) async {
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.aiRoute,
+        repository: FakePlanningRepository(),
+        aiRepository: FakeAiRepository(
+          failure: const AiRepositoryException(
+            code: AiErrorCode.authorizationRequired,
+            message: 'Authorization required',
+            statusCode: 401,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Question'),
+      'What should I focus on tomorrow?',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Ask AI'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Log in again before using AI features.'), findsOneWidget);
+    expect(find.widgetWithText(TextButton, 'Retry'), findsOneWidget);
+  });
+
   testWidgets('captures voice input and triggers ai parsing', (tester) async {
     await tester.pumpWidget(
       OverviewApp(
@@ -241,5 +268,41 @@ void main() {
     expect(find.text('Prepare board update'), findsWidgets);
     expect(find.text('AI suggestion'), findsOneWidget);
     expect(find.text('Confirm and create'), findsOneWidget);
+  });
+
+  testWidgets('shows localized azure transcription config error on capture page', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.captureRoute,
+        repository: FakePlanningRepository(),
+        aiRepository: FakeAiRepository(
+          failure: const AiRepositoryException(
+            code: AiErrorCode.azureSpeechNotConfigured,
+            message: 'Voice transcription requires Azure Speech configuration.',
+            statusCode: 503,
+          ),
+        ),
+        speechInputService: FakeSpeechInputService(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Record voice'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Stop recording'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Voice transcription is not configured on the server yet.'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      find.text('Voice transcription is not configured on the server yet.'),
+      findsOneWidget,
+    );
+    expect(find.widgetWithText(TextButton, 'Record again'), findsOneWidget);
   });
 }

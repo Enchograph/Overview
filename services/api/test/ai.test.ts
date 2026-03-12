@@ -94,7 +94,10 @@ async function main() {
       mimeType: 'audio/wav',
       locale: 'zh-CN',
     })
-    .expect(503);
+    .expect(503)
+    .expect(({ body }) => {
+      assert.equal(body.code, 'azure_speech_not_configured');
+    });
 
   console.log('AI API tests passed');
 }

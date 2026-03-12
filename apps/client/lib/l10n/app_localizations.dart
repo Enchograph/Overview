@@ -111,6 +111,9 @@ class AppLocalizations {
   String get captureVoiceUnavailableTitle => _value('captureVoiceUnavailableTitle');
   String get captureVoiceUnavailableBody => _value('captureVoiceUnavailableBody');
   String get captureVoiceErrorTitle => _value('captureVoiceErrorTitle');
+  String get captureVoiceStartErrorBody => _value('captureVoiceStartErrorBody');
+  String get captureVoiceStopErrorBody => _value('captureVoiceStopErrorBody');
+  String get captureVoiceRetryAction => _value('captureVoiceRetryAction');
   String get captureSuccess => _value('captureSuccess');
   String get captureHintTitle => _value('captureHintTitle');
   String get captureHintBody => _value('captureHintBody');
@@ -160,6 +163,14 @@ class AppLocalizations {
       _value('aiReferencedItems').replaceFirst('{count}', '$count');
   String get aiUnavailableTitle => _value('aiUnavailableTitle');
   String get aiUnavailableBody => _value('aiUnavailableBody');
+  String get aiErrorAuthorization => _value('aiErrorAuthorization');
+  String get aiErrorAzureConfig => _value('aiErrorAzureConfig');
+  String get aiErrorAzureFailed => _value('aiErrorAzureFailed');
+  String get aiErrorAzureEmpty => _value('aiErrorAzureEmpty');
+  String get aiErrorInvalidRequest => _value('aiErrorInvalidRequest');
+  String get aiErrorAnswerFailed => _value('aiErrorAnswerFailed');
+  String get aiErrorParseFailed => _value('aiErrorParseFailed');
+  String get aiErrorGeneric => _value('aiErrorGeneric');
   String get syncTitle => _value('syncTitle');
   String get syncBody => _value('syncBody');
   String get syncStatusTitle => _value('syncStatusTitle');

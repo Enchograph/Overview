@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../ai/ai_error_presenter.dart';
 import '../ai/ai_scope.dart';
 import '../ai/ai_store.dart';
 
@@ -111,7 +112,14 @@ class _AiRouteState extends State<AiRoute> {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.smart_toy_outlined),
-                  title: Text(aiStore.answerErrorMessage!),
+                  title: Text(l10n.aiUnavailableTitle),
+                  subtitle: Text(localizeAiError(l10n, aiStore.answerError!)),
+                  trailing: TextButton(
+                    onPressed: aiStore.isAnswerSubmitting
+                        ? null
+                        : () => _submitQuestion(aiStore),
+                    child: Text(l10n.retryAction),
+                  ),
                 ),
               ),
             ],

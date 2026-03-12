@@ -1,3 +1,4 @@
+import { AiErrorCodes } from './error-codes.js';
 import { HttpError } from '../planning/errors.js';
 import type { AiAudioInput, AiTranscription } from './types.js';
 import type { AiSpeechTranscriber } from './composite-service.js';
@@ -36,6 +37,7 @@ export class AzureSpeechTranscriber implements AiSpeechTranscriber {
       throw new HttpError(
         502,
         `Azure Speech transcription failed with ${response.status}.`,
+        AiErrorCodes.azureSpeechFailed,
       );
     }
 
@@ -45,7 +47,11 @@ export class AzureSpeechTranscriber implements AiSpeechTranscriber {
       !payload.DisplayText ||
       payload.DisplayText.trim().length === 0
     ) {
-      throw new HttpError(502, 'Azure Speech returned an empty transcription.');
+      throw new HttpError(
+        502,
+        'Azure Speech returned an empty transcription.',
+        AiErrorCodes.azureSpeechEmpty,
+      );
     }
 
     return {

@@ -1,5 +1,6 @@
 import type OpenAI from 'openai';
 
+import { AiErrorCodes } from './error-codes.js';
 import { HttpError } from '../planning/errors.js';
 import type {
   AiAnswer,
@@ -89,7 +90,11 @@ export class OpenAiService implements AiService {
 
   transcribeAudio(): Promise<never> {
     return Promise.reject(
-      new HttpError(503, 'Voice transcription is delegated to Azure Speech.'),
+      new HttpError(
+        503,
+        'Voice transcription is delegated to Azure Speech.',
+        AiErrorCodes.azureSpeechNotConfigured,
+      ),
     );
   }
 }
@@ -108,6 +113,7 @@ function _parseStructuredResponse(output: string): AiStructuredSuggestion {
     throw new HttpError(
       502,
       `Failed to parse OpenAI structured response: ${error instanceof Error ? error.message : String(error)}`,
+      AiErrorCodes.openAiStructuredInvalid,
     );
   }
 }
@@ -122,6 +128,7 @@ function _parseAnswerResponse(output: string): OpenAiAnswerResponse {
     throw new HttpError(
       502,
       `Failed to parse OpenAI answer response: ${error instanceof Error ? error.message : String(error)}`,
+      AiErrorCodes.openAiAnswerInvalid,
     );
   }
 }

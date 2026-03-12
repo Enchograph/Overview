@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../ai/ai_error_presenter.dart';
 import '../ai/ai_repository.dart';
 import '../ai/ai_scope.dart';
 import '../ai/speech_input_scope.dart';
@@ -218,11 +219,16 @@ class _CapturePageState extends State<CapturePage> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.smart_toy_outlined),
-              title: Text(aiStore.errorMessage!),
+              title: Text(l10n.captureAiSuggestionTitle),
+              subtitle: Text(localizeAiError(l10n, aiStore.error!)),
+              trailing: TextButton(
+                onPressed: aiStore.isSubmitting ? null : () => _parseWithAi(aiStore),
+                child: Text(l10n.retryAction),
+              ),
             ),
           ),
         ],
-        if (speechStore.errorMessage != null) ...[
+        if (speechStore.error != null) ...[
           const SizedBox(height: 16),
           Card(
             child: ListTile(
@@ -235,18 +241,30 @@ class _CapturePageState extends State<CapturePage> {
               subtitle: Text(
                 !speechStore.hasPermission
                     ? l10n.captureVoiceUnavailableBody
-                    : speechStore.errorMessage!,
+                    : localizeSpeechInputError(l10n, speechStore.error!),
+              ),
+              trailing: TextButton(
+                onPressed: () {
+                  speechStore.clearError();
+                },
+                child: Text(l10n.captureVoiceRetryAction),
               ),
             ),
           ),
         ],
-        if (aiStore.voiceErrorMessage != null) ...[
+        if (aiStore.voiceError != null) ...[
           const SizedBox(height: 16),
           Card(
             child: ListTile(
               leading: const Icon(Icons.smart_toy_outlined),
               title: Text(l10n.captureVoiceErrorTitle),
-              subtitle: Text(aiStore.voiceErrorMessage!),
+              subtitle: Text(localizeAiError(l10n, aiStore.voiceError!)),
+              trailing: TextButton(
+                onPressed: aiStore.isVoiceSubmitting
+                    ? null
+                    : () => _toggleVoiceInput(speechStore, aiStore),
+                child: Text(l10n.captureVoiceRetryAction),
+              ),
             ),
           ),
         ],

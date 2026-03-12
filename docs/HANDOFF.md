@@ -45,6 +45,10 @@
   - 为客户端新增录音服务与状态管理，添加页支持开始录音、停止录音、上传转写，并在成功后自动进入既有 AI 文本解析流
   - 扩展客户端 AI HTTP 仓储测试与 widget 测试，验证 `/ai/transcribe` 和语音录入到 AI 建议卡片的主路径
   - 扩展 API AI 测试，验证 `/ai/transcribe` 在未配置 Azure Speech 时的受保护错误路径
+  - 为 AI API 错误响应补齐稳定 `code` 字段，覆盖无鉴权、Azure 未配置、Azure 转写失败/空结果和 OpenAI 解析失败等场景
+  - 为客户端 AI 仓储、store 和录音 store 增加错误码语义，避免把后端原始异常文本直接暴露到 UI
+  - 为 AI 问答页和添加页补齐本地化错误提示与重试入口，覆盖 AI 鉴权失败、Azure 未配置和录音失败等主路径
+  - 扩展客户端 widget 测试与 API 测试，验证本地化错误提示和 `/ai/transcribe` 错误码返回
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -54,17 +58,18 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进 AI 错误处理，收敛转写失败、Azure 未配置、AI 解析失败与权限错误的统一反馈体验
+  - 推进 Android 通知，为 P5 建立首条平台能力主链路
 - 下一接手顺序：
-  1. 统一梳理 AI 相关错误文案与错误码映射，减少原始异常直接暴露到 UI
-  2. 为 Azure Speech 未配置、录音失败、转写失败和 AI 解析失败补齐更明确的恢复指引
-  3. 评估把 `/ai/transcribe` 失败场景纳入客户端 retry/重新录音体验
+  1. 评估 Flutter 侧通知插件、Android 13+ 通知权限和本地提醒调度最小闭环
+  2. 先让任务或日程能生成本地通知，再补设置页入口与测试
+  3. 随后继续推进平板/桌面/Web 适配
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
   - 当前尚未验证真实 OpenAI 凭据调用；仓库内测试仍以 heuristic/工厂回退为主
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
+  - Android 通知仍未落地，P5 平台能力还没有开始形成稳定实现
 
 ## 交接模板
 

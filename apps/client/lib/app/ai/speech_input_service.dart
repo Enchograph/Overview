@@ -13,6 +13,12 @@ class RecordedAudio {
   final String mimeType;
 }
 
+enum SpeechInputErrorCode {
+  microphonePermissionDenied,
+  recordingStartFailed,
+  recordingStopFailed,
+}
+
 abstract class SpeechInputService {
   bool get isRecording;
 
@@ -105,7 +111,10 @@ class FakeSpeechInputService implements SpeechInputService {
   @override
   Future<void> startRecording() async {
     if (!permissionGranted) {
-      throw const SpeechInputException('Microphone permission is not granted.');
+      throw const SpeechInputException(
+        code: SpeechInputErrorCode.microphonePermissionDenied,
+        message: 'Microphone permission is not granted.',
+      );
     }
 
     _isRecording = true;
@@ -123,8 +132,12 @@ class FakeSpeechInputService implements SpeechInputService {
 }
 
 class SpeechInputException implements Exception {
-  const SpeechInputException(this.message);
+  const SpeechInputException({
+    required this.code,
+    required this.message,
+  });
 
+  final SpeechInputErrorCode code;
   final String message;
 
   @override

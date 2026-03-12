@@ -4,6 +4,18 @@ import 'dart:io';
 import '../auth/auth_repository.dart';
 
 enum AiSuggestionType { schedule, task, memo }
+enum AiErrorCode {
+  invalidRequest,
+  authorizationRequired,
+  azureSpeechNotConfigured,
+  azureSpeechFailed,
+  azureSpeechEmpty,
+  openAiStructuredInvalid,
+  openAiAnswerInvalid,
+  remoteUnavailable,
+  unexpectedResponse,
+  requestFailed,
+}
 
 class AiAnswer {
   const AiAnswer({
@@ -92,48 +104,28 @@ class HttpAiRepository implements AiRepository {
 
   @override
   Future<AiSuggestion> ingestText(String text) async {
-    final request = await _httpClient.postUrl(_baseUri.resolve('/ai/ingest/text'));
-    request.headers.contentType = ContentType.json;
-    await _applyAuthorization(request);
-    request.write(jsonEncode({'text': text}));
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AiRepositoryException(
-        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
-      );
-    }
-
-    final decoded = jsonDecode(body);
+    final decoded = await _postJson('/ai/ingest/text', {'text': text});
     if (decoded is Map<String, dynamic>) {
       return AiSuggestion.fromJson(decoded);
     }
 
-    throw const AiRepositoryException('Unexpected response payload');
+    throw const AiRepositoryException(
+      code: AiErrorCode.unexpectedResponse,
+      message: 'Unexpected response payload',
+    );
   }
 
   @override
   Future<AiAnswer> askQuestion(String question) async {
-    final request = await _httpClient.postUrl(_baseUri.resolve('/ai/ask'));
-    request.headers.contentType = ContentType.json;
-    await _applyAuthorization(request);
-    request.write(jsonEncode({'question': question}));
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AiRepositoryException(
-        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
-      );
-    }
-
-    final decoded = jsonDecode(body);
+    final decoded = await _postJson('/ai/ask', {'question': question});
     if (decoded is Map<String, dynamic>) {
       return AiAnswer.fromJson(decoded);
     }
 
-    throw const AiRepositoryException('Unexpected response payload');
+    throw const AiRepositoryException(
+      code: AiErrorCode.unexpectedResponse,
+      message: 'Unexpected response payload',
+    );
   }
 
   @override
@@ -142,31 +134,34 @@ class HttpAiRepository implements AiRepository {
     required String mimeType,
     required String locale,
   }) async {
-    final request = await _httpClient.postUrl(_baseUri.resolve('/ai/transcribe'));
-    request.headers.contentType = ContentType.json;
-    await _applyAuthorization(request);
-    request.write(
-      jsonEncode({
-        'audioBase64': base64Encode(audioBytes),
-        'mimeType': mimeType,
-        'locale': locale,
-      }),
-    );
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AiRepositoryException(
-        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
-      );
-    }
-
-    final decoded = jsonDecode(body);
+    final decoded = await _postJson('/ai/transcribe', {
+      'audioBase64': base64Encode(audioBytes),
+      'mimeType': mimeType,
+      'locale': locale,
+    });
     if (decoded is Map<String, dynamic>) {
       return decoded['text'] as String? ?? '';
     }
 
-    throw const AiRepositoryException('Unexpected response payload');
+    throw const AiRepositoryException(
+      code: AiErrorCode.unexpectedResponse,
+      message: 'Unexpected response payload',
+    );
+  }
+
+  Future<Object?> _postJson(String path, Map<String, dynamic> payload) async {
+    final request = await _httpClient.postUrl(_baseUri.resolve(path));
+    request.headers.contentType = ContentType.json;
+    await _applyAuthorization(request);
+    request.write(jsonEncode(payload));
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw _parseRepositoryException(response.statusCode, body);
+    }
+
+    return jsonDecode(body);
   }
 
   Future<void> _applyAuthorization(HttpClientRequest request) async {
@@ -186,6 +181,7 @@ class FakeAiRepository implements AiRepository {
     AiSuggestion? suggestion,
     AiAnswer? answer,
     this.transcription = 'Prepare board update tomorrow morning',
+    this.failure,
   }) : _suggestion =
             suggestion ??
             const AiSuggestion(
@@ -206,6 +202,7 @@ class FakeAiRepository implements AiRepository {
   final AiSuggestion _suggestion;
   final AiAnswer _answer;
   final String transcription;
+  final AiRepositoryException? failure;
 
   @override
   bool get isRemoteEnabled => remoteEnabled;
@@ -213,7 +210,13 @@ class FakeAiRepository implements AiRepository {
   @override
   Future<AiSuggestion> ingestText(String text) async {
     if (!remoteEnabled) {
-      throw const AiRepositoryException('Remote AI is not configured.');
+      throw const AiRepositoryException(
+        code: AiErrorCode.remoteUnavailable,
+        message: 'Remote AI is not configured.',
+      );
+    }
+    if (failure != null) {
+      throw failure!;
     }
 
     return AiSuggestion(
@@ -228,7 +231,13 @@ class FakeAiRepository implements AiRepository {
   @override
   Future<AiAnswer> askQuestion(String question) async {
     if (!remoteEnabled) {
-      throw const AiRepositoryException('Remote AI is not configured.');
+      throw const AiRepositoryException(
+        code: AiErrorCode.remoteUnavailable,
+        message: 'Remote AI is not configured.',
+      );
+    }
+    if (failure != null) {
+      throw failure!;
     }
 
     return _answer;
@@ -241,7 +250,13 @@ class FakeAiRepository implements AiRepository {
     required String locale,
   }) async {
     if (!remoteEnabled) {
-      throw const AiRepositoryException('Remote AI is not configured.');
+      throw const AiRepositoryException(
+        code: AiErrorCode.remoteUnavailable,
+        message: 'Remote AI is not configured.',
+      );
+    }
+    if (failure != null) {
+      throw failure!;
     }
 
     return transcription;
@@ -249,10 +264,72 @@ class FakeAiRepository implements AiRepository {
 }
 
 class AiRepositoryException implements Exception {
-  const AiRepositoryException(this.message);
+  const AiRepositoryException({
+    required this.code,
+    required this.message,
+    this.statusCode,
+    this.details = const [],
+  });
 
+  final AiErrorCode code;
   final String message;
+  final int? statusCode;
+  final List<String> details;
 
   @override
   String toString() => message;
+}
+
+AiRepositoryException _parseRepositoryException(int statusCode, String body) {
+  if (body.isNotEmpty) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic>) {
+        final message = decoded['error'] as String? ?? 'Request failed';
+        final code = _parseAiErrorCode(decoded['code'] as String?, statusCode);
+        final details = (decoded['details'] as List<dynamic>? ?? const [])
+            .map((item) => item.toString())
+            .toList();
+        return AiRepositoryException(
+          code: code,
+          message: message,
+          statusCode: statusCode,
+          details: details,
+        );
+      }
+    } catch (_) {
+      // Fall through to generic mapping when the payload is not valid JSON.
+    }
+  }
+
+  return AiRepositoryException(
+    code: _parseAiErrorCode(null, statusCode),
+    message: body.isEmpty ? 'Request failed with $statusCode' : body,
+    statusCode: statusCode,
+  );
+}
+
+AiErrorCode _parseAiErrorCode(String? value, int statusCode) {
+  switch (value) {
+    case 'invalid_request':
+      return AiErrorCode.invalidRequest;
+    case 'authorization_required':
+      return AiErrorCode.authorizationRequired;
+    case 'azure_speech_not_configured':
+      return AiErrorCode.azureSpeechNotConfigured;
+    case 'azure_speech_failed':
+      return AiErrorCode.azureSpeechFailed;
+    case 'azure_speech_empty':
+      return AiErrorCode.azureSpeechEmpty;
+    case 'openai_structured_invalid':
+      return AiErrorCode.openAiStructuredInvalid;
+    case 'openai_answer_invalid':
+      return AiErrorCode.openAiAnswerInvalid;
+  }
+
+  if (statusCode == 401) {
+    return AiErrorCode.authorizationRequired;
+  }
+
+  return AiErrorCode.requestFailed;
 }

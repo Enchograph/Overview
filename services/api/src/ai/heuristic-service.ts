@@ -1,5 +1,6 @@
 import type { MemoItem, ScheduleItem, TaskItem } from '@overview/shared';
 
+import { AiErrorCodes } from './error-codes.js';
 import { HttpError } from '../planning/errors.js';
 import type { PlanningRepository } from '../planning/types.js';
 import type { AiAnswer, AiService, AiStructuredSuggestion } from './types.js';
@@ -73,7 +74,11 @@ export class HeuristicAiService implements AiService {
 
   transcribeAudio(): Promise<never> {
     return Promise.reject(
-      new HttpError(503, 'Voice transcription requires Azure Speech configuration.'),
+      new HttpError(
+        503,
+        'Voice transcription requires Azure Speech configuration.',
+        AiErrorCodes.azureSpeechNotConfigured,
+      ),
     );
   }
 }
