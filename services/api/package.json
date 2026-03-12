@@ -18,7 +18,7 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "pretest": "node ./scripts/prepare-embedded-postgres.mjs && npx pnpm --filter @overview/shared build",
-    "test": "tsx test/env.test.ts && tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.factory.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts"
+    "test": "tsx test/env.test.ts && tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.factory.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts && tsx test/start.embedded.test.ts"
   },
   "dependencies": {
     "@overview/shared": "workspace:*",

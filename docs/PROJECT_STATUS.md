@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：后端本地运行已闭环，继续推进自动化集成验证
+- 当前功能块：后端启动自动化烟测已落地，继续推进 Android 正式签名配置
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -86,14 +86,15 @@
 - 已确认当前 Android release 仍使用 debug keystore 签名，适用于当前仓库交付验证，不适用于正式商店分发
 - 已完成后端本地运行闭环修复：`.env.example` 空 AI 凭据现可正常解析，新增 `npm run api:start:embedded` 可自动拉起嵌入式 PostgreSQL、执行 migration 并启动 API
 - 已完成后端本地运行验证：本机已通过 `npm run api:start:embedded` 启动 API，并通过 `curl http://127.0.0.1:3000/health` 验证健康检查返回 `status=ok`
+- 已完成后端启动自动化烟测：`npm run api:test` 现额外覆盖 `test/start.embedded.test.ts`，验证嵌入式 PostgreSQL 启动、API 拉起、`/health` 成功与进程回收
 
 ## 进行中
 
-- 推进自动化集成验证，优先把本地启动与健康检查沉淀为可重复执行的测试
+- 推进 Android 正式签名配置，避免 release 构建只能依赖 debug keystore
 
 ## 下一步唯一推荐动作
 
-为后端本地启动新增自动化烟测，覆盖 `api:start:embedded` 到 `/health` 的可执行验证。
+为 Android release 增加可选正式签名配置入口，在未提供签名材料时保持当前 debug 回退。
 
 ## 当前阻塞
 
@@ -119,7 +120,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK 与后端本地开发启动现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失与更强的自动化集成验证
+- Android release APK、后端本地开发启动与后端启动烟测现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
