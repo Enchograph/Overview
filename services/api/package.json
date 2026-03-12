@@ -4,18 +4,19 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "corepack pnpm --filter @overview/shared build",
+    "prepare:embedded-postgres": "node ./scripts/prepare-embedded-postgres.mjs",
+    "predev": "npx pnpm --filter @overview/shared build",
     "dev": "tsx watch src/index.ts",
-    "prestart": "corepack pnpm --filter @overview/shared build",
+    "prestart": "npx pnpm --filter @overview/shared build",
     "start": "tsx src/index.ts",
     "db:migrate": "tsx src/scripts/migrate.ts",
-    "prebuild": "corepack pnpm --filter @overview/shared build",
+    "prebuild": "npx pnpm --filter @overview/shared build",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --check .",
-    "pretest": "corepack pnpm --filter @overview/shared build",
-    "test": "tsx test/health.test.ts && tsx test/planning.test.ts"
+    "pretest": "node ./scripts/prepare-embedded-postgres.mjs && npx pnpm --filter @overview/shared build",
+    "test": "tsx test/health.test.ts && tsx test/planning.test.ts && tsx test/postgres.smoke.test.ts"
   },
   "dependencies": {
     "@overview/shared": "workspace:*",
@@ -25,6 +26,7 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@embedded-postgres/linux-x64": "18.3.0-beta.16",
     "@eslint/js": "^9.36.0",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.2",

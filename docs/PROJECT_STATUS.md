@@ -3,8 +3,8 @@
 ## 当前状态
 
 - 状态：进行中
-- 当前阶段：P2 核心数据闭环
-- 当前功能块：同步骨架初版已落地，等待 Flutter SDK 验证
+- 当前阶段：P3 账号、同步与离线
+- 当前功能块：真实 PostgreSQL API 烟测与同步验证链路已落地，继续补客户端 HTTP 联调
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -23,7 +23,7 @@
 - 已通过客户端最小验证：`flutter analyze`、`flutter test`
 - 已完成客户端命名路由、四个主页面骨架与 AI/同步子路由
 - 已完成手写中英文 i18n 资源拆分与页面文案补全
-- 已完成 `corepack pnpm install` 并生成 workspace 锁文件
+- 已完成 `npx pnpm install` 并生成 workspace 锁文件
 - 已完成 API 正式服务栈：Express、Zod、Dotenv、ESLint、Prettier、TypeScript build
 - 已完成 `packages/shared` 构建产物导出，供 API 正式构建与运行消费
 - 已完成日程、任务、备忘、提醒、重复规则与同步状态的共享核心模型定义
@@ -33,19 +33,22 @@
 - 已完成客户端本地存储仓储，默认使用 SharedPreferences 持久化 planning 数据
 - 已完成客户端本地存储验证与 Android debug APK 构建验证
 - 已完成客户端同步骨架初版：本地待同步队列、同步状态快照、同步页状态展示与手动同步入口
+- 已确认当前环境 Flutter SDK 可用，并完成 `flutter analyze`、`flutter test`、`flutter build apk --debug`
+- 已完成 API 真实 PostgreSQL 烟测：自动准备嵌入式 PostgreSQL 二进制链接、执行 migration，并验证 PostgreSQL-backed CRUD
+- 已将根级与 API 工作区命令从 `corepack pnpm` 切换为当前环境可执行的 `npx pnpm`
 
 ## 进行中
 
-- 等待 Flutter SDK 就绪后验证同步骨架，并在具备 PostgreSQL 实例后执行真实联调烟测
+- 补齐客户端到真实 HTTP 同步链路的自动化联调，覆盖更多更新/删除场景
 
 ## 下一步唯一推荐动作
 
-在具备 Flutter SDK 与 PostgreSQL 后，执行客户端同步骨架验证和远端 API 烟测。
+为客户端补充基于真实 HTTP 请求的同步联调测试，并扩展同步队列到更多更新/删除场景。
 
 ## 当前阻塞
 
-- 当前环境未提供可用的本地 PostgreSQL 实例；`127.0.0.1:5432` 未监听，migration runner 尚未做真实连库烟测
-- 当前环境未安装 `flutter` 命令，无法执行 `flutter analyze`、`flutter test` 与 `flutter build apk --debug`
+- 客户端尚未跑到直连真实本地 API 的自动化联调；当前真实烟测覆盖 API + PostgreSQL，但未串起 Flutter 到 Node 的端到端进程编排
+- 当前同步队列仅覆盖创建与 memo 归档写路径，更新与删除场景仍未实现
 
 ## 当前技术默认值
 
@@ -57,7 +60,7 @@
 
 ## 最近稳定提交
 
-- `981b5aa feat(api): add core item crud`
+- `3d8b59f Linux环境配置更新追追追追追追追追追追至`
 
 ## 备注
 
@@ -67,7 +70,7 @@
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
 - Flutter 当前已生成 Android 平台目录，并已验证 `flutter analyze`、`flutter test`、`flutter build apk --debug`
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
-- API 已提供 `corepack pnpm --filter @overview/api db:migrate` 入口，待本地 PostgreSQL 就绪后可执行首版 schema 迁移
-- API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前测试使用可替换内存仓储完成接口验证
+- API 已提供 `npx pnpm --filter @overview/api db:migrate` 入口，并通过嵌入式 PostgreSQL 自动化烟测验证首版 schema 迁移
+- API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前同时具备内存仓储测试与 PostgreSQL-backed 烟测
 - 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式
 - Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常

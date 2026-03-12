@@ -3,29 +3,31 @@
 ## 最近一次交接
 
 - 日期：2026-03-12
-- 阶段：P2
+- 阶段：P3
 - 完成内容：
-  - 为客户端 planning 模型补齐 `syncState`、同步阶段和同步状态快照
-  - 重构 `LocalPlanningRepository` 为本地优先仓储，新增待同步操作队列、同步状态持久化和 `runSync()` 骨架
-  - 允许客户端在设置 `OVERVIEW_API_BASE_URL` 时挂接远端仓储，形成“本地缓存 + 远端同步”基础结构
-  - 改造同步页为真实状态页，展示远端连通性、待同步队列、最近尝试/成功时间和手动同步按钮
-  - 补充同步骨架相关客户端测试，并更新客户端 README、项目状态与交接文档
+  - 确认当前环境 Flutter SDK、Android SDK 与 JDK 可用，完成 `flutter analyze`、`flutter test`、`flutter build apk --debug`
+  - 将根级与 API 工作区命令从当前环境不可用的 `corepack pnpm` 切换为 `npx pnpm`
+  - 新增 `services/api/scripts/prepare-embedded-postgres.mjs`，在 `pnpm` 忽略 postinstall 时自动补全嵌入式 PostgreSQL 所需的 `.so` 链接
+  - 新增 `services/api/test/postgres.smoke.test.ts`，以真实 PostgreSQL 执行 migration 并验证 `/planning/*` CRUD
+  - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
-  - 当前环境缺少 `flutter` 命令，未能执行 `flutter analyze`
-  - 当前环境缺少 `flutter` 命令，未能执行 `flutter test`
-  - 当前环境缺少 `flutter` 命令，未能执行 `flutter build apk --debug`
-  - 当前环境仍未提供可用 PostgreSQL 实例，故客户端尚未与真实 API 做端到端烟测
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
+  - 已通过 `npm run api:lint`
+  - 已通过 `npm run api:typecheck`
+  - 已通过 `npm run api:test`
 - 当前进行中：
-  - 等待 Flutter SDK 与 PostgreSQL 就绪后验证同步骨架并执行真实联调烟测
+  - 继续补客户端到真实 HTTP 同步链路的自动化联调，并扩展更新/删除同步场景
 - 下一接手顺序：
-  1. 安装或接入可用 Flutter SDK，执行 `flutter analyze`、`flutter test`、`flutter build apk --debug`
-  2. 在具备 PostgreSQL 实例后执行客户端到 API 的真实联调烟测
-  3. 根据联调结果修正同步队列、错误处理和远端刷新策略
-  4. 继续推进周视图、备忘页、添加入口的交互细化
+  1. 为客户端补充真实 HTTP 同步联调测试，至少覆盖创建、归档后的 `runSync()` 成功路径
+  2. 扩展同步队列到 schedule/task/memo 的更新与删除场景
+  3. 基于同步能力进入 P3：账号注册、登录与认证状态管理
+  4. 再继续推进周视图、备忘页、添加入口的交互细化
 - 风险：
-  - 当前环境缺少 Flutter SDK，客户端同步骨架尚未完成编译级验证
-  - 当前环境缺少可用 PostgreSQL 实例，客户端远端数据流仍缺真实联调验证
+  - 客户端还没有自动化串起真实 Node API 进程，当前是“Flutter 编译验证 + API/PostgreSQL 真实烟测”分层通过
   - 当前同步骨架仅覆盖已存在的创建与 memo 归档写路径，更多更新/删除场景仍待扩展
+  - 邮箱注册/登录与认证态尚未开始实现，P3 主体仍待推进
 
 ## 交接模板
 

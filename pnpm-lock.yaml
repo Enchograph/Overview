@@ -35,6 +35,9 @@ importers:
         specifier: ^4.1.11
         version: 4.3.6
     devDependencies:
+      '@embedded-postgres/linux-x64':
+        specifier: 18.3.0-beta.16
+        version: 18.3.0-beta.16
       '@eslint/js':
         specifier: ^9.36.0
         version: 9.39.4
@@ -73,6 +76,12 @@ importers:
         version: 8.57.0(eslint@9.39.4)(typescript@5.9.3)
 
 packages:
+
+  '@embedded-postgres/linux-x64@18.3.0-beta.16':
+    resolution: {integrity: sha512-SRnH75c2PenxtlJPAdDz3ckVA6/3AB6g/wOJiK33LsR55a2AWjoLrUkPqS0x8PlVAOaQHCzgnq8EDRxrbP1+Dg==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [linux]
 
   '@esbuild/aix-ppc64@0.27.3':
     resolution: {integrity: sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg==}
@@ -1142,6 +1151,8 @@ packages:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
+
+  '@embedded-postgres/linux-x64@18.3.0-beta.16': {}
 
   '@esbuild/aix-ppc64@0.27.3':
     optional: true

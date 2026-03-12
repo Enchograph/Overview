@@ -19,7 +19,7 @@ Flutter 客户端主应用目录。
 - `flutter test`
 - `flutter build apk --debug`
 
-当前环境备注：本次会话所在环境缺少 `flutter` 命令，因此上述验证未能在 2026-03-12 这次改动后重新执行。
+当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述三条命令。
 
 ## 数据接入
 
@@ -30,6 +30,6 @@ Flutter 客户端主应用目录。
 
 ## 下一步
 
-- 在具备 Flutter SDK 与 PostgreSQL 后完成同步骨架验证和真实联调
+- 补充基于真实 HTTP 请求的同步联调测试
 - 扩展更多更新/删除场景的同步队列处理
 - 接入账号、同步与 AI 数据流

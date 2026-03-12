@@ -19,10 +19,10 @@ Node.js + TypeScript 后端 API 服务目录。
 
 ## 本地命令
 
-- `corepack pnpm install`
+- `npx pnpm install`
 - `npm run api:dev`
 - `npm run api:start`
-- `corepack pnpm --filter @overview/api db:migrate`
+- `npx pnpm --filter @overview/api db:migrate`
 - `npm run api:lint`
 - `npm run api:format`
 - `npm run api:typecheck`
@@ -33,9 +33,14 @@ Node.js + TypeScript 后端 API 服务目录。
 
 1. 复制 `services/api/.env.example` 为本地环境文件并配置 `DATABASE_URL`
 2. 确保本地 PostgreSQL 已启动且目标数据库已存在
-3. 运行 `corepack pnpm --filter @overview/api db:migrate`
+3. 运行 `npx pnpm --filter @overview/api db:migrate`
 
 当前首个 migration 会创建 `planning_items` 表，用于承载日程、任务、备忘三类核心对象。
+
+## 自动化烟测
+
+- `npm run api:test` 现在会额外执行 `test/postgres.smoke.test.ts`
+- 该烟测会自动准备 `@embedded-postgres/linux-x64` 所需的动态库链接，启动嵌入式 PostgreSQL、执行 migration，并验证 `/planning/*` 的 PostgreSQL-backed CRUD
 
 ## 当前 API
 
