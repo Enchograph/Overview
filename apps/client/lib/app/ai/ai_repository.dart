@@ -67,6 +67,11 @@ abstract class AiRepository {
   bool get isRemoteEnabled;
   Future<AiSuggestion> ingestText(String text);
   Future<AiAnswer> askQuestion(String question);
+  Future<String> transcribeAudio({
+    required List<int> audioBytes,
+    required String mimeType,
+    required String locale,
+  });
 }
 
 class HttpAiRepository implements AiRepository {
@@ -131,6 +136,39 @@ class HttpAiRepository implements AiRepository {
     throw const AiRepositoryException('Unexpected response payload');
   }
 
+  @override
+  Future<String> transcribeAudio({
+    required List<int> audioBytes,
+    required String mimeType,
+    required String locale,
+  }) async {
+    final request = await _httpClient.postUrl(_baseUri.resolve('/ai/transcribe'));
+    request.headers.contentType = ContentType.json;
+    await _applyAuthorization(request);
+    request.write(
+      jsonEncode({
+        'audioBase64': base64Encode(audioBytes),
+        'mimeType': mimeType,
+        'locale': locale,
+      }),
+    );
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AiRepositoryException(
+        body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
+      );
+    }
+
+    final decoded = jsonDecode(body);
+    if (decoded is Map<String, dynamic>) {
+      return decoded['text'] as String? ?? '';
+    }
+
+    throw const AiRepositoryException('Unexpected response payload');
+  }
+
   Future<void> _applyAuthorization(HttpClientRequest request) async {
     final session = await _authSessionProvider?.call();
     final token = session?.token;
@@ -147,6 +185,7 @@ class FakeAiRepository implements AiRepository {
     this.remoteEnabled = true,
     AiSuggestion? suggestion,
     AiAnswer? answer,
+    this.transcription = 'Prepare board update tomorrow morning',
   }) : _suggestion =
             suggestion ??
             const AiSuggestion(
@@ -166,6 +205,7 @@ class FakeAiRepository implements AiRepository {
   final bool remoteEnabled;
   final AiSuggestion _suggestion;
   final AiAnswer _answer;
+  final String transcription;
 
   @override
   bool get isRemoteEnabled => remoteEnabled;
@@ -192,6 +232,19 @@ class FakeAiRepository implements AiRepository {
     }
 
     return _answer;
+  }
+
+  @override
+  Future<String> transcribeAudio({
+    required List<int> audioBytes,
+    required String mimeType,
+    required String locale,
+  }) async {
+    if (!remoteEnabled) {
+      throw const AiRepositoryException('Remote AI is not configured.');
+    }
+
+    return transcription;
   }
 }
 

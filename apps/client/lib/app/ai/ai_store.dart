@@ -11,15 +11,19 @@ class AiStore extends ChangeNotifier {
   AiAnswer? _lastAnswer;
   bool _isSubmitting = false;
   bool _isAnswerSubmitting = false;
+  bool _isVoiceSubmitting = false;
   String? _errorMessage;
   String? _answerErrorMessage;
+  String? _voiceErrorMessage;
 
   AiSuggestion? get lastSuggestion => _lastSuggestion;
   AiAnswer? get lastAnswer => _lastAnswer;
   bool get isSubmitting => _isSubmitting;
   bool get isAnswerSubmitting => _isAnswerSubmitting;
+  bool get isVoiceSubmitting => _isVoiceSubmitting;
   String? get errorMessage => _errorMessage;
   String? get answerErrorMessage => _answerErrorMessage;
+  String? get voiceErrorMessage => _voiceErrorMessage;
   bool get isRemoteEnabled => _repository.isRemoteEnabled;
 
   Future<void> ingestText(String text) async {
@@ -62,5 +66,29 @@ class AiStore extends ChangeNotifier {
     _lastAnswer = null;
     _answerErrorMessage = null;
     notifyListeners();
+  }
+
+  Future<String?> transcribeAudio({
+    required List<int> audioBytes,
+    required String mimeType,
+    required String locale,
+  }) async {
+    _isVoiceSubmitting = true;
+    _voiceErrorMessage = null;
+    notifyListeners();
+
+    try {
+      return await _repository.transcribeAudio(
+        audioBytes: audioBytes,
+        mimeType: mimeType,
+        locale: locale,
+      );
+    } catch (error) {
+      _voiceErrorMessage = error.toString();
+      return null;
+    } finally {
+      _isVoiceSubmitting = false;
+      notifyListeners();
+    }
   }
 }

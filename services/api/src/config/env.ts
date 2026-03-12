@@ -16,6 +16,9 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(['auto', 'heuristic', 'openai']).default('auto'),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
+  AZURE_SPEECH_KEY: z.string().trim().min(1).optional(),
+  AZURE_SPEECH_REGION: z.string().trim().min(1).optional(),
+  AZURE_SPEECH_LOCALE: z.string().trim().min(2).max(20).default('zh-CN'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

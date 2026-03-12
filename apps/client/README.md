@@ -3,19 +3,19 @@
 Flutter 客户端主应用目录。
 
 当前状态：已完成 Flutter 工程初始化，并为周视图、备忘页、添加页接入应用级状态；默认使用 SharedPreferences 本地仓储持久化数据，并已接入同步骨架初版。
-当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析、待确认结构化结果与单轮问答主路径。
+当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析、待确认结构化结果、单轮问答与语音录入主路径。
 
 ## 当前内容
 
 - `lib/main.dart`：应用入口
 - `lib/app/`：应用壳、命名路由、底部导航和页面模块
 - `lib/app/auth/`：客户端认证仓储、状态管理与作用域
-- `lib/app/ai/`：客户端 AI 仓储、状态管理与作用域
+- `lib/app/ai/`：客户端 AI 仓储、录音服务、状态管理与作用域
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
 - `test/auth/local_auth_repository_test.dart`：会话持久化与退出登录验证
-- `test/ai/http_ai_repository_test.dart`：AI 解析/问答 HTTP 请求与 Bearer token 验证
+- `test/ai/http_ai_repository_test.dart`：AI 解析/问答/转写 HTTP 请求与 Bearer token 验证
 - `test/planning/local_planning_repository_test.dart`：本地仓储持久化与同步骨架验证
 - `test/planning/http_planning_repository_test.dart`：真实 HTTP 请求下的远端仓储与 `runSync()` 联调验证，覆盖创建、归档、更新、删除
 
@@ -32,11 +32,12 @@ Flutter 客户端主应用目录。
 - 默认使用 `LocalPlanningRepository` 读写 SharedPreferences，并在首次启动时注入示例数据
 - 设置 `--dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000` 后，客户端会启用“本地优先 + 远端同步骨架”模式，并自动把本地持久化 session token 附加到 `/planning/*` 请求
 - 添加页现在可调用 `/ai/ingest/text` 获取 AI 建议，并在确认时间、地点、时长、列表等字段后创建条目
+- 添加页现在支持录音并上传到 `/ai/transcribe`；转写完成后会自动复用现有 AI 文本解析流
 - AI 页面现在可调用 `/ai/ask` 发起单轮规划问答，并展示回答与引用条目数量
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 接入语音入口
 - 补齐更细粒度的 AI 错误处理
+- 继续推进客户端与 Node API 的单进程端到端验证

@@ -17,9 +17,24 @@ export interface AiAnswer {
   referencedItemCount: number;
 }
 
+export interface AiAudioInput {
+  audioBase64: string;
+  mimeType: string;
+  locale: string;
+}
+
+export interface AiTranscription {
+  text: string;
+  locale: string;
+}
+
 export interface AiService {
   ingestText(userId: string, text: string): Promise<AiStructuredSuggestion>;
   answerQuestion(userId: string, question: string): Promise<AiAnswer>;
+  transcribeAudio(
+    userId: string,
+    input: AiAudioInput,
+  ): Promise<AiTranscription>;
 }
 
 export interface AiProviderContext {

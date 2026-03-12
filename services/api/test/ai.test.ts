@@ -86,6 +86,16 @@ async function main() {
     /1 schedules.*1 tasks.*1 memos/,
   );
 
+  await request(app)
+    .post('/ai/transcribe')
+    .set(authHeader)
+    .send({
+      audioBase64: Buffer.from([1, 2, 3]).toString('base64'),
+      mimeType: 'audio/wav',
+      locale: 'zh-CN',
+    })
+    .expect(503);
+
   console.log('AI API tests passed');
 }
 

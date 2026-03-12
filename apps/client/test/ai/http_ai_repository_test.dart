@@ -40,6 +40,21 @@ void main() {
     expect(answer.answer, contains('Design review'));
     expect(answer.referencedItemCount, 2);
   });
+
+  test('transcribes audio over HTTP with bearer token', () async {
+    final repository = HttpAiRepository(
+      baseUrl: server.baseUrl,
+      authSessionProvider: () async => server.createSession(),
+    );
+
+    final transcript = await repository.transcribeAudio(
+      audioBytes: const [1, 2, 3],
+      mimeType: 'audio/wav',
+      locale: 'zh-CN',
+    );
+
+    expect(transcript, '明天上午准备董事会更新');
+  });
 }
 
 class _AiApiStubServer {
@@ -97,6 +112,17 @@ class _AiApiStubServer {
           {
             'answer': 'Start with Design review, then finish the launch memo.',
             'referencedItemCount': 2,
+          },
+        );
+        return;
+      }
+
+      if (request.method == 'POST' && request.uri.path == '/ai/transcribe') {
+        await _writeJson(
+          request.response,
+          {
+            'text': '明天上午准备董事会更新',
+            'locale': decoded['locale'],
           },
         );
         return;

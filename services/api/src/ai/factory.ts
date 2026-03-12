@@ -2,6 +2,8 @@ import OpenAI from 'openai';
 
 import type { AppEnv } from '../config/env.js';
 import type { PlanningRepository } from '../planning/types.js';
+import { AzureSpeechTranscriber } from './azure-speech-transcriber.js';
+import { CompositeAiService } from './composite-service.js';
 import { HeuristicAiService } from './heuristic-service.js';
 import { OpenAiService } from './openai-service.js';
 import type { AiProviderContext, AiService } from './types.js';
@@ -11,24 +13,30 @@ export function createAiService(
   planningRepository: PlanningRepository,
 ): AiService {
   const heuristic = new HeuristicAiService(planningRepository);
+  const speechTranscriber =
+    env.AZURE_SPEECH_KEY && env.AZURE_SPEECH_REGION
+        ? new AzureSpeechTranscriber(
+            env.AZURE_SPEECH_KEY,
+            env.AZURE_SPEECH_REGION,
+          )
+        : undefined;
+  let service: AiService = heuristic;
 
   if (env.AI_PROVIDER === 'heuristic') {
-    return heuristic;
-  }
-
-  if (env.AI_PROVIDER === 'openai' || env.OPENAI_API_KEY) {
+    service = heuristic;
+  } else if (env.AI_PROVIDER === 'openai' || env.OPENAI_API_KEY) {
     if (!env.OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY is required when AI_PROVIDER=openai.');
     }
 
-    return new OpenAiService(
+    service = new OpenAiService(
       new OpenAI({ apiKey: env.OPENAI_API_KEY }),
       env.OPENAI_MODEL,
       (userId) => loadAiContext(planningRepository, userId),
     );
   }
 
-  return heuristic;
+  return new CompositeAiService(service, speechTranscriber);
 }
 
 async function loadAiContext(

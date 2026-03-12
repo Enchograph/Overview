@@ -1,5 +1,6 @@
 import type { MemoItem, ScheduleItem, TaskItem } from '@overview/shared';
 
+import { HttpError } from '../planning/errors.js';
 import type { PlanningRepository } from '../planning/types.js';
 import type { AiAnswer, AiService, AiStructuredSuggestion } from './types.js';
 
@@ -68,6 +69,12 @@ export class HeuristicAiService implements AiService {
       answer,
       referencedItemCount: schedules.length + tasks.length + memos.length,
     };
+  }
+
+  transcribeAudio(): Promise<never> {
+    return Promise.reject(
+      new HttpError(503, 'Voice transcription requires Azure Speech configuration.'),
+    );
   }
 }
 

@@ -86,6 +86,12 @@ export class OpenAiService implements AiService {
       referencedItemCount,
     };
   }
+
+  transcribeAudio(): Promise<never> {
+    return Promise.reject(
+      new HttpError(503, 'Voice transcription is delegated to Azure Speech.'),
+    );
+  }
 }
 
 function _parseStructuredResponse(output: string): AiStructuredSuggestion {

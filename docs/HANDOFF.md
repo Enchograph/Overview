@@ -40,6 +40,11 @@
   - 扩展 planning 创建接口，允许在创建 schedule/task/memo 时携带 AI 提取出的时间、地点、时长与列表字段
   - 将添加页 AI 建议卡片升级为待确认结构化表单，解析后自动预填字段并在确认后按结构化数据创建条目
   - 扩展本地规划仓储测试，验证 AI 确认流产出的任务字段可持久化落盘
+  - 基于“中文优先 + i18n 可扩展”原则选定 Azure Speech 作为语音转写方案，并为 API 增加 `AZURE_SPEECH_*` 环境变量
+  - 为 API 新增受保护的 `/ai/transcribe` 路由与 Azure Speech 转写实现；未配置 Azure 时返回可识别的 503 错误
+  - 为客户端新增录音服务与状态管理，添加页支持开始录音、停止录音、上传转写，并在成功后自动进入既有 AI 文本解析流
+  - 扩展客户端 AI HTTP 仓储测试与 widget 测试，验证 `/ai/transcribe` 和语音录入到 AI 建议卡片的主路径
+  - 扩展 API AI 测试，验证 `/ai/transcribe` 在未配置 Azure Speech 时的受保护错误路径
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -49,17 +54,17 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进语音入口，为 P4 补齐从语音到文本解析的移动端录入入口
+  - 推进 AI 错误处理，收敛转写失败、Azure 未配置、AI 解析失败与权限错误的统一反馈体验
 - 下一接手顺序：
-  1. 为添加页接入语音输入入口，并把识别结果灌入现有文本框与 AI 解析流
-  2. 为 Android 端补齐语音权限、不可用态和失败提示
-  3. 再补齐 AI 错误处理细节
+  1. 统一梳理 AI 相关错误文案与错误码映射，减少原始异常直接暴露到 UI
+  2. 为 Azure Speech 未配置、录音失败、转写失败和 AI 解析失败补齐更明确的恢复指引
+  3. 评估把 `/ai/transcribe` 失败场景纳入客户端 retry/重新录音体验
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - 当前 token 仅用于请求鉴权，尚未实现主动登出与 session revoke
   - 当前尚未验证真实 OpenAI 凭据调用；仓库内测试仍以 heuristic/工厂回退为主
-  - 语音录入仍未落地，P4 还缺“移动端语音入口”这条关键链路
+  - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
 
 ## 交接模板
 

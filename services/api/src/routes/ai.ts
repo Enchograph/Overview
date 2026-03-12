@@ -1,6 +1,10 @@
 import { Router, type Request, type Response } from 'express';
 
-import { ingestTextSchema, askQuestionSchema } from '../ai/schemas.js';
+import {
+  ingestTextSchema,
+  askQuestionSchema,
+  transcribeAudioSchema,
+} from '../ai/schemas.js';
 import type { AiService } from '../ai/types.js';
 import { HttpError, toErrorResponse } from '../planning/errors.js';
 import type { AuthenticatedRequest } from '../auth/middleware.js';
@@ -32,6 +36,14 @@ export function createAiRouter(service: AiService): Router {
     handleRequest(res, async () => {
       const input = askQuestionSchema.parse(req.body);
       const result = await service.answerQuestion(_userId(req), input.question);
+      res.json(result);
+    }),
+  );
+
+  router.post('/transcribe', (req, res) =>
+    handleRequest(res, async () => {
+      const input = transcribeAudioSchema.parse(req.body);
+      const result = await service.transcribeAudio(_userId(req), input);
       res.json(result);
     }),
   );

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:overview_client/app/app.dart';
 import 'package:overview_client/app/ai/ai_repository.dart';
+import 'package:overview_client/app/ai/speech_input_service.dart';
 import 'package:overview_client/app/app_router.dart';
 import 'package:overview_client/app/auth/auth_repository.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
@@ -201,5 +202,44 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Referenced 2 planning items.'), findsOneWidget);
+  });
+
+  testWidgets('captures voice input and triggers ai parsing', (tester) async {
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.captureRoute,
+        repository: FakePlanningRepository(),
+        aiRepository: FakeAiRepository(
+          suggestion: const AiSuggestion(
+            suggestedType: AiSuggestionType.task,
+            title: 'Prepare board update',
+            confidence: 0.86,
+            requiresConfirmation: ['dueAt'],
+            extracted: {'dueAt': '2026-03-14T09:00:00.000Z'},
+          ),
+        ),
+        speechInputService: FakeSpeechInputService(
+          recordedAudio: const RecordedAudio(
+            bytes: [1, 2, 3],
+            mimeType: 'audio/wav',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Record voice'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Stop recording'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('AI suggestion'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Prepare board update'), findsWidgets);
+    expect(find.text('AI suggestion'), findsOneWidget);
+    expect(find.text('Confirm and create'), findsOneWidget);
   });
 }

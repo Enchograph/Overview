@@ -5,6 +5,9 @@ import '../l10n/app_localizations.dart';
 import 'ai/ai_repository.dart';
 import 'ai/ai_scope.dart';
 import 'ai/ai_store.dart';
+import 'ai/speech_input_scope.dart';
+import 'ai/speech_input_service.dart';
+import 'ai/speech_input_store.dart';
 import 'app_router.dart';
 import 'auth/auth_repository.dart';
 import 'auth/auth_scope.dart';
@@ -19,6 +22,7 @@ class OverviewApp extends StatefulWidget {
     this.repository,
     this.authRepository,
     this.aiRepository,
+    this.speechInputService,
     super.key,
   });
 
@@ -26,6 +30,7 @@ class OverviewApp extends StatefulWidget {
   final PlanningRepository? repository;
   final AuthRepository? authRepository;
   final AiRepository? aiRepository;
+  final SpeechInputService? speechInputService;
 
   @override
   State<OverviewApp> createState() => _OverviewAppState();
@@ -36,6 +41,7 @@ class _OverviewAppState extends State<OverviewApp> {
   late final PlanningStore _planningStore;
   late final AuthStore _authStore;
   late final AiStore _aiStore;
+  late final SpeechInputStore _speechInputStore;
   late final AuthRepository _resolvedAuthRepository;
 
   @override
@@ -52,6 +58,9 @@ class _OverviewAppState extends State<OverviewApp> {
       repository:
           widget.aiRepository ??
           _createDefaultAiRepository(_resolvedAuthRepository),
+    );
+    _speechInputStore = SpeechInputStore(
+      service: widget.speechInputService ?? AudioRecorderSpeechInputService(),
     );
   }
 
@@ -106,28 +115,33 @@ class _OverviewAppState extends State<OverviewApp> {
   Widget build(BuildContext context) {
     return AuthScope(
       store: _authStore,
-      child: AiScope(
-        store: _aiStore,
-        child: PlanningScope(
-          store: _planningStore,
-          child: MaterialApp(
-            title: 'Overview',
-            locale: _locale,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            onGenerateTitle: (context) => context.l10n.appTitle,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1C6B52)),
-            ),
-            initialRoute: widget.initialRoute,
-            onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
-              settings,
-              onToggleLocale: _toggleLocale,
+      child: SpeechInputScope(
+        store: _speechInputStore,
+        child: AiScope(
+          store: _aiStore,
+          child: PlanningScope(
+            store: _planningStore,
+            child: MaterialApp(
+              title: 'Overview',
+              locale: _locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              onGenerateTitle: (context) => context.l10n.appTitle,
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF1C6B52),
+                ),
+              ),
+              initialRoute: widget.initialRoute,
+              onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
+                settings,
+                onToggleLocale: _toggleLocale,
+              ),
             ),
           ),
         ),

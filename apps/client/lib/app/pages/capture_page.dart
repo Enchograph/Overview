@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../ai/ai_repository.dart';
 import '../ai/ai_scope.dart';
+import '../ai/speech_input_scope.dart';
+import '../ai/speech_input_store.dart';
 import '../ai/ai_store.dart';
 import '../planning/planning_store.dart';
 import '../planning/planning_scope.dart';
@@ -45,6 +47,7 @@ class _CapturePageState extends State<CapturePage> {
     final l10n = context.l10n;
     final store = PlanningScope.of(context);
     final aiStore = AiScope.of(context);
+    final speechStore = SpeechInputScope.of(context);
     final suggestion = aiStore.lastSuggestion;
 
     return ListView(
@@ -110,6 +113,22 @@ class _CapturePageState extends State<CapturePage> {
             aiStore.isSubmitting
                 ? l10n.captureAiParsing
                 : l10n.captureAiParseAction,
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.tonalIcon(
+          onPressed: aiStore.isVoiceSubmitting
+              ? null
+              : () => _toggleVoiceInput(speechStore, aiStore),
+          icon: Icon(
+            speechStore.isRecording ? Icons.mic : Icons.mic_none_outlined,
+          ),
+          label: Text(
+            aiStore.isVoiceSubmitting
+                ? l10n.captureVoiceTranscribing
+                : (speechStore.isRecording
+                ? l10n.captureVoiceStopAction
+                : l10n.captureVoiceAction),
           ),
         ),
         const SizedBox(height: 12),
@@ -203,6 +222,34 @@ class _CapturePageState extends State<CapturePage> {
             ),
           ),
         ],
+        if (speechStore.errorMessage != null) ...[
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.mic_off_outlined),
+              title: Text(
+                !speechStore.hasPermission
+                    ? l10n.captureVoiceUnavailableTitle
+                    : l10n.captureVoiceErrorTitle,
+              ),
+              subtitle: Text(
+                !speechStore.hasPermission
+                    ? l10n.captureVoiceUnavailableBody
+                    : speechStore.errorMessage!,
+              ),
+            ),
+          ),
+        ],
+        if (aiStore.voiceErrorMessage != null) ...[
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.smart_toy_outlined),
+              title: Text(l10n.captureVoiceErrorTitle),
+              subtitle: Text(aiStore.voiceErrorMessage!),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -247,6 +294,38 @@ class _CapturePageState extends State<CapturePage> {
     if (suggestion != null) {
       _prefillStructuredFields(suggestion);
     }
+  }
+
+  Future<void> _toggleVoiceInput(
+    SpeechInputStore speechStore,
+    AiStore aiStore,
+  ) async {
+    if (speechStore.isRecording) {
+      final audio = await speechStore.stopRecording();
+      if (audio == null || !mounted) {
+        return;
+      }
+
+      final locale = Localizations.localeOf(context).languageCode == 'zh'
+          ? 'zh-CN'
+          : 'en-US';
+      final transcript = await aiStore.transcribeAudio(
+        audioBytes: audio.bytes,
+        mimeType: audio.mimeType,
+        locale: locale,
+      );
+      if (!mounted || transcript == null || transcript.trim().isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _titleController.text = transcript;
+      });
+      await _handleVoiceResult(aiStore, transcript);
+      return;
+    }
+
+    await speechStore.startRecording();
   }
 
   Future<void> _confirmSuggestion(
@@ -442,5 +521,17 @@ class _CapturePageState extends State<CapturePage> {
   String? _trimmedOrNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
+  }
+
+  Future<void> _handleVoiceResult(AiStore aiStore, String transcript) async {
+    if (!aiStore.isRemoteEnabled || transcript.trim().isEmpty) {
+      return;
+    }
+
+    await aiStore.ingestText(transcript);
+    final suggestion = aiStore.lastSuggestion;
+    if (suggestion != null) {
+      _prefillStructuredFields(suggestion);
+    }
   }
 }

@@ -105,6 +105,12 @@ class AppLocalizations {
   String get captureAiDateTimeHint => _value('captureAiDateTimeHint');
   String get captureAiDurationHint => _value('captureAiDurationHint');
   String get captureAiDismissAction => _value('captureAiDismissAction');
+  String get captureVoiceAction => _value('captureVoiceAction');
+  String get captureVoiceStopAction => _value('captureVoiceStopAction');
+  String get captureVoiceTranscribing => _value('captureVoiceTranscribing');
+  String get captureVoiceUnavailableTitle => _value('captureVoiceUnavailableTitle');
+  String get captureVoiceUnavailableBody => _value('captureVoiceUnavailableBody');
+  String get captureVoiceErrorTitle => _value('captureVoiceErrorTitle');
   String get captureSuccess => _value('captureSuccess');
   String get captureHintTitle => _value('captureHintTitle');
   String get captureHintBody => _value('captureHintBody');

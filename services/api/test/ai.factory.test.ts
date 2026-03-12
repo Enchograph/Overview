@@ -16,6 +16,9 @@ function buildEnv(overrides: Partial<AppEnv> = {}): AppEnv {
     AI_PROVIDER: 'auto',
     OPENAI_API_KEY: undefined,
     OPENAI_MODEL: 'gpt-4.1-mini',
+    AZURE_SPEECH_KEY: undefined,
+    AZURE_SPEECH_REGION: undefined,
+    AZURE_SPEECH_LOCALE: 'zh-CN',
     ...overrides,
   };
 }
