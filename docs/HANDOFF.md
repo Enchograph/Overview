@@ -46,6 +46,7 @@
   - 新增 `docs/ANDROID_RELEASE_CHECKLIST.md`，整理正式签名材料接入步骤、构建命令与发布前检查清单
   - 新增 `docs/WINDOWS_VALIDATION.md`，整理 Windows 主机构建前置、最小验证步骤与当前 Linux 主机限制
   - 新增 `docs/DELIVERY_INDEX.md`，把 Android、API、Windows、限制与验证命令收敛到单一交付入口
+  - 新增 `docs/REMAINING_RELEASE_BLOCKERS.md`，把正式签名、Windows、Azure Speech 与 `integration_test` 剩余外部依赖整理成可执行清单
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -61,11 +62,11 @@
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
   - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 收敛剩余发布说明，优先继续压缩未闭环交付项
+  - 等待外部条件回填，仓库内继续保持交付入口和验证链路清晰
 - 下一接手顺序：
-  1. 继续收敛剩余发布说明，优先把正式签名缺口与未验证平台项明确到可执行清单
+  1. 在外部条件就绪后优先完成 Android 正式签名接入与真机安装验证
   2. 随后视环境条件回看 Windows 真实主机构建验证
-  3. 随后继续收敛剩余已知限制与发布说明
+  3. 随后继续完成 Azure Speech 与 integration runner 的真实验证
 - 风险：
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段

@@ -3,6 +3,7 @@
 Overview（览）V1 monorepo。
 
 交付入口总索引见 [docs/DELIVERY_INDEX.md](/home/anon/文档/GitHub/Overview/docs/DELIVERY_INDEX.md)。
+剩余发布阻塞清单见 [docs/REMAINING_RELEASE_BLOCKERS.md](/home/anon/文档/GitHub/Overview/docs/REMAINING_RELEASE_BLOCKERS.md)。
 
 当前仓库已包含：
 
