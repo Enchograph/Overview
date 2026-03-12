@@ -87,9 +87,7 @@ class AppLocalizations {
   String get captureAiSuggestionTitle => _value('captureAiSuggestionTitle');
   String captureAiSuggestionBody(String typeLabel, String title) => _value(
         'captureAiSuggestionBody',
-      )
-          .replaceFirst('{typeLabel}', typeLabel)
-          .replaceFirst('{title}', title);
+      ).replaceFirst('{typeLabel}', typeLabel).replaceFirst('{title}', title);
   String captureAiConfidenceLabel(int percent) =>
       _value('captureAiConfidenceLabel').replaceFirst('{percent}', '$percent');
   String captureAiNeedsConfirm(String fields) =>
@@ -108,8 +106,10 @@ class AppLocalizations {
   String get captureVoiceAction => _value('captureVoiceAction');
   String get captureVoiceStopAction => _value('captureVoiceStopAction');
   String get captureVoiceTranscribing => _value('captureVoiceTranscribing');
-  String get captureVoiceUnavailableTitle => _value('captureVoiceUnavailableTitle');
-  String get captureVoiceUnavailableBody => _value('captureVoiceUnavailableBody');
+  String get captureVoiceUnavailableTitle =>
+      _value('captureVoiceUnavailableTitle');
+  String get captureVoiceUnavailableBody =>
+      _value('captureVoiceUnavailableBody');
   String get captureVoiceErrorTitle => _value('captureVoiceErrorTitle');
   String get captureVoiceStartErrorBody => _value('captureVoiceStartErrorBody');
   String get captureVoiceStopErrorBody => _value('captureVoiceStopErrorBody');
@@ -132,6 +132,14 @@ class AppLocalizations {
           .replaceFirst('{scheduleCount}', '$scheduleCount')
           .replaceFirst('{taskCount}', '$taskCount')
           .replaceFirst('{memoCount}', '$memoCount');
+  String get notificationsTitle => _value('notificationsTitle');
+  String get notificationsUnknownBody => _value('notificationsUnknownBody');
+  String get notificationsEnabledBody => _value('notificationsEnabledBody');
+  String get notificationsDisabledBody => _value('notificationsDisabledBody');
+  String get notificationsUnsupportedBody =>
+      _value('notificationsUnsupportedBody');
+  String get notificationsEnableAction => _value('notificationsEnableAction');
+  String get notificationsTestAction => _value('notificationsTestAction');
   String get authTitle => _value('authTitle');
   String get authBody => _value('authBody');
   String get authEmailLabel => _value('authEmailLabel');

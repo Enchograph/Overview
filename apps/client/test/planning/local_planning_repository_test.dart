@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overview_client/app/notifications/notification_service.dart';
 import 'package:overview_client/app/planning/planning_models.dart';
+import 'package:overview_client/app/planning/planning_store.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -84,6 +86,47 @@ void main() {
     expect(syncStatus.phase, PlanningSyncPhase.idle);
   });
 
+  test('schedules local notifications after planning refresh', () async {
+    final notificationService = FakeNotificationService();
+    final store = PlanningStore(
+      repository: FakePlanningRepository(
+        schedules: [
+          ScheduleItem(
+            id: 'schedule-1',
+            title: 'Board review',
+            startAt: DateTime.now().toUtc().add(const Duration(hours: 3)),
+          ),
+        ],
+        tasks: [
+          TaskItem(
+            id: 'task-1',
+            title: 'Ship release note',
+            plannedStartAt: DateTime.now().toUtc(),
+            dueAt: DateTime.now().toUtc().add(const Duration(hours: 5)),
+          ),
+        ],
+        memos: const [],
+      ),
+      notificationService: notificationService,
+    );
+
+    await store.refresh();
+
+    expect(notificationService.scheduledNotifications.length, 2);
+    expect(
+      notificationService.scheduledNotifications.any(
+        (item) => item.title == 'Board review',
+      ),
+      isTrue,
+    );
+    expect(
+      notificationService.scheduledNotifications.any(
+        (item) => item.title == 'Ship release note',
+      ),
+      isTrue,
+    );
+  });
+
   test('runs sync against remote repository and clears pending work', () async {
     final remoteRepository = FakePlanningRepository(
       schedules: const [],
@@ -152,12 +195,14 @@ void main() {
 
     expect(syncResult.phase, PlanningSyncPhase.success);
     expect(syncResult.pendingOperationCount, 0);
-    expect(schedules.any((item) => item.title == 'Schedule after update'), isTrue);
+    expect(
+        schedules.any((item) => item.title == 'Schedule after update'), isTrue);
     expect(tasks.any((item) => item.id == task.id), isFalse);
     expect(memos.any((item) => item.title == 'Memo after update'), isTrue);
   });
 
-  test('blocks sync on auth failure and recovers after authorization returns', () async {
+  test('blocks sync on auth failure and recovers after authorization returns',
+      () async {
     final remoteRepository = _AuthBlockingPlanningRemote();
     final repository = LocalPlanningRepository(
       remoteRepository: remoteRepository,
@@ -187,7 +232,8 @@ void main() {
     expect(memos.every((memo) => memo.syncState == SyncState.synced), isTrue);
   });
 
-  test('marks item as conflict and drops pending operation on remote conflict', () async {
+  test('marks item as conflict and drops pending operation on remote conflict',
+      () async {
     final remoteRepository = _ConflictPlanningRemote();
     final repository = LocalPlanningRepository(
       remoteRepository: remoteRepository,
@@ -208,7 +254,8 @@ void main() {
 
     final conflictStatus = await repository.runSync();
     final schedules = await repository.fetchSchedules();
-    final conflictedItem = schedules.firstWhere((item) => item.id == schedule.id);
+    final conflictedItem =
+        schedules.firstWhere((item) => item.id == schedule.id);
 
     expect(conflictStatus.phase, PlanningSyncPhase.blocked);
     expect(conflictStatus.pendingOperationCount, 0);

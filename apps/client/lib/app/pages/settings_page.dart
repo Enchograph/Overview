@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../auth/auth_scope.dart';
+import '../notifications/notification_scope.dart';
+import '../notifications/notification_service.dart';
 import '../planning/planning_scope.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -19,6 +21,7 @@ class SettingsPage extends StatelessWidget {
     final l10n = context.l10n;
     final store = PlanningScope.of(context);
     final authStore = AuthScope.of(context);
+    final notificationStore = NotificationScope.of(context);
     final session = authStore.session;
 
     return ListView(
@@ -91,7 +94,71 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.notifications_outlined),
+                  title: Text(l10n.notificationsTitle),
+                  subtitle: Text(
+                    _notificationStatusLabel(
+                      l10n,
+                      notificationStore.permissionStatus,
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    FilledButton.tonal(
+                      onPressed: notificationStore.isLoading
+                          ? null
+                          : notificationStore.requestPermission,
+                      child: Text(l10n.notificationsEnableAction),
+                    ),
+                    FilledButton(
+                      onPressed: notificationStore.isLoading
+                          ? null
+                          : notificationStore.sendTestNotification,
+                      child: Text(l10n.notificationsTestAction),
+                    ),
+                  ],
+                ),
+                if (notificationStore.errorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    notificationStore.errorMessage!,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
       ],
     );
+  }
+
+  String _notificationStatusLabel(
+    AppLocalizations l10n,
+    NotificationPermissionStatus status,
+  ) {
+    switch (status) {
+      case NotificationPermissionStatus.granted:
+        return l10n.notificationsEnabledBody;
+      case NotificationPermissionStatus.denied:
+        return l10n.notificationsDisabledBody;
+      case NotificationPermissionStatus.unsupported:
+        return l10n.notificationsUnsupportedBody;
+      case NotificationPermissionStatus.unknown:
+        return l10n.notificationsUnknownBody;
+    }
   }
 }

@@ -3,7 +3,7 @@
 Flutter 客户端主应用目录。
 
 当前状态：已完成 Flutter 工程初始化，并为周视图、备忘页、添加页接入应用级状态；默认使用 SharedPreferences 本地仓储持久化数据，并已接入同步骨架初版。
-当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析、待确认结构化结果、单轮问答、语音录入与错误处理主路径。
+当前也已接入本地持久化的邮箱注册/登录流程、设置页账号入口、带 Bearer token 的受保护 planning 同步请求，以及 AI 文本解析、待确认结构化结果、单轮问答、语音录入、错误处理与 Android 本地通知主路径。
 
 ## 当前内容
 
@@ -11,6 +11,7 @@ Flutter 客户端主应用目录。
 - `lib/app/`：应用壳、命名路由、底部导航和页面模块
 - `lib/app/auth/`：客户端认证仓储、状态管理与作用域
 - `lib/app/ai/`：客户端 AI 仓储、录音服务、状态管理与作用域
+- `lib/app/notifications/`：本地通知服务、权限状态管理与作用域
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
@@ -35,10 +36,11 @@ Flutter 客户端主应用目录。
 - 添加页现在支持录音并上传到 `/ai/transcribe`；转写完成后会自动复用现有 AI 文本解析流
 - AI 页面现在可调用 `/ai/ask` 发起单轮规划问答，并展示回答与引用条目数量
 - AI 和语音错误现在按稳定错误码映射为本地化提示，并在问答/录音场景提供重试入口
+- Android 端现在会在 planning 刷新后自动重建未来提醒：日程默认在开始前 10 分钟提醒，任务默认在到期前 30 分钟提醒，设置页可查看权限状态、请求通知权限并发送测试通知
 - Android 模拟器访问本机 API 时优先使用 `10.0.2.2`
 - Windows 下 debug APK 构建已在 `android/gradle.properties` 关闭 Kotlin 增量编译，以规避 `shared_preferences_android` 的缓存异常
 
 ## 下一步
 
-- 接入 Android 通知
+- 适配 Android 平板竖屏布局
 - 继续推进客户端与 Node API 的单进程端到端验证

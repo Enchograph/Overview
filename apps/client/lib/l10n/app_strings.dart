@@ -103,6 +103,15 @@ const localizedValues = <String, Map<String, String>>{
     'settingsDataSummaryTitle': 'Loaded items',
     'settingsDataSummaryBody':
         '{scheduleCount} schedules, {taskCount} tasks, and {memoCount} memos currently in memory.',
+    'notificationsTitle': 'Notifications',
+    'notificationsUnknownBody': 'Notification permission status has not been checked yet.',
+    'notificationsEnabledBody': 'Local planning reminders are enabled on this device.',
+    'notificationsDisabledBody':
+        'Notifications are disabled. Enable them to receive local reminders.',
+    'notificationsUnsupportedBody':
+        'Notification permissions are not supported on this platform.',
+    'notificationsEnableAction': 'Enable notifications',
+    'notificationsTestAction': 'Send test notification',
     'authTitle': 'Account',
     'authBody': 'Register or log in with email to connect sync across devices.',
     'authEmailLabel': 'Email',
@@ -269,6 +278,13 @@ const localizedValues = <String, Map<String, String>>{
     'settingsDataSummaryTitle': '已加载条目',
     'settingsDataSummaryBody':
         '内存中现有 {scheduleCount} 个日程、{taskCount} 个任务、{memoCount} 条备忘。',
+    'notificationsTitle': '通知',
+    'notificationsUnknownBody': '尚未检查通知权限状态。',
+    'notificationsEnabledBody': '当前设备已启用本地计划提醒。',
+    'notificationsDisabledBody': '通知已关闭，开启后才能接收本地提醒。',
+    'notificationsUnsupportedBody': '当前平台暂不支持通知权限控制。',
+    'notificationsEnableAction': '启用通知',
+    'notificationsTestAction': '发送测试通知',
     'authTitle': '账号',
     'authBody': '使用邮箱注册或登录，以便在多设备之间同步。',
     'authEmailLabel': '邮箱',

@@ -6,14 +6,33 @@ import 'package:overview_client/app/ai/ai_repository.dart';
 import 'package:overview_client/app/ai/speech_input_service.dart';
 import 'package:overview_client/app/app_router.dart';
 import 'package:overview_client/app/auth/auth_repository.dart';
+import 'package:overview_client/app/notifications/notification_service.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 
 void main() {
+  Widget buildTestApp({
+    String initialRoute = AppRouter.homeRoute,
+    PlanningRepository? repository,
+    AuthRepository? authRepository,
+    AiRepository? aiRepository,
+    SpeechInputService? speechInputService,
+    NotificationService? notificationService,
+  }) {
+    return OverviewApp(
+      initialRoute: initialRoute,
+      repository: repository ?? FakePlanningRepository(),
+      authRepository: authRepository,
+      aiRepository: aiRepository,
+      speechInputService: speechInputService,
+      notificationService: notificationService ?? FakeNotificationService(),
+    );
+  }
+
   testWidgets('renders default week tab and shell navigation', (tester) async {
     final repository = FakePlanningRepository();
 
     await tester.pumpWidget(
-      OverviewApp(repository: repository),
+      buildTestApp(repository: repository),
     );
     await tester.pumpAndSettle();
 
@@ -36,7 +55,7 @@ void main() {
 
   testWidgets('switches to Chinese locale from app bar action', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(repository: FakePlanningRepository()),
+      buildTestApp(),
     );
     await tester.pumpAndSettle();
 
@@ -50,9 +69,8 @@ void main() {
 
   testWidgets('starts from settings route and opens sync page', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.settingsRoute,
-        repository: FakePlanningRepository(),
         authRepository: FakeAuthRepository(),
       ),
     );
@@ -74,7 +92,7 @@ void main() {
     final repository = FakePlanningRepository();
 
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.captureRoute,
         repository: repository,
       ),
@@ -97,9 +115,8 @@ void main() {
 
   testWidgets('opens auth page and logs in from settings', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.settingsRoute,
-        repository: FakePlanningRepository(),
         authRepository: FakeAuthRepository(),
       ),
     );
@@ -124,11 +141,12 @@ void main() {
     expect(find.text('user@example.com'), findsOneWidget);
   });
 
-  testWidgets('parses capture text with ai and applies suggestion', (tester) async {
+  testWidgets('parses capture text with ai and applies suggestion',
+      (tester) async {
     final repository = FakePlanningRepository();
 
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.captureRoute,
         repository: repository,
         aiRepository: FakeAiRepository(
@@ -176,9 +194,8 @@ void main() {
 
   testWidgets('asks ai question from ai route', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.aiRoute,
-        repository: FakePlanningRepository(),
         aiRepository: FakeAiRepository(
           answer: const AiAnswer(
             answer: 'Start with Design review, then clear the memo inbox.',
@@ -206,9 +223,8 @@ void main() {
 
   testWidgets('shows localized ai auth error on ai route', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.aiRoute,
-        repository: FakePlanningRepository(),
         aiRepository: FakeAiRepository(
           failure: const AiRepositoryException(
             code: AiErrorCode.authorizationRequired,
@@ -233,9 +249,8 @@ void main() {
 
   testWidgets('captures voice input and triggers ai parsing', (tester) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.captureRoute,
-        repository: FakePlanningRepository(),
         aiRepository: FakeAiRepository(
           suggestion: const AiSuggestion(
             suggestedType: AiSuggestionType.task,
@@ -270,13 +285,13 @@ void main() {
     expect(find.text('Confirm and create'), findsOneWidget);
   });
 
-  testWidgets('shows localized azure transcription config error on capture page', (
+  testWidgets(
+      'shows localized azure transcription config error on capture page', (
     tester,
   ) async {
     await tester.pumpWidget(
-      OverviewApp(
+      buildTestApp(
         initialRoute: AppRouter.captureRoute,
-        repository: FakePlanningRepository(),
         aiRepository: FakeAiRepository(
           failure: const AiRepositoryException(
             code: AiErrorCode.azureSpeechNotConfigured,
@@ -304,5 +319,46 @@ void main() {
       findsOneWidget,
     );
     expect(find.widgetWithText(TextButton, 'Record again'), findsOneWidget);
+  });
+
+  testWidgets('shows notification controls and triggers test notification', (
+    tester,
+  ) async {
+    final notificationService = FakeNotificationService(
+      permissionStatus: NotificationPermissionStatus.denied,
+    );
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialRoute: AppRouter.settingsRoute,
+        authRepository: FakeAuthRepository(),
+        notificationService: notificationService,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Enable notifications'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('Notifications'), findsOneWidget);
+    expect(
+      find.text(
+          'Notifications are disabled. Enable them to receive local reminders.'),
+      findsOneWidget,
+    );
+
+    final testButton = find.widgetWithText(
+      FilledButton,
+      'Send test notification',
+    );
+    await tester.ensureVisible(testButton);
+    await tester.pumpAndSettle();
+    await tester.tap(testButton);
+    await tester.pumpAndSettle();
+
+    expect(notificationService.testNotificationShown, isTrue);
   });
 }

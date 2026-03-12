@@ -12,6 +12,9 @@ import 'app_router.dart';
 import 'auth/auth_repository.dart';
 import 'auth/auth_scope.dart';
 import 'auth/auth_store.dart';
+import 'notifications/notification_scope.dart';
+import 'notifications/notification_service.dart';
+import 'notifications/notification_store.dart';
 import 'planning/planning_repository.dart';
 import 'planning/planning_scope.dart';
 import 'planning/planning_store.dart';
@@ -23,6 +26,7 @@ class OverviewApp extends StatefulWidget {
     this.authRepository,
     this.aiRepository,
     this.speechInputService,
+    this.notificationService,
     super.key,
   });
 
@@ -31,6 +35,7 @@ class OverviewApp extends StatefulWidget {
   final AuthRepository? authRepository;
   final AiRepository? aiRepository;
   final SpeechInputService? speechInputService;
+  final NotificationService? notificationService;
 
   @override
   State<OverviewApp> createState() => _OverviewAppState();
@@ -42,6 +47,8 @@ class _OverviewAppState extends State<OverviewApp> {
   late final AuthStore _authStore;
   late final AiStore _aiStore;
   late final SpeechInputStore _speechInputStore;
+  late final NotificationStore _notificationStore;
+  late final NotificationService _resolvedNotificationService;
   late final AuthRepository _resolvedAuthRepository;
 
   @override
@@ -49,19 +56,24 @@ class _OverviewAppState extends State<OverviewApp> {
     super.initState();
     _resolvedAuthRepository =
         widget.authRepository ?? _createDefaultAuthRepository();
+    _resolvedNotificationService =
+        widget.notificationService ?? FlutterNotificationService();
     _planningStore = PlanningStore(
-      repository:
-          widget.repository ?? _createDefaultRepository(_resolvedAuthRepository),
+      repository: widget.repository ??
+          _createDefaultRepository(_resolvedAuthRepository),
+      notificationService: _resolvedNotificationService,
     )..refresh();
     _authStore = AuthStore(repository: _resolvedAuthRepository)..refresh();
     _aiStore = AiStore(
-      repository:
-          widget.aiRepository ??
+      repository: widget.aiRepository ??
           _createDefaultAiRepository(_resolvedAuthRepository),
     );
     _speechInputStore = SpeechInputStore(
       service: widget.speechInputService ?? AudioRecorderSpeechInputService(),
     );
+    _notificationStore = NotificationStore(
+      service: _resolvedNotificationService,
+    )..refresh();
   }
 
   PlanningRepository _createDefaultRepository(AuthRepository authRepository) {
@@ -117,30 +129,33 @@ class _OverviewAppState extends State<OverviewApp> {
       store: _authStore,
       child: SpeechInputScope(
         store: _speechInputStore,
-        child: AiScope(
-          store: _aiStore,
-          child: PlanningScope(
-            store: _planningStore,
-            child: MaterialApp(
-              title: 'Overview',
-              locale: _locale,
-              supportedLocales: AppLocalizations.supportedLocales,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              onGenerateTitle: (context) => context.l10n.appTitle,
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color(0xFF1C6B52),
+        child: NotificationScope(
+          store: _notificationStore,
+          child: AiScope(
+            store: _aiStore,
+            child: PlanningScope(
+              store: _planningStore,
+              child: MaterialApp(
+                title: 'Overview',
+                locale: _locale,
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                onGenerateTitle: (context) => context.l10n.appTitle,
+                theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: const Color(0xFF1C6B52),
+                  ),
                 ),
-              ),
-              initialRoute: widget.initialRoute,
-              onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
-                settings,
-                onToggleLocale: _toggleLocale,
+                initialRoute: widget.initialRoute,
+                onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
+                  settings,
+                  onToggleLocale: _toggleLocale,
+                ),
               ),
             ),
           ),

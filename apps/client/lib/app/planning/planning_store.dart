@@ -1,15 +1,20 @@
 import 'package:flutter/foundation.dart';
 
+import '../notifications/notification_service.dart';
 import 'planning_models.dart';
 import 'planning_repository.dart';
 
 enum CaptureItemKind { schedule, task, memo }
 
 class PlanningStore extends ChangeNotifier {
-  PlanningStore({required PlanningRepository repository})
-      : _repository = repository;
+  PlanningStore({
+    required PlanningRepository repository,
+    NotificationService? notificationService,
+  })  : _repository = repository,
+        _notificationService = notificationService;
 
   final PlanningRepository _repository;
+  final NotificationService? _notificationService;
 
   bool _isLoading = false;
   bool _isSubmitting = false;
@@ -56,6 +61,10 @@ class PlanningStore extends ChangeNotifier {
       _memos = results[2] as List<MemoItem>;
       _syncStatus = results[3] as PlanningSyncStatus;
       _lastUpdatedAt = DateTime.now();
+      await _notificationService?.schedulePlanningReminders(
+        schedules: _schedules,
+        tasks: _tasks,
+      );
     } catch (error) {
       _errorMessage = error.toString();
     } finally {
