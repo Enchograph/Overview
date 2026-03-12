@@ -12,6 +12,8 @@
   - 新增 `apps/client/test/planning/http_planning_repository_test.dart`，以本地 HTTP 服务验证 `HttpPlanningRepository` 与 `LocalPlanningRepository.runSync()` 的创建/归档成功路径
   - 扩展客户端同步队列，支持 schedule/task/memo 的标题更新与删除待同步操作，并补齐本地仓储测试
   - 扩展 HTTP 联调测试桩，覆盖 PATCH/DELETE 场景，验证更新/删除同步成功路径
+  - 新增 auth 模块：`users` / `auth_sessions` migration、密码哈希工具、内存/PG 仓储和 `/auth/register`、`/auth/login` 路由
+  - 扩展 API 测试与 PostgreSQL 烟测，验证邮箱注册、登录与第二个 migration
   - 更新 API/客户端 README 与状态文档，记录新的验证入口与剩余同步风险
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
@@ -21,15 +23,16 @@
   - 已通过 `npm run api:typecheck`
   - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进邮箱注册与登录 API，为认证状态管理和受保护接口打基础
+  - 推进客户端 auth flow 与认证状态管理，消费现有邮箱认证 API
 - 下一接手顺序：
-  1. 实现基于 PostgreSQL 的邮箱注册与登录 API
-  2. 为认证 API 增加 migration、仓储、路由与最小测试
-  3. 基于认证 API 接入客户端 auth flow 与认证状态管理
-  4. 再继续推进同步恢复、冲突策略与受保护数据接口
+  1. 基于现有 `/auth/register`、`/auth/login` 接入客户端 auth flow 与认证状态管理
+  2. 让设置页与同步页显示真实用户/认证状态
+  3. 再继续推进同步恢复、冲突策略与受保护数据接口
+  4. 随后补充受保护接口的 token 校验
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-  - 账号注册/登录与认证态尚未开始实现，P3 主体仍待推进
+  - API 虽已返回 session token，但受保护接口与 token 校验尚未落地
+  - 客户端 auth flow 与认证状态管理尚未开始实现，P3 主体仍待推进
 
 ## 交接模板
 

@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P3 账号、同步与离线
-- 当前功能块：更新/删除同步队列已落地，继续推进邮箱认证 API
+- 当前功能块：邮箱认证 API 已落地，继续推进客户端 auth flow
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -39,19 +39,21 @@
 - 已完成客户端真实 HTTP 联调测试：`HttpPlanningRepository` 与 `LocalPlanningRepository.runSync()` 可通过本地 HTTP 服务验证创建与归档成功路径
 - 已完成客户端更新/删除同步队列扩展，覆盖 schedule/task/memo 的更新与删除待同步操作
 - 已完成客户端更新/删除 HTTP 联调测试，验证本地队列到远端仓储的更新与删除成功路径
+- 已完成邮箱注册/登录 API：新增 `users`、`auth_sessions` schema、密码哈希、内存/PG 仓储与 `/auth/register`、`/auth/login` 路由
+- 已完成认证相关 API 测试与 PostgreSQL 烟测扩展，验证 auth migration 与真实登录流程
 
 ## 进行中
 
-- 推进邮箱注册与登录 API，为 P3 认证状态管理打基础
+- 推进客户端 auth flow 与认证状态管理，消费现有邮箱认证 API
 
 ## 下一步唯一推荐动作
 
-实现基于 PostgreSQL 的邮箱注册与登录 API，并补齐最小测试与迁移。
+实现客户端邮箱注册/登录流程与认证状态管理，并接入现有认证 API。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-- 客户端尚未接入认证状态与受保护接口；P3 的账号主链路还未开始
+- 客户端尚未接入认证状态与受保护接口；P3 的账号主链路仍未闭环
 
 ## 当前技术默认值
 
@@ -75,5 +77,6 @@
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `npx pnpm --filter @overview/api db:migrate` 入口，并通过嵌入式 PostgreSQL 自动化烟测验证首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前同时具备内存仓储测试与 PostgreSQL-backed 烟测
+- API 已提供 `/auth/register`、`/auth/login` 邮箱认证入口，当前返回 session token、过期时间与用户基本信息
 - 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式，且现已具备创建、归档、更新、删除的真实 HTTP 同步联调测试
 - Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常

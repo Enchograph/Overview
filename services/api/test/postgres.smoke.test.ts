@@ -10,6 +10,7 @@ import { Client, type Pool } from 'pg';
 import request from 'supertest';
 
 import { createApp } from '../src/app.js';
+import { PostgresAuthRepository } from '../src/auth/postgres-repository.js';
 import { readEnv, type AppEnv } from '../src/config/env.js';
 import { createDatabasePool } from '../src/db/client.js';
 import { migrateDatabase } from '../src/db/migrate.js';
@@ -193,16 +194,37 @@ async function main(): Promise<void> {
     pool = createDatabasePool(env);
 
     const appliedMigrations = await migrateDatabase(pool, env);
-    assert.equal(appliedMigrations, 1);
+    assert.equal(appliedMigrations, 2);
 
     const migrationRows = await pool.query(
       `SELECT version FROM ${env.DATABASE_SCHEMA}.${env.DATABASE_MIGRATIONS_TABLE}`,
     );
-    assert.deepEqual(migrationRows.rows, [{ version: '0001' }]);
+    assert.deepEqual(migrationRows.rows, [{ version: '0001' }, { version: '0002' }]);
 
     const app = createApp({
+      authRepository: new PostgresAuthRepository(pool, env),
       planningRepository: new PostgresPlanningRepository(pool, env),
     });
+
+    const registerResponse = await request(app)
+      .post('/auth/register')
+      .send({
+        email: 'pg-smoke@example.com',
+        password: 'Password123',
+      })
+      .expect(201);
+    assert.equal(
+      (registerResponse.body as { user: { email: string } }).user.email,
+      'pg-smoke@example.com',
+    );
+
+    await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'pg-smoke@example.com',
+        password: 'Password123',
+      })
+      .expect(200);
 
     const scheduleResponse = await request(app)
       .post('/planning/schedules')

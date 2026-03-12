@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import request from 'supertest';
 
+import { InMemoryAuthRepository } from '../src/auth/memory-repository.js';
 import { createApp } from '../src/app.js';
 import { InMemoryPlanningRepository } from '../src/planning/memory-repository.js';
 
@@ -24,6 +25,7 @@ interface ErrorPayload {
 
 async function main() {
   const app = createApp({
+    authRepository: new InMemoryAuthRepository(),
     planningRepository: new InMemoryPlanningRepository(),
   });
 
