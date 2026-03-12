@@ -67,6 +67,7 @@ flutter run --dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000
   - `OVERVIEW_ANDROID_KEY_ALIAS`
   - `OVERVIEW_ANDROID_KEY_PASSWORD`
 - 若未提供上述签名材料，release 构建会自动回退到 debug keystore，仅用于交付验证
+- 正式发布前检查清单见 [docs/ANDROID_RELEASE_CHECKLIST.md](/home/anon/文档/GitHub/Overview/docs/ANDROID_RELEASE_CHECKLIST.md)
 
 ## 数据接入
 

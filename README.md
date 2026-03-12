@@ -150,6 +150,7 @@ npm run shared:check
 - 已在 2026-03-12 通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --release --no-pub` 产出首个 release APK
 - 当前已支持通过 `apps/client/android/key.properties` 或环境变量注入正式签名材料
 - 若未提供签名材料，`release` 会回退到 debug keystore，仅适合开发交付与安装验证，不适合作为正式商店分发签名
+- 正式签名切换步骤见 [docs/ANDROID_RELEASE_CHECKLIST.md](/home/anon/文档/GitHub/Overview/docs/ANDROID_RELEASE_CHECKLIST.md)
 
 ## AI 与语音
 
