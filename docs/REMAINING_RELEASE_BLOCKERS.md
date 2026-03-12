@@ -17,6 +17,8 @@
 
 - 仓库已支持 `key.properties` / `OVERVIEW_ANDROID_*` 环境变量
 - 未提供正式签名材料时，release 会回退到 debug keystore
+- 当前 `npm run android:release:check` 已可自动识别签名材料缺失、release APK 指纹与真机连接状态
+- 当前 release APK 已可再次稳定构建，`sha256=55cc8e46e338cb3f7c60e42ab9a19d2c84523f4a375549390c0d904ccf12c6a7`
 
 要闭环此项，需要：
 
@@ -31,6 +33,12 @@ cd apps/client
 
 4. 记录正式签名 APK 的 `sha256`
 5. 至少完成一次真机安装验证
+
+当前仓库已提供预检查脚本：
+
+```bash
+npm run android:release:check
+```
 
 参考：
 

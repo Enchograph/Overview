@@ -56,6 +56,20 @@ cd apps/client
 
 ## 4. 发布前检查
 
+可先运行：
+
+```bash
+npm run android:release:check
+```
+
+该脚本会统一检查：
+
+- 正式签名材料是否齐全
+- keystore 文件是否可读
+- 当前 release APK 是否已存在
+- 当前 APK 的 `sha256`
+- `adb` 与 Android 真机是否已连接
+
 - 已填入正式签名材料，而不是依赖 debug keystore 回退
 - `flutter analyze` 通过
 - `flutter test` 通过
@@ -68,4 +82,6 @@ cd apps/client
 
 - 2026-03-12 已验证 release APK 可生成
 - 2026-03-12 已验证在无正式签名材料时会自动回退 debug keystore
+- 2026-03-12 已新增 `npm run android:release:check`，可自动检查签名材料与真机连接就绪度
+- 2026-03-12 已再次验证 release APK 可生成，当前 `app-release.apk sha256=55cc8e46e338cb3f7c60e42ab9a19d2c84523f4a375549390c0d904ccf12c6a7`
 - 正式 keystore 与发布渠道信息尚未进入仓库

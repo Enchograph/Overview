@@ -32,6 +32,8 @@
   - `npm run e2e:client-api`
 - Android release 构建：
   - `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --release --no-pub`
+- Android release 就绪度检查：
+  - `npm run android:release:check`
 - API 验证：
   - `npm run api:lint`
   - `npm run api:typecheck`

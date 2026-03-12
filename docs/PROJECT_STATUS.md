@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：中文优先语音转写选型与多语言扩展骨架已落地
+- 当前功能块：Android 发布前检查自动化与 release 构建阻塞修复已落地
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -101,6 +101,10 @@
 - 已完成 AI 语音转写选型固化：新增 `AI_SPEECH_PROVIDER` 与 `docs/AI_SPEECH_DECISION.md`，明确当前采用 Azure Speech 作为中文优先且可扩展多语言的语音方案
 - 已完成语音转写 provider 去耦：服务端错误码与 provider 装配已从 Azure 硬编码收敛为通用 speech 抽象，便于后续扩展第二供应商
 - 已完成客户端与服务端语音 locale 规范化：新增 BCP-47 locale 解析与测试，默认中文 `zh-CN`，并为 `zh-TW`、`zh-HK`、`en-GB`、`ja-JP` 等后续 i18n 扩展预留映射
+- 已完成 Android 发布前检查自动化：新增 `npm run android:release:check`，可统一检查正式签名材料、release APK、`sha256` 与真机连接状态
+- 已修复 Android release 构建阻塞缺陷：为 `integration_test` dev plugin 增加 release-only Android stub，避免 `GeneratedPluginRegistrant` 在 release 编译期引用缺失类
+- 已完成 Android release 回归验证：修复 `integration_test` release 编译阻塞后，再次通过 `flutter build apk --release --no-pub`
+- 已记录当前 release APK 指纹：`app-release.apk sha256=55cc8e46e338cb3f7c60e42ab9a19d2c84523f4a375549390c0d904ccf12c6a7`
 
 ## 进行中
 
@@ -118,6 +122,7 @@
 - 当前 Linux 主机缺少 Flutter Linux runner 所需的完整 `clang` 工具链，`integration_test` 尚未在仓库内真实执行
 - Android release 现阶段仍使用 debug keystore；正式发布签名材料与流程尚未进入仓库
 - Azure Speech 提供商选型已确定，但真实中文音频验证仍依赖外部凭据
+- 当前无 Android 真机通过 `adb` 连接，仍无法完成安装验证
 
 ## 当前技术默认值
 
@@ -134,7 +139,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置、客户端主流程烟测、单脚本端到端验证与交付文档索引现已打通；语音转写选型也已固化为 Azure Speech + 通用 provider 抽象，当前剩余首个交付阻塞点仍集中在外部条件未就绪：正式签名材料、Windows 主机、Azure Speech 凭据与 integration runner
+- Android release APK、后端本地开发启动、后端启动烟测、可选正式签名配置、Android 发布前检查脚本、客户端主流程烟测、单脚本端到端验证与交付文档索引现已打通；语音转写选型也已固化为 Azure Speech + 通用 provider 抽象，当前剩余首个交付阻塞点仍集中在外部条件未就绪：正式签名材料、Android 真机、Windows 主机、Azure Speech 凭据与 integration runner
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证

@@ -5,6 +5,11 @@
 - 日期：2026-03-12
 - 阶段：P6
 - 完成内容：
+  - 新增 `scripts/check-android-release-readiness.mjs` 与 `npm run android:release:check`，统一检查 Android 正式签名材料、release APK、`sha256` 与 `adb` 真机连接状态
+  - 更新 Android 交付文档与交付索引，把发布前检查脚本纳入正式签名接入流程
+  - 修复 Android release 构建阻塞：新增 `app/src/release/java/dev/flutter/plugins/integration_test/IntegrationTestPlugin.java`，为 `integration_test` dev plugin 提供 release-only no-op stub
+  - 修复后重新通过 `flutter build apk --release --no-pub`，确认 `GeneratedPluginRegistrant` 不再因缺失 `integration_test` 类而阻塞 release APK 构建
+  - 通过 `npm run android:release:check` 记录当前 release APK 指纹 `55cc8e46e338cb3f7c60e42ab9a19d2c84523f4a375549390c0d904ccf12c6a7`
   - 新增 `services/api/src/ai/speech-factory.ts` 与 `AI_SPEECH_PROVIDER` 环境变量，把语音转写装配从 Azure 硬编码收敛成通用 speech provider 入口
   - 新增客户端与服务端 speech locale 规范化：`apps/client/lib/app/ai/speech_locale.dart`、`services/api/src/ai/speech-locales.ts`
   - 当前默认继续选用 Azure Speech 作为中文优先方案，同时为 `zh-TW`、`zh-HK`、`en-GB`、`ja-JP` 等后续 i18n 扩展保留 BCP-47 映射
@@ -54,6 +59,10 @@
   - 新增 `docs/DELIVERY_INDEX.md`，把 Android、API、Windows、限制与验证命令收敛到单一交付入口
   - 新增 `docs/REMAINING_RELEASE_BLOCKERS.md`，把正式签名、Windows、Azure Speech 与 `integration_test` 剩余外部依赖整理成可执行清单
 - 验证结果：
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --release --no-pub`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test --no-pub`
+  - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze --no-pub`
+  - 已执行 `npm run android:release:check`，确认当前仍缺正式签名材料与真机连接，但 release APK 与 `sha256` 已可自动识别
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build apk --debug`
@@ -75,12 +84,14 @@
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
   - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 等待外部条件回填，优先等待 Android 正式签名材料；语音侧继续等待 Azure Speech 真实凭据完成中文真音频验证
+  - 等待外部条件回填，优先等待 Android 正式签名材料与真机连接；语音侧继续等待 Azure Speech 真实凭据完成中文真音频验证
 - 下一接手顺序：
   1. 在外部条件就绪后优先完成 Android 正式签名接入与真机安装验证
   2. 随后视环境条件回看 Windows 真实主机构建验证
   3. 随后继续完成 Azure Speech 与 integration runner 的真实验证
 - 风险：
+  - 当前 release APK 已可重新稳定构建，但仍是 debug keystore 回退签名，不适合正式商店分发
+  - 当前 `android:release:check` 已自动暴露缺口，但仓库内仍无法自行补齐 keystore 与真机条件
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前已完成语音 provider 抽象，但仓库内仍只有 Azure Speech 一个真实实现
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段
