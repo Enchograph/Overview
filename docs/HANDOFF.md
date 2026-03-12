@@ -35,6 +35,9 @@
   - 新增 `npm run api:start:embedded`，可自动拉起嵌入式 PostgreSQL、执行 migration 并启动本地 API
   - 已在本机通过 `curl http://127.0.0.1:3000/health` 验证嵌入式开发模式下的健康检查返回
   - 新增 `services/api/test/start.embedded.test.ts`，把嵌入式 PostgreSQL 启动、API 拉起、`/health` 探活与进程回收沉淀为自动化烟测
+  - 为 Android release 增加可选正式签名配置：支持 `android/key.properties` 与 `OVERVIEW_ANDROID_*` 环境变量
+  - 新增 `apps/client/android/key.properties.example`，沉淀正式签名配置模板
+  - 在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`，确认 debug 回退路径仍可用
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -49,12 +52,11 @@
   - 已通过 `npm run api:start:embedded`
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
 - 当前进行中：
-  - 推进 Android 正式签名配置，避免 release 构建只能依赖 debug keystore
+  - 推进主流程测试可执行验证，优先解决客户端 `integration_test` 仅静态落地的问题
 - 下一接手顺序：
-  1. 为 Android release 增加可选正式签名配置入口
-  2. 随后继续推进主流程集成测试的可执行验证
-  3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
-  4. 随后考虑把客户端与 Node API 串成单进程端到端验证
+  1. 推动客户端主流程测试从静态脚手架走向可执行验证
+  2. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
+  3. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：
   - 客户端还没有自动化串起真实 Node API 进程，当前是“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景

@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：后端启动自动化烟测已落地，继续推进 Android 正式签名配置
+- 当前功能块：Android 可选正式签名配置已落地，继续推进主流程测试可执行验证
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -87,14 +87,16 @@
 - 已完成后端本地运行闭环修复：`.env.example` 空 AI 凭据现可正常解析，新增 `npm run api:start:embedded` 可自动拉起嵌入式 PostgreSQL、执行 migration 并启动 API
 - 已完成后端本地运行验证：本机已通过 `npm run api:start:embedded` 启动 API，并通过 `curl http://127.0.0.1:3000/health` 验证健康检查返回 `status=ok`
 - 已完成后端启动自动化烟测：`npm run api:test` 现额外覆盖 `test/start.embedded.test.ts`，验证嵌入式 PostgreSQL 启动、API 拉起、`/health` 成功与进程回收
+- 已完成 Android 可选正式签名配置：`app/build.gradle.kts` 现支持 `android/key.properties` 或 `OVERVIEW_ANDROID_*` 环境变量注入正式签名材料；缺失材料时继续回退 debug keystore
+- 已完成 Android release 回归验证：在未提供正式签名材料时重新通过 `flutter build apk --release --no-pub`
 
 ## 进行中
 
-- 推进 Android 正式签名配置，避免 release 构建只能依赖 debug keystore
+- 推进主流程测试可执行验证，优先解决当前环境下集成测试只静态落地的问题
 
 ## 下一步唯一推荐动作
 
-为 Android release 增加可选正式签名配置入口，在未提供签名材料时保持当前 debug 回退。
+推动客户端主流程测试从静态脚手架走向可执行验证，优先补仓库内可运行的自动化路径。
 
 ## 当前阻塞
 
@@ -120,7 +122,7 @@
 ## 备注
 
 - Android 安装包和后端可运行是当前首个交付阻塞线
-- Android release APK、后端本地开发启动与后端启动烟测现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失
+- Android release APK、后端本地开发启动、后端启动烟测与可选正式签名配置现已打通，当前剩余首个交付阻塞点集中在正式签名材料缺失与客户端主流程缺少真实可执行验证
 - Windows 与 Web 继续推进，但不阻塞首个交付节点
 - `packages/shared/` 当前定义为契约与共享约定层，而非跨语言运行时代码复用层
 - 现已可通过 `npm run api:start` 启动 Express API，通过 `npm run api:test` 完成 Supertest 验证
