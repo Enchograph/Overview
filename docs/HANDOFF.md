@@ -45,6 +45,7 @@
   - 修复 `HttpPlanningRepository` 对可选字段发送 `null` 导致服务端 400 的真实同步缺陷
   - 新增 `docs/ANDROID_RELEASE_CHECKLIST.md`，整理正式签名材料接入步骤、构建命令与发布前检查清单
   - 新增 `docs/WINDOWS_VALIDATION.md`，整理 Windows 主机构建前置、最小验证步骤与当前 Linux 主机限制
+  - 新增 `docs/DELIVERY_INDEX.md`，把 Android、API、Windows、限制与验证命令收敛到单一交付入口
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -60,11 +61,11 @@
   - 已通过 `curl -sS http://127.0.0.1:3000/health`
   - 已通过 `npm run e2e:client-api`
 - 当前进行中：
-  - 收敛剩余发布说明，优先补齐最终交付入口与限制索引
+  - 收敛剩余发布说明，优先继续压缩未闭环交付项
 - 下一接手顺序：
-  1. 整理最终交付索引页，汇总 Android、API、Windows、限制与验证入口
-  2. 随后继续收敛剩余已知限制与发布说明
-  3. 随后视环境条件回看 Windows 真实主机构建验证
+  1. 继续收敛剩余发布说明，优先把正式签名缺口与未验证平台项明确到可执行清单
+  2. 随后视环境条件回看 Windows 真实主机构建验证
+  3. 随后继续收敛剩余已知限制与发布说明
 - 风险：
   - Azure Speech 真实凭据尚未在仓库内验证；当前只验证了接口与未配置场景
   - 当前通知策略仍基于 `ScheduleItem.startAt` / `TaskItem.dueAt` 的固定偏移量，尚未接入共享模型中的 reminders 字段

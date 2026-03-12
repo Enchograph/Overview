@@ -2,6 +2,8 @@
 
 Overview（览）V1 monorepo。
 
+交付入口总索引见 [docs/DELIVERY_INDEX.md](/home/anon/文档/GitHub/Overview/docs/DELIVERY_INDEX.md)。
+
 当前仓库已包含：
 
 - Flutter 客户端：Android、Web 已验证构建；Windows 平台工程已生成
