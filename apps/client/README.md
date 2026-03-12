@@ -12,6 +12,7 @@ Flutter 客户端主应用目录。
 - `lib/l10n/`：手写中英文本地化资源与文案表
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
 - `test/planning/local_planning_repository_test.dart`：本地仓储持久化与同步骨架验证
+- `test/planning/http_planning_repository_test.dart`：真实 HTTP 请求下的远端仓储与 `runSync()` 联调验证
 
 ## 当前验证
 
@@ -30,6 +31,6 @@ Flutter 客户端主应用目录。
 
 ## 下一步
 
-- 补充基于真实 HTTP 请求的同步联调测试
 - 扩展更多更新/删除场景的同步队列处理
+- 为更新/删除同步路径补充真实 HTTP 联调测试
 - 接入账号、同步与 AI 数据流

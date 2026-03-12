@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P3 账号、同步与离线
-- 当前功能块：真实 PostgreSQL API 烟测与同步验证链路已落地，继续补客户端 HTTP 联调
+- 当前功能块：客户端 HTTP 同步联调测试已落地，继续扩展更新/删除同步场景
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -36,19 +36,20 @@
 - 已确认当前环境 Flutter SDK 可用，并完成 `flutter analyze`、`flutter test`、`flutter build apk --debug`
 - 已完成 API 真实 PostgreSQL 烟测：自动准备嵌入式 PostgreSQL 二进制链接、执行 migration，并验证 PostgreSQL-backed CRUD
 - 已将根级与 API 工作区命令从 `corepack pnpm` 切换为当前环境可执行的 `npx pnpm`
+- 已完成客户端真实 HTTP 联调测试：`HttpPlanningRepository` 与 `LocalPlanningRepository.runSync()` 可通过本地 HTTP 服务验证创建与归档成功路径
 
 ## 进行中
 
-- 补齐客户端到真实 HTTP 同步链路的自动化联调，覆盖更多更新/删除场景
+- 扩展同步队列到 schedule/task/memo 的更新与删除场景，并补齐对应联调测试
 
 ## 下一步唯一推荐动作
 
-为客户端补充基于真实 HTTP 请求的同步联调测试，并扩展同步队列到更多更新/删除场景。
+扩展同步队列到 schedule/task/memo 的更新与删除场景，并补齐对应 HTTP 联调测试。
 
 ## 当前阻塞
 
-- 客户端尚未跑到直连真实本地 API 的自动化联调；当前真实烟测覆盖 API + PostgreSQL，但未串起 Flutter 到 Node 的端到端进程编排
-- 当前同步队列仅覆盖创建与 memo 归档写路径，更新与删除场景仍未实现
+- Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
+- 当前同步队列仍仅覆盖创建与 memo 归档写路径，更新与删除场景尚未实现
 
 ## 当前技术默认值
 
@@ -72,5 +73,5 @@
 - `packages/shared` 已可通过 `npm run shared:typecheck` 与 `npm run shared:check` 验证核心模型
 - API 已提供 `npx pnpm --filter @overview/api db:migrate` 入口，并通过嵌入式 PostgreSQL 自动化烟测验证首版 schema 迁移
 - API 已提供 `/planning/schedules`、`/planning/tasks`、`/planning/memos` 的 CRUD 路由；当前同时具备内存仓储测试与 PostgreSQL-backed 烟测
-- 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式
+- 客户端默认使用 SharedPreferences 本地仓储，并在首次启动时注入示例数据；设置 `--dart-define=OVERVIEW_API_BASE_URL=...` 后将启用“本地优先 + 远端同步骨架”模式，且现已具备真实 HTTP 同步联调测试
 - Android 构建已在 `apps/client/android/gradle.properties` 关闭 Kotlin 增量编译，以规避 Windows 下 `shared_preferences_android` 的缓存关闭异常
