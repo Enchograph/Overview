@@ -21,3 +21,9 @@ export interface AiService {
   ingestText(userId: string, text: string): Promise<AiStructuredSuggestion>;
   answerQuestion(userId: string, question: string): Promise<AiAnswer>;
 }
+
+export interface AiProviderContext {
+  schedulesSummary: string;
+  tasksSummary: string;
+  memosSummary: string;
+}

@@ -162,6 +162,7 @@ async function main(): Promise<void> {
 
   let postgresProcess: ChildProcessWithoutNullStreams | null = null;
   let pool: Pool | null = null;
+  let isShuttingDown = false;
 
   try {
     await writeFile(passwordFile, 'postgres\n', 'utf8');
@@ -193,6 +194,13 @@ async function main(): Promise<void> {
       `postgresql://postgres:postgres@127.0.0.1:${port}/${databaseName}`,
     );
     pool = createDatabasePool(env);
+    pool.on('error', (error: Error & { code?: string }) => {
+      if (isShuttingDown && error.code === '57P01') {
+        return;
+      }
+
+      throw error;
+    });
 
     const appliedMigrations = await migrateDatabase(pool, env);
     assert.equal(appliedMigrations, 2);
@@ -334,6 +342,7 @@ async function main(): Promise<void> {
 
     console.log('Postgres smoke test passed');
   } finally {
+    isShuttingDown = true;
     if (pool) {
       await pool.end();
     }

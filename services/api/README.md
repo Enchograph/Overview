@@ -4,7 +4,7 @@ Node.js + TypeScript 后端 API 服务目录。
 
 当前状态：已升级为基于 Express 的 TypeScript API 服务骨架，并接入环境变量校验、lint、format、test 与 build 入口。
 当前已补充 PostgreSQL schema、首版 migration 机制，以及日程、任务、备忘的核心 CRUD API。
-当前也已补充邮箱注册/登录 API、密码哈希、session token 生成、受保护 planning 接口，以及 AI 服务接口基础。
+当前也已补充邮箱注册/登录 API、密码哈希、session token 生成、受保护 planning 接口，以及带 OpenAI provider 的 AI 服务接口基础。
 
 ## 当前内容
 
@@ -70,4 +70,6 @@ Node.js + TypeScript 后端 API 服务目录。
 
 - `/ai/ingest/text` 接收自然语言文本，返回结构化建议对象与待确认字段
 - `/ai/ask` 接收单轮问题，返回基于当前用户 planning 数据的回答
-- 当前 provider 为仓库内启发式实现，用于在未接入 OpenAI 时闭环服务端接口与测试
+- `AI_PROVIDER=auto` 时，若存在 `OPENAI_API_KEY` 则优先使用 OpenAI，否则回退到仓库内 heuristic provider
+- 可显式设置 `AI_PROVIDER=openai` 强制启用 OpenAI；此时若缺少 `OPENAI_API_KEY` 会在启动阶段快速失败
+- `OPENAI_MODEL` 默认使用 `gpt-4.1-mini`

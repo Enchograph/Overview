@@ -28,6 +28,9 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.2.1
+      openai:
+        specifier: ^6.10.0
+        version: 6.27.0(zod@4.3.6)
       pg:
         specifier: ^8.16.3
         version: 8.20.0
@@ -80,7 +83,6 @@ packages:
   '@embedded-postgres/linux-x64@18.3.0-beta.16':
     resolution: {integrity: sha512-SRnH75c2PenxtlJPAdDz3ckVA6/3AB6g/wOJiK33LsR55a2AWjoLrUkPqS0x8PlVAOaQHCzgnq8EDRxrbP1+Dg==}
     engines: {node: '>=16'}
-    cpu: [x64]
     os: [linux]
 
   '@esbuild/aix-ppc64@0.27.3':
@@ -881,6 +883,18 @@ packages:
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
+
+  openai@6.27.0:
+    resolution: {integrity: sha512-osTKySlrdYrLYTt0zjhY8yp0JUBmWDCN+Q+QxsV4xMQnnoVFpylgKGgxwN8sSdTNw0G4y+WUXs4eCMWpyDNWZQ==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -1948,6 +1962,10 @@ snapshots:
   once@1.4.0:
     dependencies:
       wrappy: 1.0.2
+
+  openai@6.27.0(zod@4.3.6):
+    optionalDependencies:
+      zod: 4.3.6
 
   optionator@0.9.4:
     dependencies:

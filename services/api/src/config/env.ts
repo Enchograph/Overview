@@ -13,6 +13,9 @@ const envSchema = z.object({
   DATABASE_SSL_MODE: z.enum(['disable', 'require']).default('disable'),
   DATABASE_SCHEMA: z.string().trim().min(1).default('public'),
   DATABASE_MIGRATIONS_TABLE: z.string().trim().min(1).default('schema_migrations'),
+  AI_PROVIDER: z.enum(['auto', 'heuristic', 'openai']).default('auto'),
+  OPENAI_API_KEY: z.string().trim().min(1).optional(),
+  OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

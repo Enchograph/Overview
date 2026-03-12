@@ -1,4 +1,4 @@
-import { HeuristicAiService } from './ai/heuristic-service.js';
+import { createAiService } from './ai/factory.js';
 import { PostgresAuthRepository } from './auth/postgres-repository.js';
 import { readEnv } from './config/env.js';
 import { createDatabasePool } from './db/client.js';
@@ -9,7 +9,7 @@ const env = readEnv();
 const pool = createDatabasePool(env);
 const planningRepository = new PostgresPlanningRepository(pool, env);
 const app = createApp({
-  aiService: new HeuristicAiService(planningRepository),
+  aiService: createAiService(env, planningRepository),
   authRepository: new PostgresAuthRepository(pool, env),
   planningRepository,
 });

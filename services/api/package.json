@@ -16,12 +16,13 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "pretest": "node ./scripts/prepare-embedded-postgres.mjs && npx pnpm --filter @overview/shared build",
-    "test": "tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts"
+    "test": "tsx test/health.test.ts && tsx test/auth.test.ts && tsx test/planning.test.ts && tsx test/ai.factory.test.ts && tsx test/ai.test.ts && tsx test/postgres.smoke.test.ts"
   },
   "dependencies": {
     "@overview/shared": "workspace:*",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "openai": "^6.10.0",
     "pg": "^8.16.3",
     "zod": "^4.1.11"
   },

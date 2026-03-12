@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P4 AI 能力
-- 当前功能块：AI 服务接口基础已落地，继续推进 OpenAI API 接入
+- 当前功能块：OpenAI provider 已接入，继续推进文本录入解析流
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -51,19 +51,21 @@
 - 已完成冲突策略第一版：远端 404/409 会把对应条目标记为 `conflict`、移出自动重试队列，并在同步页显示冲突数量
 - 已完成 AI 服务接口基础：新增受保护的 `/ai/ingest/text` 与 `/ai/ask` 路由，并以启发式服务闭环文本录入与单轮问答占位能力
 - 已完成 AI API 测试与 PostgreSQL 烟测扩展，验证未授权 401、登录后 AI 文本解析与问答主路径
+- 已完成 OpenAI provider 接入：API 新增 `AI_PROVIDER`、`OPENAI_API_KEY`、`OPENAI_MODEL` 配置，可在 `auto` 模式下自动选择 OpenAI 或 heuristic provider
+- 已完成 OpenAI provider 工厂测试，验证无 key 回退 heuristic、有显式 `openai` 配置时缺 key 会快速失败
 
 ## 进行中
 
-- 推进 OpenAI API 接入，为 AI 文本录入与问答替换真实模型后端
+- 推进文本录入解析流，把 AI 结构化建议真正接到客户端可确认结果
 
 ## 下一步唯一推荐动作
 
-接入 OpenAI API，并把现有 AI 服务抽象切到可配置 provider。
+实现文本录入解析流，把 `/ai/ingest/text` 接到客户端添加页和待确认结构化结果展示。
 
 ## 当前阻塞
 
 - Flutter 到 Node API 的单进程端到端编排仍未落地；当前为“客户端真实 HTTP 联调 + API/PostgreSQL 真实烟测”分层通过
-- OpenAI API 尚未接入；当前 AI 路由仍使用仓库内启发式服务作为占位 provider
+- 客户端 AI 页面与添加页仍未接到真实 AI 接口；当前 AI 能力还停留在服务端 API 层
 
 ## 当前技术默认值
 
