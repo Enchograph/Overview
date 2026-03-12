@@ -25,6 +25,9 @@
   - 为桌面与浏览器宽度下的 app bar 增加固定“打开周视图”“打开添加页”快捷入口，对齐 Android 快捷入口语义
   - 扩展 widget 测试覆盖桌面固定快捷入口跳转，并完成 Web/Android 构建回归
   - 新增 `integration_test/main_flow_test.dart`，覆盖启动应用、核心导航、添加条目、账号入口与 Android 快捷入口跳转主链路
+  - 新增根级 `README.md`，补齐仓库安装、API 启动、客户端运行、Android/Web/Windows 构建与 AI 环境变量说明
+  - 新增 `docs/KNOWN_LIMITATIONS.md`，沉淀 Windows 主机构建、Linux 集成测试工具链、通知策略与 AI 凭据验证等已知限制
+  - 更新客户端与 API README，并在 P6 TODO 中关闭“安装与运行说明”“整理已知限制”
 - 验证结果：
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter analyze`
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test`
@@ -32,11 +35,14 @@
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build windows`，Flutter 返回“only supported on Windows hosts”
   - 已通过 `cd apps/client && /home/anon/sdk/flutter/bin/flutter build web`
   - 已尝试 `cd apps/client && /home/anon/sdk/flutter/bin/flutter test integration_test/main_flow_test.dart -d linux`，当前 Linux 主机因 Flutter Linux runner 缺少 `clang` 工具链而失败
+  - 已通过 `npm run api:lint`
+  - 已通过 `npm run api:typecheck`
+  - 已通过 `npm run api:test`
 - 当前进行中：
-  - 推进安装与运行说明，先沉淀客户端多平台构建命令与当前环境限制
+  - 推进 Android 交付构建，先产出 release APK 并补齐交付说明
 - 下一接手顺序：
-  1. 更新客户端与仓库级安装/运行说明，覆盖 Android、Web、Windows 当前可用命令与限制
-  2. 梳理已知限制清单，并明确 Windows 主机构建验证与 Linux 集成测试工具链问题
+  1. 产出 Android release APK，并记录签名/当前调试签名状态
+  2. 验证后端本地运行说明与命令闭环
   3. 随后回看 Windows 真实主机构建验证与其他 P6 交付事项
   4. 随后考虑把客户端与 Node API 串成单进程端到端验证
 - 风险：

@@ -95,7 +95,7 @@ async function main() {
       locale: 'zh-CN',
     })
     .expect(503)
-    .expect(({ body }) => {
+    .expect(({ body }: { body: { code?: string } }) => {
       assert.equal(body.code, 'azure_speech_not_configured');
     });
 

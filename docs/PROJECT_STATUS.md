@@ -4,7 +4,7 @@
 
 - 状态：进行中
 - 当前阶段：P6 测试、打包与交付
-- 当前功能块：主流程集成测试脚手架已落地，受当前 Linux 主机桌面工具链限制暂未完成真实执行；继续推进安装与运行说明
+- 当前功能块：安装与运行说明已落地，继续推进已知限制清单与 Android 交付构建
 - 最后更新：2026-03-12
 
 ## 已完成
@@ -80,14 +80,16 @@
 - 已完成等效入口验证：客户端 widget 测试覆盖桌面固定快捷入口跳转到添加页，Web 与 Android 构建已在接入后重新通过
 - 已完成主流程集成测试脚手架：客户端新增 `integration_test/main_flow_test.dart`，覆盖启动应用、核心导航、添加条目、账号入口与 Android 快捷入口跳转主链路
 - 已完成主流程测试静态验证：客户端 `flutter analyze`、`flutter test` 继续通过；当前 Linux 主机在尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时暴露本地 `clang` 工具链缺失，尚未完成真实运行
+- 已完成安装与运行说明：新增根级 `README.md`，补齐仓库安装、API 启动、客户端运行、Android/Web/Windows 构建和 AI 环境变量说明
+- 已完成已知限制清单第一版：新增 `docs/KNOWN_LIMITATIONS.md`，沉淀 Windows 主机构建、Linux 集成测试工具链、通知策略和 AI 凭据验证限制
 
 ## 进行中
 
-- 推进安装与运行说明，先补齐客户端多平台构建命令与当前环境限制说明
+- 推进 Android 交付构建，先产出 release APK 并补齐相关说明
 
 ## 下一步唯一推荐动作
 
-编写安装与运行说明，先沉淀 Android、Web、Windows 当前可用命令和已知环境限制。
+构建 Android 安装包，先产出 release APK 并确认当前仓库的首个交付物可生成。
 
 ## 当前阻塞
 

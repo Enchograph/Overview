@@ -32,6 +32,33 @@ Node.js + TypeScript 后端 API 服务目录。
 - `npm run api:test`
 - `npm run api:build`
 
+## 快速启动
+
+1. 复制环境变量模板：
+
+```bash
+cp services/api/.env.example services/api/.env
+```
+
+2. 如需真实 PostgreSQL，修改 `DATABASE_URL`
+
+3. 执行 migration：
+
+```bash
+npx pnpm --filter @overview/api db:migrate
+```
+
+4. 启动服务：
+
+```bash
+npm run api:start
+```
+
+默认监听：
+
+- `http://127.0.0.1:3000`
+- `GET /health`
+
 ## 数据库迁移
 
 1. 复制 `services/api/.env.example` 为本地环境文件并配置 `DATABASE_URL`

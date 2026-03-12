@@ -24,6 +24,26 @@ Flutter 客户端主应用目录。
 - `test/planning/local_planning_repository_test.dart`：本地仓储持久化与同步骨架验证
 - `test/planning/http_planning_repository_test.dart`：真实 HTTP 请求下的远端仓储与 `runSync()` 联调验证，覆盖创建、归档、更新、删除
 
+## 运行命令
+
+安装依赖：
+
+```bash
+flutter pub get
+```
+
+本地示例数据模式启动：
+
+```bash
+flutter run
+```
+
+连接本地 API：
+
+```bash
+flutter run --dart-define=OVERVIEW_API_BASE_URL=http://10.0.2.2:3000
+```
+
 ## 当前验证
 
 - `flutter analyze`
@@ -31,7 +51,7 @@ Flutter 客户端主应用目录。
 - `flutter build apk --debug`
 - `flutter build web`
 
-当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述三条命令。
+当前环境备注：已在 2026-03-12 通过 `/home/anon/sdk/flutter/bin/flutter` 重新执行并验证上述四条命令。
 当前另已写入 `integration_test/main_flow_test.dart`；但本机尝试执行 `flutter test integration_test/main_flow_test.dart -d linux` 时，受限于 Linux 桌面 `clang` 工具链缺失，尚未完成真实运行。
 
 ## 数据接入
