@@ -3,14 +3,17 @@
 Flutter 客户端主应用目录。
 
 当前状态：已完成 Flutter 工程初始化，并为周视图、备忘页、添加页接入应用级状态；默认使用 SharedPreferences 本地仓储持久化数据，并已接入同步骨架初版。
+当前也已接入本地持久化的邮箱注册/登录流程与设置页账号入口。
 
 ## 当前内容
 
 - `lib/main.dart`：应用入口
 - `lib/app/`：应用壳、命名路由、底部导航和页面模块
+- `lib/app/auth/`：客户端认证仓储、状态管理与作用域
 - `lib/app/planning/`：客户端 planning 模型、仓储、状态和作用域
 - `lib/l10n/`：手写中英文本地化资源与文案表
 - `test/widget_test.dart`：导航、语言切换、设置页跳转和添加数据基础验证
+- `test/auth/local_auth_repository_test.dart`：会话持久化与退出登录验证
 - `test/planning/local_planning_repository_test.dart`：本地仓储持久化与同步骨架验证
 - `test/planning/http_planning_repository_test.dart`：真实 HTTP 请求下的远端仓储与 `runSync()` 联调验证，覆盖创建、归档、更新、删除
 
@@ -31,5 +34,5 @@ Flutter 客户端主应用目录。
 
 ## 下一步
 
-- 接入账号注册、登录与认证状态管理
+- 让 planning/sync 请求携带 token，并接入受保护接口
 - 接入账号、同步与 AI 数据流

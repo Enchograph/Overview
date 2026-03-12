@@ -49,6 +49,7 @@ class HomeShell extends StatelessWidget {
         icon: Icons.settings_outlined,
         page: SettingsPage(
           onOpenSync: () => _pushRoute(context, AppRouter.syncRoute),
+          onOpenAuth: () => _pushRoute(context, AppRouter.authRoute),
         ),
       ),
     ];

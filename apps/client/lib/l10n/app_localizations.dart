@@ -100,6 +100,24 @@ class AppLocalizations {
           .replaceFirst('{scheduleCount}', '$scheduleCount')
           .replaceFirst('{taskCount}', '$taskCount')
           .replaceFirst('{memoCount}', '$memoCount');
+  String get authTitle => _value('authTitle');
+  String get authBody => _value('authBody');
+  String get authEmailLabel => _value('authEmailLabel');
+  String get authPasswordLabel => _value('authPasswordLabel');
+  String get authLoginAction => _value('authLoginAction');
+  String get authRegisterAction => _value('authRegisterAction');
+  String get authLogoutAction => _value('authLogoutAction');
+  String get authShortcut => _value('authShortcut');
+  String get authStatusTitle => _value('authStatusTitle');
+  String get authSignedOutBody => _value('authSignedOutBody');
+  String authSignedInSummary(String email) =>
+      _value('authSignedInSummary').replaceFirst('{email}', email);
+  String authSignedInBody(String timestamp) =>
+      _value('authSignedInBody').replaceFirst('{timestamp}', timestamp);
+  String get authUnavailableTitle => _value('authUnavailableTitle');
+  String get authUnavailableBody => _value('authUnavailableBody');
+  String get authSubmitting => _value('authSubmitting');
+  String get authSuccess => _value('authSuccess');
   String get aiTitle => _value('aiTitle');
   String get aiBody => _value('aiBody');
   String get aiCta => _value('aiCta');

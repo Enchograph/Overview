@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import 'routes/auth_route.dart';
 import 'routes/ai_route.dart';
 import 'routes/sync_route.dart';
 import 'shell/home_shell.dart';
@@ -15,6 +16,7 @@ class AppRouter {
   static const settingsRoute = '/settings';
   static const aiRoute = '/ai';
   static const syncRoute = '/settings/sync';
+  static const authRoute = '/settings/auth';
 
   static String shellRouteFor(AppTab tab) {
     switch (tab) {
@@ -62,6 +64,8 @@ class AppRouter {
             return const AiRoute();
           case syncRoute:
             return const SyncRoute();
+          case authRoute:
+            return const AuthRoute();
           default:
             return UnknownRoute(routeName: settings.name ?? '');
         }

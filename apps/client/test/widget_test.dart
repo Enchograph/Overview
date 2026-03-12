@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:overview_client/app/app.dart';
 import 'package:overview_client/app/app_router.dart';
+import 'package:overview_client/app/auth/auth_repository.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 
 void main() {
@@ -50,12 +51,14 @@ void main() {
       OverviewApp(
         initialRoute: AppRouter.settingsRoute,
         repository: FakePlanningRepository(),
+        authRepository: FakeAuthRepository(),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Settings'), findsNWidgets(2));
     expect(find.text('View sync'), findsOneWidget);
+    expect(find.text('Open account'), findsOneWidget);
 
     await tester.tap(find.text('View sync'));
     await tester.pumpAndSettle();
@@ -88,5 +91,34 @@ void main() {
 
     final memos = await repository.fetchMemos();
     expect(memos.any((memo) => memo.title == 'Prepare launch notes'), isTrue);
+  });
+
+  testWidgets('opens auth page and logs in from settings', (tester) async {
+    await tester.pumpWidget(
+      OverviewApp(
+        initialRoute: AppRouter.settingsRoute,
+        repository: FakePlanningRepository(),
+        authRepository: FakeAuthRepository(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Open account'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Account'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Email'),
+      'user@example.com',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Password'),
+      'Password123',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Log in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Account session is ready.'), findsOneWidget);
+    expect(find.text('user@example.com'), findsOneWidget);
   });
 }
