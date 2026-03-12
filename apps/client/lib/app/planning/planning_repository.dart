@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../auth/auth_repository.dart';
 import 'planning_models.dart';
 
 abstract class PlanningRepository {
@@ -56,11 +57,14 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   HttpPlanningRepository({
     required String baseUrl,
     HttpClient? httpClient,
+    Future<AuthSession?> Function()? authSessionProvider,
   })  : _baseUri = Uri.parse(baseUrl),
-        _httpClient = httpClient ?? HttpClient();
+        _httpClient = httpClient ?? HttpClient(),
+        _authSessionProvider = authSessionProvider;
 
   final Uri _baseUri;
   final HttpClient _httpClient;
+  final Future<AuthSession?> Function()? _authSessionProvider;
 
   @override
   Future<List<ScheduleItem>> fetchSchedules() async {
@@ -385,6 +389,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
 
   Future<Map<String, dynamic>> _requestJson(String path) async {
     final request = await _httpClient.getUrl(_baseUri.resolve(path));
+    await _applyAuthorization(request);
     final response = await request.close();
     final body = await response.transform(utf8.decoder).join();
 
@@ -409,6 +414,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
   ) async {
     final request = await _httpClient.openUrl(method, _baseUri.resolve(path));
     request.headers.contentType = ContentType.json;
+    await _applyAuthorization(request);
     request.write(jsonEncode(payload));
     final response = await request.close();
     final body = await response.transform(utf8.decoder).join();
@@ -429,6 +435,7 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
 
   Future<void> _requestEmpty(String method, String path) async {
     final request = await _httpClient.openUrl(method, _baseUri.resolve(path));
+    await _applyAuthorization(request);
     final response = await request.close();
     final body = await response.transform(utf8.decoder).join();
 
@@ -437,6 +444,16 @@ class HttpPlanningRepository implements PlanningRepository, PlanningSyncRemote {
         body.isEmpty ? 'Request failed with ${response.statusCode}' : body,
       );
     }
+  }
+
+  Future<void> _applyAuthorization(HttpClientRequest request) async {
+    final session = await _authSessionProvider?.call();
+    final token = session?.token;
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
   }
 }
 

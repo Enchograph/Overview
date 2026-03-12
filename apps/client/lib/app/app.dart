@@ -30,24 +30,29 @@ class _OverviewAppState extends State<OverviewApp> {
   Locale? _locale;
   late final PlanningStore _planningStore;
   late final AuthStore _authStore;
+  late final AuthRepository _resolvedAuthRepository;
 
   @override
   void initState() {
     super.initState();
+    _resolvedAuthRepository =
+        widget.authRepository ?? _createDefaultAuthRepository();
     _planningStore = PlanningStore(
-      repository: widget.repository ?? _createDefaultRepository(),
+      repository:
+          widget.repository ?? _createDefaultRepository(_resolvedAuthRepository),
     )..refresh();
-    _authStore = AuthStore(
-      repository: widget.authRepository ?? _createDefaultAuthRepository(),
-    )..refresh();
+    _authStore = AuthStore(repository: _resolvedAuthRepository)..refresh();
   }
 
-  PlanningRepository _createDefaultRepository() {
+  PlanningRepository _createDefaultRepository(AuthRepository authRepository) {
     const apiBaseUrl = String.fromEnvironment('OVERVIEW_API_BASE_URL');
 
     if (apiBaseUrl.isNotEmpty) {
       return LocalPlanningRepository(
-        remoteRepository: HttpPlanningRepository(baseUrl: apiBaseUrl),
+        remoteRepository: HttpPlanningRepository(
+          baseUrl: apiBaseUrl,
+          authSessionProvider: authRepository.fetchSession,
+        ),
       );
     }
 

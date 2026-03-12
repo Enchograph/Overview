@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overview_client/app/auth/auth_repository.dart';
 import 'package:overview_client/app/planning/planning_models.dart';
 import 'package:overview_client/app/planning/planning_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,10 @@ void main() {
   });
 
   test('pushes and fetches planning items over HTTP', () async {
-    final repository = HttpPlanningRepository(baseUrl: server.baseUrl);
+    final repository = HttpPlanningRepository(
+      baseUrl: server.baseUrl,
+      authSessionProvider: () async => server.createSession(),
+    );
 
     await repository.createSchedule(title: 'HTTP schedule');
     await repository.createTask(title: 'HTTP task');
@@ -52,7 +56,10 @@ void main() {
 
   test('runs local sync updates and deletes against an HTTP remote', () async {
     final repository = LocalPlanningRepository(
-      remoteRepository: HttpPlanningRepository(baseUrl: server.baseUrl),
+      remoteRepository: HttpPlanningRepository(
+        baseUrl: server.baseUrl,
+        authSessionProvider: () async => server.createSession(),
+      ),
     );
 
     await repository.createSchedule(title: 'Sync schedule');
@@ -130,8 +137,18 @@ class _PlanningApiStubServer {
   final List<ScheduleItem> schedules = [];
   final List<TaskItem> tasks = [];
   final List<MemoItem> memos = [];
+  final String expectedToken = 'token-test';
 
   String get baseUrl => 'http://${_server.address.host}:${_server.port}';
+
+  AuthSession createSession() {
+    return AuthSession(
+      token: expectedToken,
+      userId: 'user-1',
+      email: 'user@example.com',
+      expiresAt: DateTime.now().toUtc().add(const Duration(days: 30)),
+    );
+  }
 
   void _listen() {
     _server.listen((request) async {
@@ -147,6 +164,13 @@ class _PlanningApiStubServer {
   Future<void> close() => _server.close(force: true);
 
   Future<void> _handleRequest(HttpRequest request) async {
+    if (request.headers.value(HttpHeaders.authorizationHeader) !=
+        'Bearer $expectedToken') {
+      request.response.statusCode = HttpStatus.unauthorized;
+      await _writeJson(request.response, {'error': 'Authorization required'});
+      return;
+    }
+
     final body = await _readBody(request);
     final path = request.uri.path;
 
